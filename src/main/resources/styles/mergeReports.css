@@ -1,0 +1,19 @@
+#file-input {
+	display: none;
+}
+
+#file-select-button + span {
+	padding-top: 1%;
+	margin-left: 1%;
+}
+
+#selected-files-conatiner {
+	min-height: 5%;
+	margin-top: 1 rem;
+	margin-bottom: 1 rem;
+	padding: 1 rem;
+}
+
+#selected-files-conatiner span {
+	display: block;
+}

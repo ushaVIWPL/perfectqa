@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Companies</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>All Companies</h3>
+
+    <!-- Add New Company Button triggers modal -->
+    <button class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#companyModal"
+            onclick="clearForm()">Add New Company</button>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Country</th>
+                <th>State</th>
+                <th>City</th>
+                <th>Zip</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${companies}">
+                <td th:text="${c.companyCode}"></td>
+                <td th:text="${c.companyName}"></td>
+                <td th:text="${c.companyAddress}"></td>
+                <td th:text="${c.country}"></td>
+                <td th:text="${c.state}"></td>
+                <td th:text="${c.city}"></td>
+                <td th:text="${c.zip}"></td>
+                <td>
+           <button type="button" class="btn btn-primary btn-sm"
+        data-bs-toggle="modal"
+        th:data-bs-target="'#editModal-' + ${c.companyCode}">
+    Edit
+</button>
+                  <a th:href="@{'/company/delete/' + ${c.companyCode}}" class="btn btn-danger btn-sm"
+   onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalTitle">Add Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/company/save}" th:object="${company}" method="post" id="companyForm">
+<!--                <input type="hidden" name="companyCode" th:field="${c.companyCode}"/>
+-->                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Company Code</label>
+                            <input type="text" class="form-control" id="companyCode" name="companyCode" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Company Name</label>
+                            <input type="text" class="form-control" id="companyName" name="companyName" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Address</label>
+                            <input type="text" class="form-control" id="companyAddress" name="companyAddress">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Country</label>
+                            <input type="text" class="form-control" id="country" name="country">
+                        </div>
+                        <div class="col-md-4">
+                            <label>State</label>
+                            <input type="text" class="form-control" id="state" name="state">
+                        </div>
+                        <div class="col-md-4">
+                            <label>City</label>
+                            <input type="text" class="form-control" id="city" name="city">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Zip</label>
+                            <input type="text" class="form-control" id="zip" name="zip">
+                        </div>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function clearForm() {
+    document.getElementById('companyForm').reset();
+    document.getElementById('modalTitle').innerText = "Add Company";
+    document.getElementById('companyId').value = '';
+}
+
+function populateForm(id, code, name, address, country, state, city, zip) {
+    document.getElementById('modalTitle').innerText = "Edit Company";
+    document.getElementById('companyId').value = id;
+    document.getElementById('companyCode').value = code;
+    document.getElementById('companyName').value = name;
+    document.getElementById('companyAddress').value = address;
+    document.getElementById('country').value = country;
+    document.getElementById('state').value = state;
+    document.getElementById('city').value = city;
+    document.getElementById('zip').value = zip;
+}
+</script>
+
+
+<div th:each="c : ${companies}" th:id="'editModal-' + ${c.companyCode}" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form th:action="@{/company/save}" method="post">
+<!--<input type="hidden" name="companyCode" th:field="${c.companyCode}"/>
+-->                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Edit Company: <span th:text="${c.companyName}"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Company Code *</label>
+                            <input type="text" class="form-control" name="companyCode" th:value="${c.companyCode}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Company Name</label>
+                            <input type="text" class="form-control" name="companyName" th:value="${c.companyName}" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Address</label>
+                            <input type="text" class="form-control" name="companyAddress" th:value="${c.companyAddress}">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Country</label>
+                            <input type="text" class="form-control" name="country" th:value="${c.country}">
+                        </div>
+                        <div class="col-md-4">
+                            <label>State</label>
+                            <input type="text" class="form-control" name="state" th:value="${c.state}">
+                        </div>
+                        <div class="col-md-4">
+                            <label>City</label>
+                            <input type="text" class="form-control" name="city" th:value="${c.city}">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Zip</label>
+                            <input type="text" class="form-control" name="zip" th:value="${c.zip}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function clearForm() {
+    document.getElementById('companyForm').reset();
+    document.getElementById('modalTitle').innerText = "Add Company";
+    document.getElementById('companyCode').value = ''; // clear code
+}
+
+function populateFormFromButton(btn) {
+    document.getElementById('modalTitle').innerText = "Edit Company";
+    document.getElementById('companyCode').value = btn.dataset.code;
+    document.getElementById('companyName').value = btn.dataset.name;
+    document.getElementById('companyAddress').value = btn.dataset.address;
+    document.getElementById('country').value = btn.dataset.country;
+    document.getElementById('state').value = btn.dataset.state;
+    document.getElementById('city').value = btn.dataset.city;
+    document.getElementById('zip').value = btn.dataset.zip;
+}
+
+</script>
+</body>
+</html>

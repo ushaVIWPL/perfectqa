@@ -1,0 +1,141 @@
+body {
+	background-color: cornsilk;
+}
+
+h2 {
+    font-family: sans-serif;
+    font-size: 1.65em;
+    text-transform: uppercase;
+}
+
+h3 {
+    font-family: sans-serif;
+    font-size: 1.5em
+}
+
+h4 {
+    font-family: sans-serif;
+    font-size: 1.3em
+}
+p {
+    font-family: sans-serif;
+}
+
+label {
+	font-family: sans-serif;
+}
+
+hr {
+	margin-top: 0px;
+}
+
+.heading {
+    font-family: sans-serif;
+    font-size: 1.46em;
+    text-transform: uppercase;
+}
+
+.success {
+    color: green;
+}
+
+.warn {
+    color: yellowgreen;
+}
+
+.error {
+    color: red;
+}
+
+.input-group-text {
+	border-radius: 0%;
+}
+
+.response {
+	margin-top: 3%;
+}
+.card-title{
+	font-size: 10px;
+}
+.displayBlock {
+	display: inline-flex;
+}
+
+.info-icon-background-success {
+    color: green;
+}
+
+.info-icon-background-partial {
+    color: yellowgreen;
+}
+
+.infoMessage {
+	margin-left: 0.3em;
+}
+
+.infoMessage .success {
+	margin-left: 0.3em;
+}
+
+.failedCountriesText{
+	margin: 0;
+}
+
+.failedCountries{
+	font-size: 14px;
+}
+
+.homeUrl {
+	padding: 0.2%;
+	margin: 1%;
+	border: 1.5px solid blue;
+}
+
+.homeButton {
+	margin-top: 5%;
+}
+
+.homeButton .fa.fa-home {
+	padding-right: 4%;
+}
+
+.fa.fa-frown-o {
+	font-size: xx-large;
+}
+
+.wentWrongMessage {
+	margin-left: 0.3em;
+}
+
+.bootstrap-select.form-control {
+   border: 1px solid #ced4da;
+   border-radius: 0.375rem;
+}
+
+.bootstrap-select .dropdown-menu {
+	max-width: -webkit-fill-available;
+}
+
+#bs-select-1{
+	max-height: 11em !important;
+}
+
+.tooltip-inner {
+    background-color:  chocolate;
+    box-shadow: 0px 0px 4px chocolate;
+	opacity: 1 !important;
+}
+
+.bs-tooltip-top .tooltip-arrow::before, .bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before {
+    border-top-color: chocolate !important;
+}
+
+.menuItem {
+	background-color: aquamarine;
+	margin: 1em;
+}
+
+.menuItem:hover {
+    border: 1px solid darkmagenta;
+	background-color: mediumspringgreen;
+}

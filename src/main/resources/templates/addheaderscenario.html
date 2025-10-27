@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/main.css}">
+
+<head>
+    <title>Business Scenario Form</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f4f7f8;
+            color: #333;
+            padding: 30px;
+        }
+        h2 { text-align: center; color: #2c3e50; }
+        form {
+            background: #fff;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        label { display: block; margin-bottom: 5px; margin-top: 20px; }
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, textarea:focus { border-color: #3498db; outline: none; }
+        button {
+            margin-top: 25px;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover { background-color: #2980b9; }
+        .error-message { color: red; font-size: 0.9em; }
+
+        /* Toast Styles */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 14px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<!--<a th:href="@{/qaAdminMenuform}" class="back-btn">
+    <span class="arrow">←</span> Back
+</a>
+-->
+<a th:href="@{/Menu}" class="back-btn">
+    <span class="arrow">←</span> Mainmenu
+</a>
+
+<a href="all-scenarios" class="back-btn">
+    <span class="arrow">📂</span> Scenario header list <span class="arrow">→</span>
+</a>
+
+
+<h2>Add Business Scenario</h2>
+<div th:if="${error}" class="error-message" style="text-align:center;">
+    <p th:text="${error}"></p>
+</div>
+
+<form id="scenarioForm" th:action="@{/api/scenario/savescenarioheader}" th:object="${header}" method="post" th:if="${header != null}">
+    <label>Business Scenario:</label>
+    <input type="number" id="businessScenario" th:field="*{businessScenario}" required onblur="validateBusinessScenario()" />
+
+    <label>Scenario Description:</label>
+    <input type="text" id="scenarioDescription" th:field="*{scenarioDescription}" required onblur="validateScenarioDescription()" />
+    <span id="scenarioDescriptionError" class="error-message"></span>
+
+    <label>Work Stream:</label>
+    <input type="text" th:field="*{workStream}" />
+
+    <label>Activity:</label>
+    <input type="text" th:field="*{activity}" />
+
+    <label>Responsible:</label>
+    <input type="text" th:field="*{responsible}" />
+
+    <label>Expected Outcome:</label>
+    <textarea th:field="*{expectedOutcome}"></textarea>
+
+    <label>TCode:</label>
+    <input type="text" th:field="*{tcode}" />
+
+    <button type="submit">Save</button>
+</form>
+
+<!-- Toast Script -->
+<script>
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            showToast();
+        }
+    };
+
+    function showToast() {
+        let toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(function () {
+            toast.classList.remove("show");
+        }, 3000);
+    }
+
+    // Validation Functions
+    function validateBusinessScenario() {
+        const businessScenario = document.getElementById("businessScenario").value.trim();
+        const errorField = document.getElementById("businessScenarioError");
+        if (businessScenario === "" || isNaN(businessScenario) || businessScenario < 10) {
+            errorField.textContent = "Business Scenario must be at least 2 digits.";
+            return false;
+        } else {
+            errorField.textContent = "";
+            return true;
+        }
+    }
+
+    function validateScenarioDescription() {
+        const scenarioDescription = document.getElementById("scenarioDescription").value.trim();
+        const errorField = document.getElementById("scenarioDescriptionError");
+        if (scenarioDescription === "") {
+            errorField.textContent = "Scenario Description is mandatory.";
+            return false;
+        } else {
+            errorField.textContent = "";
+            return true;
+        }
+    }
+
+    // Final form submission check
+    document.getElementById("scenarioForm").addEventListener("submit", function (e) {
+        if (!validateBusinessScenario() || !validateScenarioDescription()) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+</body>
+</html>

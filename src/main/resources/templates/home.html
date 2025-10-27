@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New User Request</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #4a90e2, #50c9c3);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .form-card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 100%;
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-card">
+    <div class="form-header">
+      <h3 class="text-primary">New User Request</h3>
+      <p class="text-muted">Requester submits details → Sent to Admin</p>
+    </div>
+
+    <form>
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" placeholder="Enter full name" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" placeholder="Enter email address" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" placeholder="Enter phone number">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Department</label>
+        <select class="form-select" required>
+          <option value="">Select Department</option>
+          <option>HR</option>
+          <option>Finance</option>
+          <option>IT</option>
+          <option>Marketing</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Role Requested</label>
+        <select class="form-select" required>
+          <option value="">Select Role</option>
+          <option>Admin</option>
+          <option>User</option>
+          <option>Manager</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Comments (Optional)</label>
+        <textarea class="form-control" rows="3" placeholder="Any additional info..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

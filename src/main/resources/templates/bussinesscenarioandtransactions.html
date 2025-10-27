@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Scenarios and Transactions</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+    .scenario-card {
+      background: #fff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem; padding: 1.5rem;
+    }
+    .scenario-header { font-size: 1.5rem; font-weight: bold; color: #0d6efd; margin-bottom: 1rem; }
+
+    /* Scenario Details Table */
+    .scenario-details-table th {
+      background-color: #28a745; /* Green */
+      color: white;
+      text-align: center;
+    }
+    .scenario-details-table tbody tr:nth-of-type(odd) {
+      background-color: #eaf9f0; /* Light green */
+    }
+
+    /* Transactions Table */
+    .transaction-table th {
+      background-color: #007bff; /* Blue */
+      color: white;
+      text-align: center;
+    }
+    .transaction-table tbody tr:nth-of-type(odd) {
+      background-color: #f0f7ff; /* Light blue */
+    }
+
+    .table td { vertical-align: middle; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+	
+	<div class="text-center mb-3">
+  <button id="downloadPDF" class="btn btn-primary">Download PDF</button>
+</div>
+
+	
+	
+    <a th:href="@{/qaAdminMenuform}" class="back-btn">
+        <span class="arrow">←</span> Mainmenu
+    </a>
+    
+<div class="container my-5">
+  <h2 class="mb-4 text-center">Business Scenarios and Transactions</h2>
+  <div id="scenarios-container"></div>
+</div>
+
+<script>
+  // Fetch JSON from your API and render
+  fetch('/api/transactions/all-data')
+    .then(response => response.json())
+    .then(data => {
+      const container = document.getElementById('scenarios-container');
+      container.innerHTML = '';
+
+      // Group transactions by business_scenario
+      const grouped = {};
+      data.forEach(item => {
+        const key = item.business_scenario;
+        if (!grouped[key]) grouped[key] = { ...item, transactions: [] };
+        grouped[key].transactions.push(item);
+      });
+
+      // Render each scenario
+      Object.values(grouped).forEach(scenario => {
+        const card = document.createElement('div');
+        card.className = 'scenario-card';
+
+        card.innerHTML = `
+
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="custom-header" 
+         style="font-weight:bold; font-size:1.3rem; color:#0077b6; 
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">
+        Scenario # ${scenario.business_scenario || ''} Perfect QA System by IWPL Inc (C)
+    </div>
+</div>
+
+
+
+          <!-- Scenario Details Table -->
+          <table class="table table-bordered scenario-details-table">
+            <thead>
+              <tr>
+                <th>Activity</th>
+                <th>Expected Outcome</th>
+                <th>Responsible</th>
+                <th>Description</th>
+                <th>Wk-Str</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${scenario.activity || ''}</td>
+                <td>${scenario.expected_outcome || ''}</td>
+                <td>${scenario.responsible || ''}</td>
+                <td>${scenario.scenario_description || ''}</td>
+                <td>${scenario.work_stream || ''}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Transactions Table -->
+          <table class="table table-bordered transaction-table">
+            <thead>
+              <tr>
+                <th>Transaction Key</th>
+                <th>Activity</th>
+                <th>Expected Outcome</th>
+                <th>Responsible</th>
+                <th>Description</th>
+                <th>Tcode</th>
+                <th>Suffix</th>
+                <th>Wk-Str</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${scenario.transactions.map(txn => `
+                <tr>
+                  <td>${txn.transaction_key || ''}</td>
+                  <td>${txn.trans_activity || ''}</td>
+                  <td>${txn.trans_expected_outcome || ''}</td>
+                  <td>${txn.trans_responsible || ''}</td>
+                  <td>${txn.trans_scenario_description || ''}</td>
+                  <td>${txn.trans_tcode || ''}</td>
+                  <td>${txn.transaction_suffix || ''}</td>
+                  <td>${txn.trans_work_stream || ''}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(card);
+      });
+    })
+    .catch(err => console.error('Error fetching data:', err));
+</script>
+
+
+<script>
+document.getElementById('downloadPDF').addEventListener('click', () => {
+    const container = document.getElementById('scenarios-container');
+    
+    // PDF options
+    const options = {
+        margin: 0.5,
+        filename: 'Business_Scenarios.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(options).from(container).save();
+});
+</script>
+
+</body>
+</html>

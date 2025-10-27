@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detailed Test Case Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="text-center">Detailed Test Case Transactions</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-sm">
+            <thead>
+            <tr>
+                <th>Business Scenario</th>
+                <th>Activity</th>
+                <th>Expected Outcome</th>
+                <th>Responsible</th>
+                <th>Scenario Description</th>
+                <th>Work Stream</th>
+
+                <th>Transaction Key</th>
+                <th>Trans Activity</th>
+                <th>Trans Transaction Key</th>
+                <th>Trans Expected Outcome</th>
+                <th>Trans Responsible</th>
+                <th>Trans Scenario Description</th>
+                <th>Tcode</th>
+                <th>Transaction Suffix</th>
+                <th>Trans Work Stream</th>
+
+                <th>Combined Key</th>
+                <th>TC Activity</th>
+                <th>Description</th>
+                <th>End Date</th>
+                <th>TC Expected Outcome</th>
+                <th>Navigate Steps</th>
+                <th>Prerequisites</th>
+                <th>TC Responsible</th>
+                <th>Scenario</th>
+                <th>Screenshot JPG</th>
+                <th>Start Date</th>
+                <th>Success Criteria</th>
+                <th>Test Data</th>
+                <th>Tested By</th>
+                <th>TC Transaction Key</th>
+                <th>TC Work Stream</th>
+
+                <th>Transaction Id</th>
+                <th>Test Case No</th>
+                <th>Main Key</th>
+                <th>Serial No</th>
+                <th>Type</th>
+                <th>Action</th>
+                <th>URL</th>
+                <th>Expected Results</th>
+                <th>Actual Results</th>
+                <th>Tested Date</th>
+                <th>Pass/Fail</th>
+                <th>Defects</th>
+                <th>Comments</th>
+                <th>Screenshot Paths</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${detailed}">
+                <td th:text="${row.businessScenario}"></td>
+                <td th:text="${row.activity}"></td>
+                <td th:text="${row.expectedOutcome}"></td>
+                <td th:text="${row.responsible}"></td>
+                <td th:text="${row.scenarioDescription}"></td>
+                <td th:text="${row.workStream}"></td>
+
+                <td th:text="${row.transactionKey}"></td>
+                <td th:text="${row.transActivity}"></td>
+                <td th:text="${row.transTransactionKey}"></td>
+                <td th:text="${row.transExpectedOutcome}"></td>
+                <td th:text="${row.transResponsible}"></td>
+                <td th:text="${row.transScenarioDescription}"></td>
+                <td th:text="${row.tcode}"></td>
+                <td th:text="${row.transactionSuffix}"></td>
+                <td th:text="${row.transWorkStream}"></td>
+
+                <td th:text="${row.combinedKey}"></td>
+                <td th:text="${row.tcActivity}"></td>
+                <td th:text="${row.description}"></td>
+                <td th:text="${row.endDate}"></td>
+                <td th:text="${row.tcExpectedOutcome}"></td>
+                <td th:text="${row.navigateSteps}"></td>
+                <td th:text="${row.prerequisites}"></td>
+                <td th:text="${row.tcResponsible}"></td>
+                <td th:text="${row.scenario}"></td>
+                <td th:text="${row.screenShotjpg}"></td>
+                <td th:text="${row.startDate}"></td>
+                <td th:text="${row.successCriteria}"></td>
+                <td th:text="${row.testData}"></td>
+                <td th:text="${row.testedBy}"></td>
+                <td th:text="${row.tcTransactionKey}"></td>
+                <td th:text="${row.tcWorkStream}"></td>
+
+                <td th:text="${row.transactionId}"></td>
+                <td th:text="${row.testCaseNo}"></td>
+                <td th:text="${row.mainKey}"></td>
+<!--                <td th:text="${row.serialNo}"></td>
+-->                <td th:text="${row.type}"></td>
+                <td th:text="${row.action}"></td>
+                <td><a th:href="${row.url}" th:text="${row.url}" target="_blank"></a></td>
+                <td th:text="${row.expectedResults}"></td>
+                <td th:text="${row.actualResults}"></td>
+                <td th:text="${row.testedDate}"></td>
+                <td th:text="${row.passFail}"></td>
+                <td th:text="${row.defects}"></td>
+                <td th:text="${row.comments}"></td>
+                <td th:text="${row.screenshotPaths}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Scenario List</title>
+    	<link rel="stylesheet" th:href="@{/main.css}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+
+<h2 class="text-center my-4">
+    All Transactions <span class="text-primary"></span>
+</h2>
+
+<div class="search-box text-center mb-3">
+    <input type="text" id="searchInput" class="form-control d-inline-block"
+           style="width: 350px; border-radius: 25px; padding: 10px 15px;"
+           placeholder="🔍 Search by ID or Test Case No..."
+           onkeyup="searchTable()" />
+</div>
+
+
+<div class="d-flex gap-2 mb-3">
+    <a th:href="@{/Menu}" class="btn btn-secondary btn-sm">
+        ← Mainmenu
+    </a>
+    <button class="btn btn-success btn-sm" onclick="downloadCSV()">⬇ Download CSV</button>
+</div>
+
+<!--<div class="text-end mb-3">
+    <button class="btn btn-primary" onclick="downloadCSV()">
+        ⬇ Download CSV
+    </button>
+</div>-->
+
+
+<div class="table-responsive">
+<table id="transactionTable" class="table table-hover table-bordered shadow-sm rounded">
+    <thead class="bg-dark text-white">
+    <tr>
+        <th>Trans ID</th>
+        <th>Test Case Tr</th>
+        <th>Type</th>
+        <th>Action</th>
+        <th>URL</th>
+        <th>expected results</th>
+        <th>actual results</th>
+        <th>Status</th>
+        <th>Defects</th>
+        <th>Comments</th>
+        <th>Files</th>
+        <th class="text-center">Action</th>
+    </tr>
+</thead>
+<tbody>
+    <tr th:each="tx : ${transactions}" 
+        th:attr="data-row-id=${tx.transactionId}">
+        
+        <!-- ID -->
+        <td class="align-middle fw-bold" th:text="${tx.transactionId}"></td>
+
+        <!-- Test Case No -->
+        <td class="align-middle">
+            <span class="view-mode" th:text="${tx.testCaseNo}"></span>
+            <input class="form-control edit-mode d-none"
+                   type="text"
+                   th:value="${tx.testCaseNo}" />
+        </td>
+
+        <!-- Type -->
+        <td class="align-middle">
+            <span class="view-mode badge bg-info text-dark p-2"
+                  th:text="${tx.type}"></span>
+            <input class="form-control edit-mode d-none"
+                   type="text"
+                   th:value="${tx.type}" />
+        </td>
+
+        <!-- Action -->
+        <td class="align-middle">
+            <span class="view-mode" th:text="${tx.action}"></span>
+            <input class="form-control edit-mode d-none"
+                   type="text"
+                   th:value="${tx.action}" />
+        </td>
+
+        <!-- URL -->
+        <td class="align-middle">
+            <span class="view-mode" th:text="${tx.url}"></span>
+            <input class="form-control edit-mode d-none" 
+                   type="text" 
+                   th:value="${tx.url}" 
+                   data-field="url" />
+        </td>
+       
+           <td class="align-middle">
+            <span class="view-mode" th:text="${tx.expectedResults}"></span>
+            <input class="form-control edit-mode d-none" 
+                   type="text" 
+                   th:value="${tx.expectedResults}" 
+                   data-field="expectedResults" />
+        </td>
+        
+        
+        
+         </td>
+       
+           <td class="align-middle">
+            <span class="view-mode" th:text="${tx.actualResults}"></span>
+            <input class="form-control edit-mode d-none" 
+                   type="text" 
+                   th:value="${tx.actualResults}" 
+                   data-field="actualResults" />
+        </td>
+        
+        
+         </td>
+       
+           <td class="align-middle">
+            <span class="view-mode" th:text="${tx.passFail}"></span>
+            <input class="form-control edit-mode d-none" 
+                   type="text" 
+                   th:value="${tx.passFail}" 
+                   data-field="passFail" />
+        </td>
+
+
+
+  </td>
+       
+           <td class="align-middle">
+            <span class="view-mode" th:text="${tx.defects}"></span>
+            <input class="form-control edit-mode d-none" 
+                   type="text" 
+                   th:value="${tx.defects}" 
+                   data-field="defects" />
+        </td>
+
+        <!-- Comments -->
+        <td class="align-middle">
+            <span class="view-mode" th:text="${tx.comments}"></span>
+            <textarea class="form-control edit-mode d-none" 
+                      data-field="comments"
+                      th:text="${tx.comments}"></textarea>
+        </td>
+
+        <!-- Files -->
+        <td class="align-middle">
+            <div class="view-mode d-flex flex-wrap gap-2">
+                <div th:each="img : ${tx.base64Screenshots}" class="position-relative">
+                    <!-- Thumbnail -->
+                    <img th:src="${img}" alt="screenshot"
+                         class="rounded shadow-sm preview-img"
+                         style="width:100px; height:100px; object-fit:cover; border:2px solid #e0e0e0; cursor:pointer;" />
+
+                    <!-- Download button -->
+                    <a th:href="${img}" download="screenshot.png"
+                       class="btn btn-sm btn-light position-absolute top-0 end-0 m-1"
+                       title="Download">
+                        ⬇
+                    </a>
+                </div>
+            </div>
+            <input class="form-control edit-mode d-none" type="file" multiple />
+        </td>
+        
+        
+
+        <!-- Buttons -->
+        <td class="text-center align-middle">
+            <!-- Edit (default visible) -->
+         <a th:href="@{/editTransaction/{id}(id=${tx.transactionId})}" 
+   class="btn btn-sm btn-warning">
+    ✏ Edit
+</a>
+
+
+
+            <!-- Save + Cancel (hidden until edit) -->
+            <div class="edit-actions d-none">
+                <button type="button" class="btn btn-sm btn-success save-btn me-1">
+                    💾 Save
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary cancel-btn">
+                    ❌ Cancel
+                </button>
+            </div>
+        </td>
+    </tr>
+</tbody>
+
+</table>
+</div>
+
+<style>
+/* General table design */
+.search-box input {
+    border: 2px solid #007bff;
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
+}
+.search-box input:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.preview-img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.position-relative a {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+/* Header */
+.table thead {
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
+}
+.table thead th {
+    color: rgb(0, 64, 64) !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 14px;
+}
+
+/* Row hover */
+.table-hover tbody tr:hover {
+    background: #f0f8ff !important;
+    transition: background 0.3s ease;
+}
+
+/* Table cells */
+.table td {
+    vertical-align: middle;
+    padding: 12px;
+}
+
+/* Images */
+.table img {
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.table img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+.btn-warning {
+    background: #f39c12;
+    border: none;
+    color: #fff;
+}
+.btn-warning:hover {
+    background: #d68910;
+}
+.btn-success {
+    background: #27ae60;
+    border: none;
+    color: #fff;
+}
+.btn-success:hover {
+    background: #1e8449;
+}
+.btn-secondary {
+    background: #7f8c8d;
+    border: none;
+    color: #fff;
+}
+.btn-secondary:hover {
+    background: #636e72;
+}
+
+/* Action buttons group */
+.edit-actions {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+</style>
+
+<script>
+// Handle Edit button
+document.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        let row = this.closest("tr");
+
+        // Hide view-mode spans
+        row.querySelectorAll(".view-mode").forEach(el => el.classList.add("d-none"));
+        // Show edit-mode inputs
+        row.querySelectorAll(".edit-mode").forEach(el => el.classList.remove("d-none"));
+
+        // Toggle buttons
+        this.classList.add("d-none"); // hide edit button
+        row.querySelector(".edit-actions").classList.remove("d-none"); // show save+cancel
+    });
+});
+
+// Handle Cancel button
+document.querySelectorAll(".cancel-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        let row = this.closest("tr");
+
+        // Reset inputs back to original values (from view-mode spans)
+        let spans = row.querySelectorAll(".view-mode");
+        let inputs = row.querySelectorAll(".edit-mode");
+
+        inputs.forEach((input, index) => {
+            if (input.tagName === "INPUT" || input.tagName === "TEXTAREA") {
+                input.value = spans[index].innerText;
+            }
+        });
+
+        // Show spans again
+        row.querySelectorAll(".view-mode").forEach(el => el.classList.remove("d-none"));
+        // Hide inputs
+        row.querySelectorAll(".edit-mode").forEach(el => el.classList.add("d-none"));
+
+        // Toggle buttons
+        row.querySelector(".edit-btn").classList.remove("d-none");
+        row.querySelector(".edit-actions").classList.add("d-none");
+    });
+});
+</script>
+<script>
+document.querySelectorAll(".save-btn").forEach(btn => {
+    btn.addEventListener("click", async function () {
+        let row = this.closest("tr");
+        let rowId = row.getAttribute("data-row-id"); // transactionId
+
+      let updatedTx = {
+    type: row.querySelector("td:nth-child(3) input").value,
+    action: row.querySelector("td:nth-child(4) input").value,
+    url: row.querySelector("td:nth-child(5) input").value,
+    comments: row.querySelector("td:nth-child(6) textarea").value
+};
+
+
+        try {
+            let response = await fetch(`/api/transactions/update/${rowId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedTx)
+            });
+
+            if (response.ok) {
+                let saved = await response.json();
+
+                // update view-mode spans with saved values
+                row.querySelector("td:nth-child(2) .view-mode").innerText = saved.testCaseNo;
+                row.querySelector("td:nth-child(3) .view-mode").innerText = saved.type;
+                row.querySelector("td:nth-child(4) .view-mode").innerText = saved.action;
+                row.querySelector("td:nth-child(5) .view-mode").innerText = saved.url || "";
+                row.querySelector("td:nth-child(6) .view-mode").innerText = saved.comments || "";
+
+                // switch back to view mode
+                row.querySelectorAll(".view-mode").forEach(el => el.classList.remove("d-none"));
+                row.querySelectorAll(".edit-mode").forEach(el => el.classList.add("d-none"));
+                row.querySelector(".edit-btn").classList.remove("d-none");
+                row.querySelector(".edit-actions").classList.add("d-none");
+
+                alert("Transaction updated successfully ✅");
+            } else {
+                alert("Failed to update transaction ❌");
+            }
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error while saving ❌");
+        }
+    });
+});
+</script>
+
+
+<script>
+function searchTable() {
+    let input = document.getElementById("searchInput").value.toUpperCase();
+    let table = document.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) { // skip header row
+        let tdId = tr[i].getElementsByTagName("td")[0];  // ID column
+        let tdTestCase = tr[i].getElementsByTagName("td")[1]; // Test Case No column
+
+        if (tdId || tdTestCase) {
+            let txtId = tdId ? (tdId.textContent || tdId.innerText) : "";
+            let txtTestCase = tdTestCase ? (tdTestCase.textContent || tdTestCase.innerText) : "";
+
+            if (txtId.toUpperCase().indexOf(input) > -1 || 
+                txtTestCase.toUpperCase().indexOf(input) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
+
+<script>
+async function updateTransaction(rowId) {
+    const urlInput = document.querySelector(`#row-${rowId} .url-input`);
+    const commentsInput = document.querySelector(`#row-${rowId} .comments-input`);
+    const fileInput = document.querySelector(`#row-${rowId} .file-input`);
+
+    const updatedTx = {
+        type: "test",
+        action: "some action",
+        url: urlInput ? urlInput.value : "",
+        comments: commentsInput ? commentsInput.value : ""
+    };
+
+    const formData = new FormData();
+    formData.append("transaction", new Blob([JSON.stringify(updatedTx)], { type: "application/json" }));
+
+    if (fileInput && fileInput.files.length > 0) {
+        Array.from(fileInput.files).forEach(file => {
+            formData.append("files", file);
+        });
+    }
+
+    const response = await fetch(`/api/transactions/update/${rowId}`, {
+        method: "PUT",
+        body: formData   // ⚡ no headers, browser sets multipart
+    });
+
+    if (response.ok) {
+        const result = await response.json();
+        console.log("Updated:", result);
+    } else {
+        console.error("Failed:", await response.text());
+    }
+}
+
+</script>
+
+<!--download file
+-->
+
+<script>
+async function downloadCSV() {
+    let rows = document.querySelectorAll("#transactionTable tbody tr");
+    let csvContent = [];
+
+    // Header row
+    let headers = [
+        "ID", 
+        "Test Case No", 
+        "Type", 
+        "Action", 
+        "URL", 
+        "Expected Results", 
+        "Actual Results", 
+        "Status", 
+        "Defects", 
+        "Comments"
+    ];
+    csvContent.push(headers.join(","));
+
+    // Loop over each row
+    for (let row of rows) {
+        let id = row.querySelector("td:nth-child(1)").innerText.trim();
+        let testCaseNo = row.querySelector("td:nth-child(2) .view-mode").innerText.trim();
+        let type = row.querySelector("td:nth-child(3) .view-mode").innerText.trim();
+        let action = row.querySelector("td:nth-child(4) .view-mode").innerText.trim();
+        let url = row.querySelector("td:nth-child(5) .view-mode").innerText.trim();
+        let expectedResults = row.querySelector("td:nth-child(6) .view-mode").innerText.trim();
+        let actualResults = row.querySelector("td:nth-child(7) .view-mode").innerText.trim();
+        let status = row.querySelector("td:nth-child(8) .view-mode").innerText.trim();
+        let defects = row.querySelector("td:nth-child(9) .view-mode").innerText.trim();
+        let comments = row.querySelector("td:nth-child(10) .view-mode").innerText.trim();
+
+        // Escape commas & quotes properly
+        let rowData = [
+            id, testCaseNo, type, action, url, expectedResults,
+            actualResults, status, defects, comments
+        ].map(val => `"${val.replace(/"/g, '""')}"`);
+
+        csvContent.push(rowData.join(","));
+    }
+
+    // Convert to blob & trigger download
+    let blob = new Blob([csvContent.join("\n")], { type: "text/csv;charset=utf-8;" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "transactions.csv";
+    link.click();
+}
+
+</script>
+
+

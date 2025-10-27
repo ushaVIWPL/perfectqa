@@ -1,0 +1,373 @@
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	    <title>Test Case Headers</title>
+	    <style>
+	        body {
+	            font-family: Arial, sans-serif;
+	            background: #e9ecef;
+	            padding: 30px;
+	        }
+	
+	        h1 {
+	            text-align: center;
+	            color: #333;
+	            margin-bottom: 30px;
+	        }
+	
+	        table {
+	            width: 100%;
+	            border-collapse: collapse;
+	            background-color: #fff;
+	            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	        }
+	
+	        th, td {
+	            padding: 12px;
+	            border: 1px solid #dee2e6;
+	            text-align: left;
+	        }
+	
+	        th {
+	            background-color: #007bff;
+	            color: white;
+	        }
+	
+	        tr:nth-child(even) {
+	            background-color: #f8f9fa;
+	        }
+	
+	        tr:hover {
+	            background-color: #f1f1f1;
+	        }
+	
+	
+	/* Container for search bar */
+.search-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Search input */
+#searchInput {
+    width: 50%;
+    max-width: 400px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid #007bff;   /* blue border */
+    border-radius: 25px;          /* rounded corners */
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* On focus */
+#searchInput:focus {
+    border-color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.2);
+}
+
+/* Placeholder styling */
+#searchInput::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+
+.action-buttons {
+    display: flex;
+    gap: 10px; /* space between buttons */
+}
+
+.action-buttons .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* Add Test Transaction button */
+.action-buttons .add-btn {
+    background-color: #28a745; /* green */
+    color: white;
+}
+.action-buttons .add-btn:hover {
+    background-color: #218838;
+}
+
+/* Edit button */
+.action-buttons .edit-btn {
+    background-color: #007bff; /* blue */
+    color: white;
+}
+.action-buttons .edit-btn:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+	    </style>
+	</head>
+	<body>
+	<a th:href="@{/Menu}" class="back-btn">
+	    <span class="arrow">←</span> Mainmenu
+	</a>
+	
+
+	
+	<h1>Test Case Headers</h1>
+	
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by Combined Key or TestCaseHeader No" />
+</div>
+
+	
+	<table>
+	    <thead>
+	        <tr>
+	            <th>Combined Key</th>
+	
+	            <th>TestCaseHeader No</th>
+	            <th>Description</th>
+	            <th> Wk-Str</th>
+	            <th>Activity</th>
+	            <th>Responsible</th>
+	            <th>Expected Outcome</th>
+	            <th>T-Code</th>
+	            <th>Prerequisites</th>
+	            <th>Navigate Steps</th>
+	            <th>Test Data</th>
+	            <th>Screenshot</th>
+	            <th>Success Criteria</th>
+	            <th>Tested By</th>
+	            <th>Start Date</th>
+	            <th>End Date</th>
+	            <th>Action</th>
+	        </tr>
+	    </thead>
+	  <tbody>
+	<tr th:each="tc : ${testcases}">
+	    <td th:text="${tc.combinedKey}"></td>
+	    <td class="scenarioKey" th:text="${tc.scenario}"></td>
+	    <td class="editable" th:text="${tc.description}"></td>
+	    <td class="editable" th:text="${tc.workStream}"></td>
+	    <td class="editable" th:text="${tc.activity}"></td>
+	    <td class="editable" th:text="${tc.responsible}"></td>
+	    <td class="editable" th:text="${tc.expectedOutcome}"></td>
+	    <td class="editable" th:text="${tc.tCode}"></td>
+	    <td class="editable" th:text="${tc.prerequisites}"></td>
+	    <td class="editable" th:text="${tc.navigateSteps}"></td>
+	    <td class="editable" th:text="${tc.testData}"></td>
+	    
+	    
+	    
+        <td class="align-middle">
+             <div class="view-mode d-flex flex-wrap gap-2" 
+         th:if="${tc.screenshotBase64List != null and !#lists.isEmpty(tc.screenshotBase64List)}">
+        <div th:each="img, iterStat : ${tc.screenshotBase64List}" class="position-relative">
+            
+            <!-- Thumbnail -->
+            <img th:src="${img}" 
+                 style="width:120px; height:120px; object-fit:cover; border:2px solid #e0e0e0; border-radius:6px;" />
+
+            <!-- Download button -->
+            <a th:href="${img}" 
+               th:attr="download=${'screenshot_' + iterStat.index + '.png'}"
+               class="btn btn-sm btn-light position-absolute top-0 end-0 m-1"
+               title="Download">
+               ⬇
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${tc.screenshotBase64List == null or #lists.isEmpty(tc.screenshotBase64List)}">
+        <span>No Screenshot</span>
+    </div>
+</td>
+
+	
+	
+	    </td>  <td class="editable" th:text="${tc.successCriteria}"></td>
+	    <td class="editable" th:text="${tc.testedBy}"></td>
+	    <td class="editable" th:text="${tc.startDate}"></td>
+	    <td class="editable" th:text="${tc.endDate}"></td>
+	    
+	
+	
+	    
+	    <td>
+<!-- HTML -->
+<div class="action-buttons">
+    <form th:action="@{/showAddTransactionForm}" method="get">
+        <input type="hidden" name="combinedKey" th:value="${tc.combinedKey}" />
+        <button type="submit" class="btn add-btn">Add Test Transaction</button>
+    </form>
+
+    <!--<form th:action="@{/api/transactions/edittestheader}" method="get">
+        <input type="hidden" name="combinedKey" th:value="${tc.combinedKey}" />
+        <button type="submit" class="btn edit-btn">Edit</button>
+    </form>-->
+   <a th:href="@{/api/transactions/edittestheader/{combinedKey}(combinedKey=${tc.combinedKey})}" 
+   class="btn edit-btn">
+    Edit
+</a>
+
+
+</div>
+
+
+       <button type="button" class="save-btn" onclick="saveRow(this)" style="display:none;">Save</button>
+	    </td>
+	    
+	    
+	</tr>
+	</tbody>
+	
+	
+	
+	   
+	<script>
+	function enableEdit(btn) {
+	    let row = btn.closest('tr');
+	    row.querySelectorAll('.editable').forEach(td => {
+	        let text = td.innerText;
+	        td.innerHTML = `<input type="text" value="${text}" />`;
+	    });
+	    row.querySelector('.edit-btn').style.display = "none";
+	    row.querySelector('.save-btn').style.display = "inline-block";
+	}
+	
+	function saveRow(btn) {
+    let row = btn.closest('tr');
+    let scenarioKey = row.querySelector('.scenarioKey').innerText;
+
+    // Collect updated values
+    let updatedData = { scenario: scenarioKey };
+
+    let editableCells = row.querySelectorAll('.editable input');
+    let headers = [
+        "description", "workStream", "activity", "responsible", "expectedOutcome",
+        "tCode", "prerequisites", "navigateSteps", "testData",
+        "successCriteria", "testedBy", "startDate", "endDate"
+    ];
+
+    editableCells.forEach((input, index) => {
+        updatedData[headers[index]] = input.value;
+    });
+
+    // Send AJAX request to update
+    fetch(`/api/transactions/edittestheader?scenario=${scenarioKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Row updated successfully!");
+        // Update table with new values
+        row.querySelectorAll('.editable').forEach((td, i) => {
+            td.innerText = updatedData[headers[i]];
+        });
+        row.querySelector('.edit-btn').style.display = "inline-block";
+        row.querySelector('.save-btn').style.display = "none";
+    })
+    .catch(err => alert("Error updating row: " + err));
+}
+
+	</script>
+	
+	
+
+	
+	
+	   
+	<script>
+	function enableEdit(btn) {
+	    let row = btn.closest('tr');
+	    row.querySelectorAll('.editable').forEach(td => {
+	        let text = td.innerText;
+	        td.innerHTML = `<input type="text" value="${text}" />`;
+	    });
+	    row.querySelector('.edit-btn').style.display = "none";
+	    row.querySelector('.save-btn').style.display = "inline-block";
+	}
+	
+	function saveRow(btn) {
+	    let row = btn.closest('tr');
+	    let scenarioKey = row.querySelector('.scenarioKey').innerText;
+	
+	    // Collect updated values
+	    let updatedData = {
+	        scenario: scenarioKey
+	    };
+	
+	    let editableCells = row.querySelectorAll('.editable input');
+	    let headers = [
+	        "description", "workStream", "activity", "responsible", "expectedOutcome",
+	        "tCode", "prerequisites", "navigateSteps", "testData", "screenShotJPG",
+	        "successCriteria", "testedBy", "startDate", "endDate"
+	    ];
+	
+	    editableCells.forEach((input, index) => {
+	        updatedData[headers[index]] = input.value;
+	    });
+	
+	    // Send AJAX request to update
+	    fetch(`/api/transactions/edittestheader?scenario=${scenarioKey}`, {
+	        method: "POST",
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify(updatedData)
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        alert("Row updated successfully!");
+	        // Update table with new values
+	        row.querySelectorAll('.editable').forEach((td, i) => {
+	            td.innerText = updatedData[headers[i]];
+	        });
+	        row.querySelector('.edit-btn').style.display = "inline-block";
+	        row.querySelector('.save-btn').style.display = "none";
+	    })
+	    .catch(err => alert("Error updating row: " + err));
+	}
+	</script>
+	
+	
+	
+	
+	
+	
+	<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll('table tbody tr');
+
+    rows.forEach(row => {
+        let combinedKey = row.querySelector('td:first-child').innerText.toLowerCase();
+        let scenarioKey = row.querySelector('.scenarioKey').innerText.toLowerCase();
+
+        if (combinedKey.includes(filter) || scenarioKey.includes(filter)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+
+	
+	
+	
+	

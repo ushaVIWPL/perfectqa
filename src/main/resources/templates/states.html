@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>States List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="p-4">
+
+<h2 class="mb-4">States List</h2>
+
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-light">
+    <tr>
+        <th>Country</th>
+        <th>Country Code</th>
+        <th>State Name</th>
+        <th>State Code</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="state : ${states}">
+        <td th:text="${state.country}"></td>
+        <td th:text="${state.countryCode}"></td>
+        <td th:text="${state.stateSubdivisionName}"></td>
+        <td th:text="${state.stateSubdivisionCode}"></td>
+        <td>
+            <button type="button" class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    th:data-bs-target="'#editModal-' + ${state.stateSubdivisionCode}">
+                Edit
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Modals for each state -->
+<div th:each="state : ${states}" th:id="'editModal-' + ${state.stateSubdivisionCode}" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/states/update/{code}(code=${state.stateSubdivisionCode})}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit State: <span th:text="${state.stateSubdivisionName}"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="stateSubdivisionCode" th:value="${state.stateSubdivisionCode}"/>
+                    <div class="mb-2">
+                        <label>Country</label>
+                        <input type="text" class="form-control" name="country" th:value="${state.country}"/>
+                    </div>
+                    <div class="mb-2">
+                        <label>Country Code</label>
+                        <input type="text" class="form-control" name="countryCode" th:value="${state.countryCode}"/>
+                    </div>
+                    <div class="mb-2">
+                        <label>State Name</label>
+                        <input type="text" class="form-control" name="stateSubdivisionName" th:value="${state.stateSubdivisionName}"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

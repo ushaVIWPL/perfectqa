@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Scenario List</title>
+    <link rel="stylesheet" th:href="@{/main.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .table thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .btn-success, .btn-primary, .btn-warning {
+            font-size: 0.85rem;
+        }
+
+        .search-container input {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .search-container input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.5);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container table-container">
+    <h2 class="mb-4 text-center">Business Scenarios</h2>
+
+    <table id="scenarioTable" class="table table-bordered table-hover">
+        <thead>
+            <div class="search-box text-center mb-3">
+                <input type="text" id="searchInput" class="form-control d-inline-block"
+                       style="width: 350px; border-radius: 25px; padding: 10px 15px;"
+                       placeholder="🔍 Search by Business Scenario"
+                       onkeyup="searchTable()" />
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <a th:href="@{/Menu}" class="btn btn-secondary btn-sm">
+                    ← Mainmenu
+                </a>
+                <button class="btn btn-success btn-sm" onclick="downloadCSV()">⬇ Download CSV</button>
+            </div>
+
+            <tr>
+                <th>Business Scenario</th>
+                <th>Description</th>
+                <th>Work Stream</th>
+                <th>Activity</th>
+                <th>Responsible</th>
+                <th>Expected Outcome</th>
+                <th>TCode</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="scenario : ${scenarios}">
+                <form th:action="@{/api/scenario/update}" method="post">
+                    <td>
+                        <input type="hidden" name="businessScenario" th:value="${scenario.businessScenario}" />
+                        <div th:if="${editId} == ${scenario.businessScenario}">
+                            <input type="text" class="form-control"
+                                   th:value="${scenario.businessScenario}" readonly />
+                        </div>
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.businessScenario}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="scenarioDescription"
+                               th:value="${scenario.scenarioDescription}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.scenarioDescription}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="workStream"
+                               th:value="${scenario.workStream}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.workStream}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="activity"
+                               th:value="${scenario.activity}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.activity}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="responsible"
+                               th:value="${scenario.responsible}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.responsible}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="expectedOutcome"
+                               th:value="${scenario.expectedOutcome}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.expectedOutcome}"></span>
+                    </td>
+
+                    <td>
+                        <input th:if="${editId} == ${scenario.businessScenario}" type="text"
+                               class="form-control" name="tcode"
+                               th:value="${scenario.tcode}" />
+                        <span th:if="${editId} != ${scenario.businessScenario}"
+                              th:text="${scenario.tcode}"></span>
+                    </td>
+
+                    <td>
+                        <div th:if="${editId} == ${scenario.businessScenario}">
+                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                            <a th:href="@{/api/scenario/all-scenarios}" 
+                               class="btn btn-secondary btn-sm">Cancel</a>
+                        </div>
+                       <div th:if="${editId} != ${scenario.businessScenario}">
+    <!-- Hide Edit if role == TESTER -->
+    <a th:if="${role != null and #strings.equalsIgnoreCase(role, 'TESTER') == false}"
+       th:href="@{/api/scenario/all-scenariosid(editId=${scenario.businessScenario})}" 
+       class="btn btn-warning btn-sm">Edit</a>
+
+    <!-- Add Transaction button always visible -->
+   <a th:if="${role != null and #strings.equalsIgnoreCase(role, 'TESTER')}"
+       href="javascript:void(0)"
+       class="btn btn-success btn-sm disabled"
+       style="pointer-events: none; opacity: 0.6; cursor: not-allowed;">
+       Add Transaction
+    </a>
+
+    <!-- Show normal Add Transaction button for other roles -->
+    <a th:if="${role != null and #strings.equalsIgnoreCase(role, 'TESTER') == false}"
+       th:href="@{'/api/scenario/addtransactions/addform'(scenarioId=${scenario.businessScenario})}" 
+       class="btn btn-success btn-sm">Add Transaction</a>
+</div>
+
+                    </td>
+                </form>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.getElementById("searchInput").addEventListener("keyup", function () {
+    let filter = this.value.toLowerCase();
+    let table = document.getElementById("scenarioTable");
+    let rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) { // skip header
+        let td = rows[i].cells[0];
+        if (td) {
+            let txtValue = td.textContent.toLowerCase();
+            rows[i].style.display = txtValue.includes(filter) ? "" : "none";
+        }
+    }
+});
+
+function downloadCSV() {
+    let table = document.getElementById("scenarioTable");
+    let rows = table.querySelectorAll("tr");
+
+    let csv = [];
+    for (let i = 0; i < rows.length; i++) {
+        let cols = rows[i].querySelectorAll("td, th");
+        let row = [];
+        for (let j = 0; j < cols.length; j++) {
+            if (j === cols.length - 1) continue; // Skip Actions column
+            let text = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
+            if (text.includes(",")) text = `"${text}"`;
+            row.push(text);
+        }
+        csv.push(row.join(","));
+    }
+
+    let csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+    let downloadLink = document.createElement("a");
+    downloadLink.download = "scenarios.csv";
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+</script>
+</body>
+</html>

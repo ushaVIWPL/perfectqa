@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+
+  <!-- Bootstrap & SweetAlert -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 250px;
+      background-color: #212529;
+      color: #fff;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100%;
+    }
+
+    .sidebar h4 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .sidebar a {
+      color: #adb5bd;
+      text-decoration: none;
+      display: block;
+      padding: 10px 15px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #495057;
+      color: #fff;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+      width: calc(100% - 250px);
+      overflow-y: auto;
+    }
+
+    .card {
+      border-radius: 10px;
+    }
+
+    table th,
+    table td {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <h4>Admin Panel</h4>
+
+
+
+ <a th:href="@{/Menu}" class="btn btn-outline-light mb-2 w-100 text-start">
+    <i class="bi bi-speedometer2 me-2"></i> Main menu
+  </a>
+      <a href="javascript:void(0)" onclick="loadDashboard()" class="active">
+        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+      </a>
+
+      <a href="javascript:void(0)" onclick="loadContent('/register')">
+        <i class="bi bi-person-plus-fill me-2"></i> Register User
+      </a>
+
+
+  <a href="javascript:void(0)" onclick="loadUsers()">
+        <i class="bi bi-people-fill me-2"></i> Manage Users
+      </a>
+      
+         <a href="javascript:void(0)" onclick="loadContent('/admin/country')">
+        <i class="bi bi-map-fill me-2"></i> Country Ref
+      </a>
+      
+      <a href="javascript:void(0)" onclick="loadContent('/admin/states')">
+        <i class="bi bi-map-fill me-2"></i> States Ref
+      </a>
+      
+         <a href="javascript:void(0)" onclick="loadContent('/admin/cities')">
+        <i class="bi bi-map-fill me-2"></i> City Ref
+      </a>
+
+
+  <a href="javascript:void(0)" onclick="loadContent('/admin/languages')">
+        <i class="bi bi-map-fill me-2"></i> Language Ref
+      </a>
+
+      <a href="javascript:void(0)" onclick="loadContent('company/admin/all')">
+        <i class="bi bi-map-fill me-2"></i> Company Ref
+      </a>
+      
+          <a href="javascript:void(0)" onclick="loadContent('project/admin/all')">
+        <i class="bi bi-map-fill me-2"></i> Project Ref
+      </a>
+
+
+      <a href="javascript:void(0)" onclick="showComingSoon('Settings')">
+        <i class="bi bi-gear-fill me-2"></i> Settings
+      </a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div id="dynamicContent">
+        <h2>Welcome to Admin Dashboard</h2>
+        <p>Select a module from the sidebar to view data.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Dashboard Functions -->
+  <script>
+    function loadDashboard() {
+      document.getElementById("dynamicContent").innerHTML = `
+        <h2>Welcome to Admin Dashboard</h2>
+        <p>Select a module from the sidebar to view data.</p>
+      `;
+    }
+
+    function showComingSoon(moduleName) {
+      Swal.fire({
+        icon: "info",
+        title: "🚀 Coming Soon!",
+        text: `${moduleName} module will be available soon.`,
+        confirmButtonColor: "#3085d6",
+      });
+    }
+
+    function loadContent(url) {
+      fetch(url)
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("dynamicContent").innerHTML = html;
+        })
+        .catch((err) => console.error("Error loading content:", err));
+    }
+
+    // 🔥 Load Users List
+    function loadUsers() {
+      document.getElementById("dynamicContent").innerHTML = `
+        <h2 class="mb-4">User Management</h2>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <table class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>User ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+
+                  <th>Phone</th>
+                  <th>Requester</th>
+                  <th>Access Level 1</th>
+                  <th>Access Level 2</th>
+                  <th>Access Level 3</th>
+                  <th>Country</th>
+                  <th>Country Code</th>
+                  <th>Company</th>
+                  <th>Company Code</th>
+                  <th>Division</th>
+                  <th>Department</th>
+                  <th>Location</th>
+                  <th>User Title</th>
+                  <th>Reporting Manager</th>
+                  <th>Language</th>
+                  <th>Emergency Contact</th>
+                  <th>License</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <tr><td colspan="24" class="text-center text-muted">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      fetch("/all")
+        .then((response) => response.json())
+        .then((users) => {
+          const tbody = document.getElementById("userTableBody");
+          tbody.innerHTML = "";
+
+          users.forEach((user) => {
+            const statusBadge =
+              user.status == 1
+                ? '<span class="badge bg-success">Active</span>'
+                : '<span class="badge bg-warning text-dark">Inactive</span>';
+
+            const actions =
+              user.userRole !== "TESTER"
+                ? `<button class="btn btn-sm btn-primary me-1">Edit</button>
+                   <button class="btn btn-sm btn-danger">Delete</button>`
+                : "";
+
+            tbody.innerHTML += `
+              <tr>
+                <td>${user.userId}</td>
+                <td>${user.firstName}</td>
+                <td>${user.lastName}</td>
+                <td>${user.email}</td>
+                <td>${user.userRole || ""}</td>
+
+                <td>${user.phoneNo}</td>
+                <td>${user.requesterName}</td>
+                <td>${user.accessLevel1 || ""}</td>
+                <td>${user.accessLevel2 || ""}</td>
+                <td>${user.accessLevel3 || ""}</td>
+                <td>${user.countryName || ""}</td>
+                <td>${user.countryCode || ""}</td>
+                <td>${user.companyName || ""}</td>
+                <td>${user.companyCode || ""}</td>
+                <td>${user.division || ""}</td>
+                <td>${user.department || ""}</td>
+                <td>${user.location || ""}</td>
+                <td>${user.userTitle || ""}</td>
+                <td>${user.reportingManager || ""}</td>
+                <td>${user.language || ""}</td>
+                <td>${user.emergencyContactNo || ""}</td>
+                <td>${user.license || ""}</td>
+                <td>${statusBadge}</td>
+                <td>${actions}</td>
+              </tr>`;
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching users:", error);
+          document.getElementById("userTableBody").innerHTML = `
+            <tr><td colspan="24" class="text-center text-danger">Failed to load users</td></tr>
+          `;
+        });
+    }
+  </script>
+</body>
+</html>

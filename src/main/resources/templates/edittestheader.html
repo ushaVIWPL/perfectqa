@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Edit Test Case Header</title>
+    
+    <!-- External Resources -->
+    <link rel="stylesheet" th:href="@{/main.css}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 40px;
+        }
+
+        h1, h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        button[type="submit"],
+        .btn {
+            margin-top: 25px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button[type="submit"]:hover,
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .error-text {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .alert {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 10px auto 30px;
+            width: fit-content;
+            text-decoration: none;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .uploaded-img {
+            margin: 10px 5px;
+            display: inline-block;
+        }
+
+        .uploaded-img img {
+            width: 200px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <a th:href="@{/qaAdminMenuform}" class="back-btn">
+        ← Main Menu
+    </a>
+
+    <h2>Edit Test Case Header</h2>
+
+    <!-- Success and Error Messages -->
+    <div th:if="${message}" class="alert alert-success">
+        <p th:text="${message}"></p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+
+    <!-- Form -->
+    <form th:object="${testCaseHeader}" method="post" enctype="multipart/form-data"
+          th:action="@{/api/transactions/savetestheaderedit}">
+
+        <div id="scenario-error" class="error-text" style="text-align: center; font-weight: bold;"></div>
+
+        <input type="hidden" th:field="*{combinedKey}" />
+
+        <label>Scenario Key:</label>
+        <input type="text" th:field="*{transactionKey}" readonly />
+
+        <label>Test Case Header No:</label>
+        <input type="number" th:field="*{scenario}" />
+        <div id="scenario-validation-error" class="error-text"></div>
+
+        <label>Description:</label>
+        <textarea th:field="*{description}"></textarea>
+        <div id="description-validation-error" class="error-text"></div>
+
+        <label>Work Stream:</label>
+        <input type="text" th:field="*{workStream}" />
+
+        <label>Activity:</label>
+        <input type="text" th:field="*{activity}" />
+
+        <label>Responsible:</label>
+        <input type="text" th:field="*{responsible}" />
+
+        <label>Expected Outcome:</label>
+        <textarea th:field="*{expectedOutcome}"></textarea>
+
+        <label>T-Code:</label>
+        <input type="text" th:field="*{tCode}" />
+
+        <label>Prerequisites:</label>
+        <textarea th:field="*{prerequisites}"></textarea>
+
+        <label>Navigate Steps:</label>
+        <textarea th:field="*{navigateSteps}"></textarea>
+
+        <label>Test Data:</label>
+        <textarea th:field="*{testData}"></textarea>
+        
+        
+        <label>Upload New Screenshots:</label>
+<input type="file" name="files" multiple accept="image/*" />
+
+<input type="hidden" name="existingFileNames"
+       th:value="${testCaseHeader.screenshotPaths}" />
+
+
+<div>
+  <label>Uploaded Screenshots:</label>
+  <div>
+    <!-- Existing screenshots from screenshotBase64List -->
+    <div th:each="imgSrc, iterStat : ${testCaseHeader.screenshotBase64List}" class="uploaded-img">
+        <img th:src="${imgSrc}" alt="Screenshot" />
+        <!-- Hidden input to send back the original file name -->
+        <input type="hidden" name="existingFileNames" 
+               th:value="${#strings.arrayJoin(testCaseHeader.screenshotPaths.split(','), ',')}" 
+               th:if="${iterStat.index == 0}" />
+    </div>
+
+    <!-- Screenshots from ScreenshotDTO -->
+    <div th:each="screenshot : ${screenshots}" class="uploaded-img" style="display:inline-block; margin:10px; text-align:center;">
+        <img th:src="${screenshot.base64}" style="width:100px;height:100px; display:block; margin:auto;" />
+<!--        <span th:text="${screenshot.fileName}" style="display:block; margin-top:5px;"></span>
+-->
+        <!-- Delete button -->
+<a th:href="@{/api/transactions/deleteHeaderScreenshot(
+                combinedKey=${testCaseHeader.combinedKey}, 
+                fileName=${#strings.replace(screenshot.fileName,' ','%20')}
+              )}">
+    Delete
+</a>
+
+
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+    
+
+        <label>Success Criteria:</label>
+        <textarea th:field="*{successCriteria}"></textarea>
+
+        <label>Tested By:</label>
+        <input type="text" th:field="*{testedBy}" />
+
+        <label>Start Date:</label>
+        <input type="date" th:field="*{startDate}" />
+
+        <label>End Date:</label>
+        <input type="date" th:field="*{endDate}" />
+
+        <button type="submit">Update</button>
+
+        <a th:href="@{/api/transactions/testcaseheaders}" class="btn">View Test Header List</a>
+    </form>
+</body>
+
+</html>

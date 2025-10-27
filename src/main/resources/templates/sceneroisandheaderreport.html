@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Scenarios Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="text-center">Scenario Report</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Business Scenario</th>
+            <th>Activity</th>
+            <th>Expected Outcome</th>
+            <th>Responsible</th>
+            <th>Scenario Description</th>
+            <th>Work Stream</th>
+            <th>Transaction Key</th>
+            <th>Trans Activity</th>
+            <th>Trans Expected Outcome</th>
+            <th>Trans Responsible</th>
+            <th>Trans Scenario Description</th>
+            <th>TCode</th>
+            <th>Transaction Suffix</th>
+            <th>Trans Work Stream</th>
+            <th>Combined Key</th>
+            <th>Test Case Activity</th>
+            <th>Description</th>
+            <th>End Date</th>
+            <th>Expected outcome</th>
+            <th>Navigate Steps</th>
+            <th>Prerequisites</th>
+            <th>responsible</th>
+            <th>Scenario</th>
+            <th>Screen Shot JPG</th>
+            <th>Start Date</th>
+            <th>Success Criteria</th>
+            <th>Test Data</th>
+           
+            <th>Tested By</th>
+             <th>tcTransactionKey</th>
+            <th>Workstream</th>
+
+            
+
+        </tr>
+        </thead>
+        <tbody>
+       <tr th:each="sc : ${scenarios}">
+    <td th:text="${sc.businessScenario}"></td>
+    <td th:text="${sc.activity}"></td>
+    <td th:text="${sc.expectedOutcome}"></td>
+    <td th:text="${sc.responsible}"></td>
+    <td th:text="${sc.scenarioDescription}"></td>
+    <td th:text="${sc.workStream}"></td>
+    <td th:text="${sc.transactionKey}"></td>
+    <td th:text="${sc.transActivity}"></td>
+<!--    <td th:text="${sc.transTransactionKey}"></td>
+-->    <td th:text="${sc.transExpectedOutcome}"></td>
+    <td th:text="${sc.transResponsible}"></td>
+    <td th:text="${sc.transScenarioDescription}"></td>
+    <td th:text="${sc.tcode}"></td>
+    <td th:text="${sc.transactionSuffix}"></td>
+    <td th:text="${sc.transWorkStream}"></td>
+    <td th:text="${sc.combinedKey}"></td>
+    <td th:text="${sc.tcActivity}"></td>
+    <td th:text="${sc.description}"></td>
+    <td th:text="${sc.endDate}"></td>
+    <td th:text="${sc.tcExpectedOutcome}"></td>
+    <td th:text="${sc.navigateSteps}"></td>
+    <td th:text="${sc.prerequisites}"></td>
+    <td th:text="${sc.tcResponsible}"></td>
+    <td th:text="${sc.scenario}"></td>
+    <td th:text="${sc.screenShotjpg}"></td>
+    <td th:text="${sc.startDate}"></td>
+    <td th:text="${sc.successCriteria}"></td>
+    <td th:text="${sc.testData}"></td>
+    <td th:text="${sc.testedBy}"></td>
+    <td th:text="${sc.tcTransactionKey}"></td>
+    <td th:text="${sc.tcWorkStream}"></td>
+</tr>
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

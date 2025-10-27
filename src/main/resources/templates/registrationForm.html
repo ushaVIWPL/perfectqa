@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    
+  <style>
+.error-msg { color: red !important; font-size: 0.9rem; }
+        
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+  <div class="card shadow-lg p-4 rounded-4">
+    <h2 class="text-center mb-4 text-primary">User Registration</h2>
+    
+    <div th:if="${error}" class="alert alert-danger text-center">
+    <span th:text="${error}"></span>
+</div>
+
+    <!-- Bind form to user object -->
+<form th:action="@{/create}" th:object="${user}" method="post"
+      onsubmit="return validateFormAndDisable(this)">
+
+
+      <div class="row">
+ <div class="col-md-6 mb-3">
+  <label class="form-label">First Name</label>
+  <input type="text" th:field="*{firstName}" id="firstName" class="form-control">
+  <div class="error-msg" id="firstNameError"></div>
+</div>
+
+
+     <div class="col-md-6 mb-3">
+      <label class="form-label">Last Name</label>
+      <input type="text" th:field="*{lastName}" class="form-control" placeholder="Enter last name">
+    </div>
+      </div>
+
+      <!-- Email & Phone -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" th:field="*{email}" id="email" class="form-control" required>
+                    <div class="error-msg" id="emailError"></div>
+
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Phone No</label>
+          <input type="text" th:field="*{phoneNo}" id="phoneNo" class="form-control">
+                    <div class="error-msg" id="phoneError"></div>
+
+        </div>
+      </div>
+
+      <!-- Requester -->
+      <div class="mb-3">
+        <label class="form-label">Requester Name</label>
+        <input type="text" th:field="*{requesterName}" class="form-control">
+      </div>
+
+      <!-- Access Levels -->
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Access Level 1</label>
+          <input type="text" th:field="*{accessLevel1}" class="form-control">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Access Level 2</label>
+          <input type="text" th:field="*{accessLevel2}" class="form-control">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Access Level 3</label>
+          <input type="text" th:field="*{accessLevel3}" class="form-control">
+        </div>
+      </div>
+
+      <!-- Country -->
+<div class="row">
+    <!-- Dropdown: countryName displayed, but countryCode stored -->
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Country</label>
+      <select th:field="*{countryName}" class="form-control" id="countrySelect">
+    <option value="">-- Select Country --</option>
+    <option th:each="c : ${countries}"
+            th:value="${c.countryName}" 
+            th:text="${c.countryName}" 
+            th:attr="data-code=${c.countryCode}">
+    </option>
+</select>
+
+        <!-- Bind selected countryName to UserAccount -->
+        <input type="hidden" th:field="*{countryName}" id="hiddenCountryName">
+    </div>
+
+    <!-- Readonly display of code + hidden input bound to UserAccount.countryCode -->
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Country Code</label>
+      <input type="text" th:field="*{countryCode}" class="form-control" id="countryCodeInput" readonly>
+
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const countrySelect = document.getElementById("countrySelect");
+    const countryCodeInput = document.getElementById("countryCodeInput");
+
+    countrySelect.addEventListener("change", function () {
+        const selectedOption = countrySelect.options[countrySelect.selectedIndex];
+        const code = selectedOption.getAttribute("data-code");
+        countryCodeInput.value = code || "";
+    });
+});
+</script>
+
+
+
+      <!-- Company -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Company Code</label>
+          <input type="text" th:field="*{companyCode}" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Company Name</label>
+          <input type="text" th:field="*{companyName}"  id="companyName" class="form-control">
+                  <div class="error-msg" id="companyError"></div>
+
+        </div>
+      </div>
+
+
+      <!-- Division & Department -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Division</label>
+          <input type="text" th:field="*{division}" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Department</label>
+          <input type="text" th:field="*{department}" class="form-control">
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Location</label>
+          <input type="text" th:field="*{location}" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">User Title</label>
+          <input type="text" th:field="*{userTitle}" class="form-control">
+        </div>
+      </div>
+
+      <!-- Role -->
+      <div class="row">
+<div class="col-md-6 mb-3">
+  <label class="form-label">User Role</label>
+  <select th:field="*{userRole}" id="userRole" class="form-control" required>
+    <option value="">-- Select Role --</option>
+    <option value="admin">Admin</option>
+    <option value="tester">Tester</option>
+    <option value="BUSINESS_MANAGER">BUSINESSMANAGER</option>
+  </select>
+  <div class="error-msg" id="roleError"></div>
+</div>
+
+        
+        
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Reporting Manager</label>
+          <input type="text" th:field="*{reportingManager}" class="form-control">
+        </div>
+      </div>
+
+      <!-- Language & Emergency -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Language</label>
+          <input type="text" th:field="*{language}" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Emergency Contact No</label>
+          <input type="text" th:field="*{emergencyContactNo}" class="form-control">
+        </div>
+      </div>
+
+      <!-- License -->
+      <div class="mb-3">
+        <label class="form-label">License</label>
+        <input type="text" th:field="*{license}" class="form-control">
+      </div>
+      
+     <div class="mb-3">
+    <label class="form-label">Status</label>
+    <select th:field="*{status}" class="form-select">
+        <option th:value="1" th:text="'Active'" 
+            th:selected="${status == 1}"></option>
+        <option th:value="0" th:text="'Inactive'" 
+            th:selected="${status == 0}"></option>
+    </select>
+</div>
+
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-5">Register</button>
+	<a th:href="@{/loginform}">Login</a>
+
+      </div>
+    </form>
+  </div>
+</div>
+<div th:if="${user.userId != null}" class="alert alert-success text-center">
+    User registered successfully! <br>
+    <strong>UserID:</strong> <span th:text="${user.userId}"></span> <br>
+    <strong>Password:</strong> <span th:text="${user.password}"></span>
+</div>
+
+
+</body>
+
+<!--<div th:if="${error}" class="alert alert-danger text-center">
+    <span th:text="${error}"></span>
+</div>
+-->
+
+
+<script>
+function validateForm() {
+    let isValid = true;
+
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const email = document.getElementById('email');
+    const phone = document.getElementById('phoneNo');
+    const company = document.getElementById('companyName');
+    const role = document.getElementById('userRole');
+
+    const showError = (id, msg) => document.getElementById(id).innerText = msg;
+    const clearError = id => document.getElementById(id).innerText = "";
+
+    if (!firstName.value.trim()) { showError("firstNameError", "First name is required."); isValid=false; } else clearError("firstNameError");
+    if (!lastName.value.trim()) { showError("lastNameError", "Last name is required."); isValid=false; } else clearError("lastNameError");
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value.trim()) { showError("emailError","Email is required."); isValid=false; } 
+    else if (!emailPattern.test(email.value.trim())) { showError("emailError","Invalid email format."); isValid=false; } 
+    else clearError("emailError");
+    const phonePattern = /^\d{10,15}$/;
+    if (!phone.value.trim()) { showError("phoneError","Phone number is required."); isValid=false; } 
+    else if (!phonePattern.test(phone.value.trim())) { showError("phoneError","Enter 10-15 digits."); isValid=false; } 
+    else clearError("phoneError");
+    if (!company.value.trim()) { showError("companyError","Company name is required."); isValid=false; } else clearError("companyError");
+    if (!role.value) { showError("roleError","User role is required."); isValid=false; } else clearError("roleError");
+
+    return isValid; // prevent submission if false
+}
+
+</script>
+
+
+<script>
+	function validateFormAndDisable(form) {
+    if (!validateForm()) return false;
+    form.querySelector('button[type="submit"]').disabled = true;
+    return true;
+}
+</script>
+
+</html>
