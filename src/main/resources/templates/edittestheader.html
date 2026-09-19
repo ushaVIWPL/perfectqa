@@ -7,8 +7,12 @@
     <!-- External Resources -->
     <link rel="stylesheet" th:href="@{/main.css}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
-    <style>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f7f9fc;
@@ -122,16 +126,10 @@
             box-shadow: 0 1px 5px rgba(0,0,0,0.2);
         }
     </style>
-</head>
 
-<body>
 
-    <!-- Navigation -->
-    <a th:href="@{/qaAdminMenuform}" class="back-btn">
-        ← Main Menu
-    </a>
-
-    <h2>Edit Test Case Header</h2>
+    <h2>Edit Test Case Header/ User Story
+</h2>
 
     <!-- Success and Error Messages -->
     <div th:if="${message}" class="alert alert-success">
@@ -187,7 +185,8 @@
         
         
         <label>Upload New Screenshots:</label>
-<input type="file" name="files" multiple accept="image/*" />
+<input type="file" name="files" multiple accept="image/*" id="screenshotFiles" onchange="validateImageFiles()" />
+<small style="color: #dc3545; display: block; margin-top: 5px;"><strong>Maximum file size: 10MB per image</strong></small>
 
 <input type="hidden" name="existingFileNames"
        th:value="${testCaseHeader.screenshotPaths}" />
@@ -247,6 +246,51 @@
 
         <a th:href="@{/api/transactions/testcaseheaders}" class="btn">View Test Header List</a>
     </form>
+
+<script>
+// Maximum file size: 10MB in bytes
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function validateImageFiles() {
+    const input = document.getElementById('screenshotFiles');
+    
+    if (!input || !input.files || input.files.length === 0) {
+        return true;
+    }
+    
+    // Validate file sizes
+    for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
+        if (file.size > MAX_FILE_SIZE) {
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                html: 'The selected image "' + file.name + '" is too large (' + fileSizeMB + ' MB).<br>Please upload an image within the allowed size limit of 10MB.',
+                confirmButtonColor: '#667eea'
+            });
+            input.value = '';
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Validate on form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!validateImageFiles()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+
 </body>
 
 </html>

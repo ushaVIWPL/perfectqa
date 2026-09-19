@@ -3,11 +3,17 @@
 <head>
    <div th:fragment="header"
      style="text-align:center; padding:10px 15px; background:linear-gradient(135deg,#2c3e50,#34495e); color:white; box-shadow:0 4px 10px rgba(0,0,0,0.2); font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; margin:0;">
-    <span style="font-size:2rem; font-weight:800; letter-spacing:2px;
-                 background:linear-gradient(90deg,#f39c12,#e67e22); -webkit-background-clip:text;
-                 -webkit-text-fill-color:transparent; display:block; margin-bottom:5px;">
-        IWPL Inc.
-    </span>
+    <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:5px;">
+        <img th:src="${session != null and session.companyCode != null ? '/company/logo/' + session.companyCode : '/company/logo'}"
+             style="height:45px; width:auto; max-width:140px; object-fit:contain;"
+             onerror="this.style.display='none';" alt="Logo">
+        <span style="font-size:2rem; font-weight:800; letter-spacing:2px;
+                     background:linear-gradient(90deg,#f39c12,#e67e22); -webkit-background-clip:text;
+                     -webkit-text-fill-color:transparent; display:inline-block;"
+              th:text="${session != null and session.companyName != null ? session.companyName : 'IWPL Inc.'}">
+            IWPL Inc.
+        </span>
+    </div>
     <span style="font-size:1.4rem; font-weight:600; color:#1abc9c; letter-spacing:2px;
                  text-shadow:1px 1px 4px rgba(0,0,0,0.4); display:block;">
         PERFECTQA

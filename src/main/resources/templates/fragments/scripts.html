@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Global Scripts Fragment - Include at bottom of pages -->
+<div th:fragment="ajaxScripts">
+    <!-- HTMX for AJAX-based navigation -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- NProgress for loading indicator -->
+    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/nprogress@0.2.0/nprogress.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/ajax-utils.js}"></script>
+    
+    <script>
+        // Initialize HTMX and NProgress
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hx-boost to body to make all links and forms use AJAX
+            document.body.setAttribute('hx-boost', 'true');
+            
+            // Configure NProgress
+            NProgress.configure({ showSpinner: false, speed: 400 });
+            
+            // Show progress bar on HTMX requests
+            document.addEventListener('htmx:beforeRequest', function() {
+                NProgress.start();
+            });
+            document.addEventListener('htmx:afterRequest', function() {
+                NProgress.done();
+            });
+            document.addEventListener('htmx:onLoadError', function() {
+                NProgress.done();
+            });
+        });
+    </script>
+    
+    <style>
+        /* Smooth transitions for AJAX content swaps */
+        .htmx-swapping {
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+        .htmx-settling {
+            opacity: 0;
+        }
+        #nprogress .bar {
+            background: #3b82f6 !important;
+            height: 3px !important;
+        }
+    </style>
+</div>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

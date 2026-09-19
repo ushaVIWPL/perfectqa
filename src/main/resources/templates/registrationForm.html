@@ -4,273 +4,503 @@
     <meta charset="UTF-8">
     <title>User Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    
-  <style>
-.error-msg { color: red !important; font-size: 0.9rem; }
-        
-    </style>
 </head>
 
 <body class="bg-light">
 
-<div class="container mt-5">
-  <div class="card shadow-lg p-4 rounded-4">
-    <h2 class="text-center mb-4 text-primary">User Registration</h2>
+<style>
+        .error-msg { color: red !important; font-size: 0.9rem; }
+    </style>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
     
-    <div th:if="${error}" class="alert alert-danger text-center">
-    <span th:text="${error}"></span>
-</div>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 rounded-4">
+        <h2 class="text-center mb-4 text-primary" th:text="${editMode != null and editMode} ? 'Edit User' : 'User Registration'"></h2>
 
-    <!-- Bind form to user object -->
-<form th:action="@{/create}" th:object="${user}" method="post"
-      onsubmit="return validateFormAndDisable(this)">
+        <div class="d-flex justify-content-between mb-3">
+            <a th:href="${isBusinessManager != null and isBusinessManager} ? @{/business-manager} : @{/users}" 
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Users
+            </a>
+            <a th:href="@{/business-manager}" class="btn btn-outline-secondary" th:if="${isBusinessManager != null and isBusinessManager}">
+                <i class="bi bi-house"></i> Dashboard
+            </a>
+        </div>
 
+        <div th:if="${error}" class="alert alert-danger text-center">
+            <span th:text="${error}"></span>
+        </div>
+        <div th:if="${success}" class="alert alert-success text-center">
+            <span th:text="${success}"></span>
+        </div>
 
-      <div class="row">
- <div class="col-md-6 mb-3">
-  <label class="form-label">First Name</label>
-  <input type="text" th:field="*{firstName}" id="firstName" class="form-control">
-  <div class="error-msg" id="firstNameError"></div>
-</div>
+        <form th:action="${editMode != null and editMode} ? @{/update-user} : @{/create}" 
+              th:object="${user}" method="post">
+            <!-- Hidden fields for edit mode -->
+            <th:block th:if="${editMode != null and editMode}">
+                <input type="hidden" th:field="*{password}">
+                <input type="hidden" th:field="*{createdDate}">
+            </th:block>
+            
+            <!-- User ID (only in edit mode) -->
+            <div class="row" th:if="${editMode != null and editMode}">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">User ID (Email)</label>
+                    <input type="text" th:field="*{userId}" class="form-control" readonly>
+                    <small class="text-muted">User ID cannot be changed</small>
+                </div>
+            </div>
 
+            <!-- Personal Information Section -->
+            <h5 class="text-secondary mb-3 mt-3">Personal Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{firstName}" id="firstName" class="form-control" required>
+                    <div class="error-msg" id="firstNameError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{lastName}" id="lastName" class="form-control" required>
+                    <div class="error-msg" id="lastNameError"></div>
+                </div>
+            </div>
 
-     <div class="col-md-6 mb-3">
-      <label class="form-label">Last Name</label>
-      <input type="text" th:field="*{lastName}" class="form-control" placeholder="Enter last name">
-    </div>
-      </div>
-
-      <!-- Email & Phone -->
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" th:field="*{email}" id="email" class="form-control" required>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" th:field="*{email}" id="email" class="form-control" required>
                     <div class="error-msg" id="emailError"></div>
-
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Phone No</label>
-          <input type="text" th:field="*{phoneNo}" id="phoneNo" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Phone No</label>
+                    <input type="text" th:field="*{phoneNo}" id="phoneNo" class="form-control" placeholder="10-15 digits">
                     <div class="error-msg" id="phoneError"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">WhatsApp Number <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{whatsappNo}" id="whatsappNo" class="form-control" placeholder="91XXXXXXXXXX" required>
+                    <div class="error-msg" id="whatsappError"></div>
+                </div>
+            </div>
 
-        </div>
-      </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Emergency Contact No</label>
+                    <input type="text" th:field="*{emergencyContactNo}" id="emergencyContactNo" class="form-control" placeholder="Emergency contact number">
+                    <div class="error-msg" id="emergencyContactError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">User Title</label>
+                    <input type="text" th:field="*{userTitle}" id="userTitle" class="form-control" placeholder="e.g., Manager, Director">
+                    <div class="error-msg" id="userTitleError"></div>
+                </div>
+            </div>
 
-      <!-- Requester -->
-      <div class="mb-3">
-        <label class="form-label">Requester Name</label>
-        <input type="text" th:field="*{requesterName}" class="form-control">
-      </div>
+            <!-- Company & Role Section -->
+            <h5 class="text-secondary mb-3 mt-4">Company & Role</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3" th:unless="${isBusinessManager != null and isBusinessManager}">
+                    <label class="form-label">Company <span class="text-danger">*</span></label>
+                    <!-- For Business Managers in edit mode: Show read-only company, no dropdown -->
+                    <th:block th:if="${editMode != null and editMode and isBusinessManager != null and isBusinessManager}">
+                        <input type="text" 
+                               class="form-control" 
+                               th:value="${user.company != null ? (user.company.companyCode + ' - ' + (user.company.companyName != null ? user.company.companyName : '')) : (user.companyCode != null ? user.companyCode : 'N/A')}"
+                               readonly
+                               style="background-color: #e9ecef;">
+                        <input type="hidden" th:field="*{company.companyCode}">
+                        <small class="text-muted">Company cannot be changed</small>
+                    </th:block>
+                    <!-- For Admin or Add mode: Show dropdown -->
+                    <th:block th:unless="${editMode != null and editMode and isBusinessManager != null and isBusinessManager}">
+                        <select th:field="*{company.companyCode}" id="companyCode" class="form-control" required>
+                            <option value="">-- Select Company --</option>
+                            <option th:each="c : ${companies}" 
+                                    th:value="${c.companyCode}" 
+                                    th:text="${c.companyCode + ' - ' + c.companyName}">
+                            </option>
+                        </select>
+                        <div class="error-msg" id="companyCodeError"></div>
+                    </th:block>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">User Role <span class="text-danger">*</span></label>
+                    <select th:field="*{userRole}" id="userRole" class="form-control" required>
+                        <option value="">-- Select Role --</option>
+<!--                        <option value="ADMIN">Admin</option>
+-->                        <option value="TESTER">Tester</option>
+                        <option value="BUSINESS_MANAGER">Business Manager</option>
+                    </select>
+                    <div class="error-msg" id="roleError"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <select th:field="*{status}" id="status" class="form-control" required>
+                        <option value="1" th:selected="${user.status == null or user.status == 1}">🟢 Active</option>
+                        <option value="0" th:selected="${user.status == 0}">🔴 Inactive</option>
+                    </select>
+                    <small class="text-muted">Inactive users cannot login</small>
+                </div>
+            </div>
 
-      <!-- Access Levels -->
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Access Level 1</label>
-          <input type="text" th:field="*{accessLevel1}" class="form-control">
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Access Level 2</label>
-          <input type="text" th:field="*{accessLevel2}" class="form-control">
-        </div>
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Access Level 3</label>
-          <input type="text" th:field="*{accessLevel3}" class="form-control">
-        </div>
-      </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Requester Name</label>
+                    <input type="text" th:field="*{requesterName}" id="requesterName" class="form-control" placeholder="Name of person requesting account">
+                    <div class="error-msg" id="requesterNameError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Reporting Manager</label>
+                    <input type="text" th:field="*{reportingManager}" id="reportingManager" class="form-control" placeholder="Manager's name">
+                    <div class="error-msg" id="reportingManagerError"></div>
+                </div>
+            </div>
 
-      <!-- Country -->
-<div class="row">
-    <!-- Dropdown: countryName displayed, but countryCode stored -->
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Country</label>
-      <select th:field="*{countryName}" class="form-control" id="countrySelect">
-    <option value="">-- Select Country --</option>
-    <option th:each="c : ${countries}"
-            th:value="${c.countryName}" 
-            th:text="${c.countryName}" 
-            th:attr="data-code=${c.countryCode}">
-    </option>
-</select>
+            <!-- Location & Organization Section -->
+            <h5 class="text-secondary mb-3 mt-4">Location & Organization</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Country</label>
+                    <select th:field="*{countryCode}" id="countryCode" class="form-control">
+                        <option value="">-- Select Country --</option>
+                        <option th:each="country : ${countries}" 
+                                th:value="${country.countryCode}" 
+                                th:text="${country.countryCode + ' - ' + country.countryName}">
+                        </option>
+                    </select>
+                    <div class="error-msg" id="countryCodeError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" th:field="*{location}" id="location" class="form-control" placeholder="Office location">
+                    <div class="error-msg" id="locationError"></div>
+                </div>
+            </div>
 
-        <!-- Bind selected countryName to UserAccount -->
-        <input type="hidden" th:field="*{countryName}" id="hiddenCountryName">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Division</label>
+                    <input type="text" th:field="*{division}" id="division" class="form-control" placeholder="Business division">
+                    <div class="error-msg" id="divisionError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Department</label>
+                    <select th:field="*{department}" id="department" class="form-control" th:data-current="${user?.department}">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <div class="error-msg" id="departmentError"></div>
+                </div>
+            </div>
+
+            <!-- Access Levels Section -->
+            <h5 class="text-secondary mb-3 mt-4">Access Levels</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Access Level 1</label>
+                    <input type="text" th:field="*{accessLevel1}" id="accessLevel1" class="form-control" placeholder="Primary access level">
+                    <div class="error-msg" id="accessLevel1Error"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Access Level 2</label>
+                    <input type="text" th:field="*{accessLevel2}" id="accessLevel2" class="form-control" placeholder="Secondary access level">
+                    <div class="error-msg" id="accessLevel2Error"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Access Level 3</label>
+                    <input type="text" th:field="*{accessLevel3}" id="accessLevel3" class="form-control" placeholder="Tertiary access level">
+                    <div class="error-msg" id="accessLevel3Error"></div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <h5 class="text-secondary mb-3 mt-4">Additional Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Language</label>
+                    <select th:field="*{language}" id="language" class="form-control">
+                        <option value="">-- Select Language --</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ja">Japanese</option>
+                        <option value="hi">Hindi</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="error-msg" id="languageError"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">License</label>
+                    <input type="text" th:field="*{license}" id="license" class="form-control" placeholder="License number or type">
+                    <div class="error-msg" id="licenseError"></div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5" 
+                        th:text="${editMode != null and editMode} ? 'Update User' : 'Register'">
+                    Register
+                </button>
+                <a th:href="${isBusinessManager != null and isBusinessManager} ? @{/business-manager} : @{/users}" 
+                   class="btn btn-secondary px-5 ms-2">Cancel</a>
+                <a th:href="@{/loginform}" class="btn btn-link" th:if="${editMode == null or !editMode}">Login</a>
+            </div>
+        </form>
     </div>
-
-    <!-- Readonly display of code + hidden input bound to UserAccount.countryCode -->
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Country Code</label>
-      <input type="text" th:field="*{countryCode}" class="form-control" id="countryCodeInput" readonly>
-
-    </div>
-</div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const countrySelect = document.getElementById("countrySelect");
-    const countryCodeInput = document.getElementById("countryCodeInput");
-
-    countrySelect.addEventListener("change", function () {
-        const selectedOption = countrySelect.options[countrySelect.selectedIndex];
-        const code = selectedOption.getAttribute("data-code");
-        countryCodeInput.value = code || "";
-    });
-});
-</script>
-
-
-
-      <!-- Company -->
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Company Code</label>
-          <input type="text" th:field="*{companyCode}" class="form-control">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Company Name</label>
-          <input type="text" th:field="*{companyName}"  id="companyName" class="form-control">
-                  <div class="error-msg" id="companyError"></div>
-
-        </div>
-      </div>
-
-
-      <!-- Division & Department -->
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Division</label>
-          <input type="text" th:field="*{division}" class="form-control">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Department</label>
-          <input type="text" th:field="*{department}" class="form-control">
-        </div>
-      </div>
-
-      <!-- Location -->
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Location</label>
-          <input type="text" th:field="*{location}" class="form-control">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">User Title</label>
-          <input type="text" th:field="*{userTitle}" class="form-control">
-        </div>
-      </div>
-
-      <!-- Role -->
-      <div class="row">
-<div class="col-md-6 mb-3">
-  <label class="form-label">User Role</label>
-  <select th:field="*{userRole}" id="userRole" class="form-control" required>
-    <option value="">-- Select Role --</option>
-    <option value="admin">Admin</option>
-    <option value="tester">Tester</option>
-    <option value="BUSINESS_MANAGER">BUSINESSMANAGER</option>
-  </select>
-  <div class="error-msg" id="roleError"></div>
 </div>
 
-        
-        
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Reporting Manager</label>
-          <input type="text" th:field="*{reportingManager}" class="form-control">
-        </div>
-      </div>
-
-      <!-- Language & Emergency -->
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Language</label>
-          <input type="text" th:field="*{language}" class="form-control">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Emergency Contact No</label>
-          <input type="text" th:field="*{emergencyContactNo}" class="form-control">
-        </div>
-      </div>
-
-      <!-- License -->
-      <div class="mb-3">
-        <label class="form-label">License</label>
-        <input type="text" th:field="*{license}" class="form-control">
-      </div>
-      
-     <div class="mb-3">
-    <label class="form-label">Status</label>
-    <select th:field="*{status}" class="form-select">
-        <option th:value="1" th:text="'Active'" 
-            th:selected="${status == 1}"></option>
-        <option th:value="0" th:text="'Inactive'" 
-            th:selected="${status == 0}"></option>
-    </select>
-</div>
-
-
-      <!-- Submit -->
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary px-5">Register</button>
-	<a th:href="@{/loginform}">Login</a>
-
-      </div>
-    </form>
-  </div>
-</div>
-<div th:if="${user.userId != null}" class="alert alert-success text-center">
-    User registered successfully! <br>
-    <strong>UserID:</strong> <span th:text="${user.userId}"></span> <br>
-    <strong>Password:</strong> <span th:text="${user.password}"></span>
-</div>
-
-
-</body>
-
-<!--<div th:if="${error}" class="alert alert-danger text-center">
-    <span th:text="${error}"></span>
-</div>
--->
-
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function validateForm() {
     let isValid = true;
-
     const firstName = document.getElementById('firstName');
     const lastName = document.getElementById('lastName');
     const email = document.getElementById('email');
     const phone = document.getElementById('phoneNo');
-    const company = document.getElementById('companyName');
+    const whatsapp = document.getElementById('whatsappNo');
+    const emergencyContact = document.getElementById('emergencyContactNo');
+    const company = document.getElementById('companyCode');
     const role = document.getElementById('userRole');
 
-    const showError = (id, msg) => document.getElementById(id).innerText = msg;
-    const clearError = id => document.getElementById(id).innerText = "";
+    const showError = (id, msg) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = msg;
+    };
+    const clearError = id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = "";
+    };
 
-    if (!firstName.value.trim()) { showError("firstNameError", "First name is required."); isValid=false; } else clearError("firstNameError");
-    if (!lastName.value.trim()) { showError("lastNameError", "Last name is required."); isValid=false; } else clearError("lastNameError");
+    // Required fields validation
+    if (firstName && !firstName.value.trim()) { 
+        showError("firstNameError", "First name is required."); 
+        isValid=false; 
+    } else { 
+        clearError("firstNameError"); 
+    }
+
+    if (lastName && !lastName.value.trim()) { 
+        showError("lastNameError", "Last name is required."); 
+        isValid=false; 
+    } else { 
+        clearError("lastNameError"); 
+    }
+
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.value.trim()) { showError("emailError","Email is required."); isValid=false; } 
-    else if (!emailPattern.test(email.value.trim())) { showError("emailError","Invalid email format."); isValid=false; } 
-    else clearError("emailError");
+    if (email && !email.value.trim()) { 
+        showError("emailError","Email is required."); 
+        isValid=false; 
+    } else if (email && !emailPattern.test(email.value.trim())) { 
+        showError("emailError","Invalid email format."); 
+        isValid=false; 
+    } else { 
+        clearError("emailError"); 
+    }
+
+    // Phone number validation (optional but must be valid format if provided)
     const phonePattern = /^\d{10,15}$/;
-    if (!phone.value.trim()) { showError("phoneError","Phone number is required."); isValid=false; } 
-    else if (!phonePattern.test(phone.value.trim())) { showError("phoneError","Enter 10-15 digits."); isValid=false; } 
-    else clearError("phoneError");
-    if (!company.value.trim()) { showError("companyError","Company name is required."); isValid=false; } else clearError("companyError");
-    if (!role.value) { showError("roleError","User role is required."); isValid=false; } else clearError("roleError");
+    if (phone && phone.value && !phonePattern.test(phone.value.trim())) { 
+        showError("phoneError","Enter 10-15 digits."); 
+        isValid=false; 
+    } else { 
+        clearError("phoneError"); 
+    }
+    
+    // WhatsApp number validation
+    if (whatsapp && !whatsapp.value.trim()) {
+        showError("whatsappError", "WhatsApp number is required.");
+        isValid = false;
+    } else if (whatsapp && !phonePattern.test(whatsapp.value.trim())) {
+        showError("whatsappError", "Enter 10-15 digits.");
+        isValid = false;
+    } else {
+        clearError("whatsappError");
+    }
 
-    return isValid; // prevent submission if false
+    // Emergency contact validation (optional but must be valid format if provided)
+    if (emergencyContact && emergencyContact.value && !phonePattern.test(emergencyContact.value.trim())) { 
+        showError("emergencyContactError","Enter 10-15 digits."); 
+        isValid=false; 
+    } else { 
+        clearError("emergencyContactError"); 
+    }
+
+    if (company && !company.value) { 
+        showError("companyCodeError","Company is required."); 
+        isValid=false; 
+    } else { 
+        clearError("companyCodeError"); 
+    }
+
+    if (role && !role.value) { 
+        showError("roleError","User role is required."); 
+        isValid=false; 
+    } else { 
+        clearError("roleError"); 
+    }
+
+    return isValid;
 }
 
+// AJAX form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                Swal.fire('Validation Error', 'Please fill all required fields correctly.', 'error');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const isEdit = this.action.includes('update');
+            
+            Swal.fire({
+                title: isEdit ? 'Updating User...' : 'Registering User...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                redirect: 'follow'
+            })
+            .then(response => {
+                return response.text().then(html => {
+                    return { html: html, url: response.url };
+                });
+            })
+            .then(({ html, url }) => {
+                // Check if we were redirected (URL changed and doesn't contain registration form)
+                const isRedirected = !url.includes('/update-user') && !url.includes('/create') && 
+                                    !html.includes('User Registration') && !html.includes('Edit User');
+                
+                if (isRedirected && isEdit) {
+                    // Server-side redirect happened (successful update)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'User updated successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Follow the redirect
+                        window.location.href = url;
+                    });
+                    return;
+                }
+                
+                // Continue with normal HTML parsing
+                const htmlContent = html;
+                
+                // Parse the response HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                
+                // Check for error message
+                const errorElement = doc.querySelector('.alert-danger');
+                const successElement = doc.querySelector('.alert-success');
+                
+                // Determine redirect URL based on user role
+                const isBusinessManager = /*[[${isBusinessManager}]]*/ false;
+                const redirectUrl = isBusinessManager ? '/business-manager' : '/users';
+                
+                if (errorElement) {
+                    // Extract error text
+                    const errorSpan = errorElement.querySelector('span');
+                    const errorMsg = errorSpan ? errorSpan.textContent.trim() : errorElement.textContent.trim();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMsg || 'Operation failed. Please check your inputs.'
+                    });
+                } else if (successElement) {
+                    // Extract success text
+                    const successSpan = successElement.querySelector('span');
+                    const successMsg = successSpan ? successSpan.textContent.trim() : successElement.textContent.trim();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: successMsg || (isEdit ? 'User updated successfully!' : 'User registered successfully!'),
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = redirectUrl;
+                    });
+                } else {
+                    // No message found - check if we got a valid form back (likely success for update)
+                    const formInResponse = doc.querySelector('form');
+                    if (formInResponse && isEdit) {
+                        // For edit, if we get the form back without error, it's success
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'User updated successfully!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: isEdit ? 'User updated successfully!' : 'User registered successfully!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = redirectUrl;
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Network error. Please try again.', 'error');
+            });
+        });
+    }
+
+    // Dynamic Department Dropdown Loader
+    const companySelect = document.getElementById('companyCode');
+    const departmentSelect = document.getElementById('department');
+    function loadDepartmentsForCompany(compCode) {
+        if (!departmentSelect) return;
+        const currentVal = departmentSelect.getAttribute('data-current') || departmentSelect.value;
+        const targetUrl = compCode ? '/department/api/by-company?companyCode=' + encodeURIComponent(compCode) : '/department/api/by-company';
+        
+        fetch(targetUrl, { credentials: 'include' })
+            .then(r => r.json())
+            .then(list => {
+                departmentSelect.innerHTML = '<option value="">-- Select Department --</option>';
+                list.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.departmentName;
+                    opt.textContent = d.departmentName + ' (' + d.departmentCode + ')';
+                    if (d.departmentName === currentVal) opt.selected = true;
+                    departmentSelect.appendChild(opt);
+                });
+            })
+            .catch(e => console.error('Failed to load departments', e));
+    }
+
+    if (companySelect) {
+        companySelect.addEventListener('change', () => loadDepartmentsForCompany(companySelect.value));
+        loadDepartmentsForCompany(companySelect.value);
+    } else {
+        const hiddenCompany = document.querySelector('input[name="company.companyCode"]');
+        loadDepartmentsForCompany(hiddenCompany ? hiddenCompany.value : '');
+    }
+});
 </script>
 
-
-<script>
-	function validateFormAndDisable(form) {
-    if (!validateForm()) return false;
-    form.querySelector('button[type="submit"]').disabled = true;
-    return true;
-}
-</script>
-
+</body>
 </html>

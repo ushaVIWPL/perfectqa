@@ -1,373 +1,424 @@
-	<!DOCTYPE html>
-	<html xmlns:th="http://www.thymeleaf.org">
-	<head>
-	    <title>Test Case Headers</title>
-	    <style>
-	        body {
-	            font-family: Arial, sans-serif;
-	            background: #e9ecef;
-	            padding: 30px;
-	        }
-	
-	        h1 {
-	            text-align: center;
-	            color: #333;
-	            margin-bottom: 30px;
-	        }
-	
-	        table {
-	            width: 100%;
-	            border-collapse: collapse;
-	            background-color: #fff;
-	            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-	        }
-	
-	        th, td {
-	            padding: 12px;
-	            border: 1px solid #dee2e6;
-	            text-align: left;
-	        }
-	
-	        th {
-	            background-color: #007bff;
-	            color: white;
-	        }
-	
-	        tr:nth-child(even) {
-	            background-color: #f8f9fa;
-	        }
-	
-	        tr:hover {
-	            background-color: #f1f1f1;
-	        }
-	
-	
-	/* Container for search bar */
-.search-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Case Headers | PerfectQA</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 
-/* Search input */
-#searchInput {
-    width: 50%;
-    max-width: 400px;
-    padding: 10px 15px;
-    font-size: 16px;
-    border: 2px solid #007bff;   /* blue border */
-    border-radius: 25px;          /* rounded corners */
-    outline: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
 
-/* On focus */
-#searchInput:focus {
-    border-color: #0056b3;
-    box-shadow: 0 4px 10px rgba(0,123,255,0.2);
-}
+<style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #7c3aed, #4f46e5);
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-/* Placeholder styling */
-#searchInput::placeholder {
-    color: #999;
-    font-style: italic;
-}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 24px 20px;
+        }
+
+        /* ──────────────────── TOP BAR ──────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ──────────────────── STAT CARDS ──────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
+
+        .stat-card .num { font-size: 1.8rem; font-weight: 800; font-family: 'Outfit', sans-serif; margin-bottom: 4px; }
+        .num-total  { color: var(--accent-purple); }
+        .num-testers { color: var(--accent-blue); }
+        .num-keys   { color: var(--accent-green); }
+
+        .stat-card .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; font-weight: 700; }
+
+        /* ──────────────────── ACTION BAR ──────────────────── */
+        .action-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-container { flex: 1; min-width: 300px; position: relative; }
+        .search-box { width: 100%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: #e2e8f0; border-radius: 12px; padding: 10px 16px 10px 40px; font-size: 14px; outline: none; }
+        .search-box:focus { border-color: var(--accent-purple); box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748b; }
+
+        .btn-premium { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; transition: 0.2s; cursor: pointer; }
+        .btn-violet { background: var(--primary-gradient); color: white; }
+        .btn-glass  { background: var(--glass-bg); border: 1px solid var(--glass-border); color: #e2e8f0; }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+        /* ──────────────────── TABLE ──────────────────── */
+        .table-wrapper { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        thead { background: rgba(124, 58, 237, 0.2); }
+        th { padding: 14px 12px; text-align: left; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; color: white; font-weight: 700; border-bottom: 1px solid var(--glass-border); }
+        .sort-link { color: white !important; text-decoration: none; }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        td { padding: 12px; color: #cbd5e1; vertical-align: middle; }
+
+        .combined-badge { background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.2); color: #c4b5fd; border-radius: 6px; padding: 3px 8px; font-weight: 700; font-family: 'Courier New', monospace; font-size: 13px; }
+        .key-badge { background: rgba(96, 165, 250, 0.1); color: #93c5fd; border-radius: 6px; padding: 3px 8px; font-family: 'Courier New', monospace; font-size: 12px; }
+
+        .screenshot-thumb { width: 32px; height: 32px; object-fit: cover; border-radius: 4px; border: 1px solid var(--glass-border); cursor: pointer; }
+        .screenshot-thumb:hover { transform: scale(1.2); }
+
+        .truncate { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ──────────────────── MODAL ──────────────────── */
+        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; justify-content: center; align-items: center; }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 1px solid var(--glass-border); }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
+            backdrop-filter: blur(8px);
+        }
+        
+        .lightbox-close:hover {
+            background: rgba(239, 68, 68, 0.8);
+            border-color: #ef4444;
+            transform: rotate(90deg) scale(1.1);
+            color: white;
+        }
+
+        @media (max-width: 992px) { 
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            th:nth-child(n+8), td:nth-child(n+8) { display: none; } /* Hide less critical columns on small screens */
+        }
+    </style>
 
 
-.action-buttons {
-    display: flex;
-    gap: 10px; /* space between buttons */
-}
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
 
-.action-buttons .btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-}
+    <div class="container-fluid px-lg-4 mt-4">
+        
+        <div class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <h1 class="page-title">Test Case Headers / Stories</h1>
+<p class="text-muted small mb-0" style="color: white !important;">
+    Project coverage and test strategy documentation
+</p>                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-premium btn-glass" onclick="downloadCSV()"><i class="bi bi-download"></i> CSV</button>
+                <a th:href="@{/Menu}" class="btn-premium btn-violet shadow-sm"><i class="bi bi-house"></i> Dashboard</a>
+            </div>
+        </div>
 
-/* Add Test Transaction button */
-.action-buttons .add-btn {
-    background-color: #28a745; /* green */
-    color: white;
-}
-.action-buttons .add-btn:hover {
-    background-color: #218838;
-}
+        <!-- Accurate stats from model -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="num num-total" th:text="${totalItems != null ? totalItems : 0}">0</div>
+                <div class="lbl">Total Headers</div>
+            </div>
+            <div class="stat-card">
+                <div class="num num-testers" th:text="${testersCount != null ? testersCount : 0}">0</div>
+                <div class="lbl">Active Testers</div>
+            </div>
+            <div class="stat-card">
+                <div class="num num-keys" th:text="${transactionKeysCount != null ? transactionKeysCount : 0}">0</div>
+                <div class="lbl">Unique Activity Keys</div>
+            </div>
+        </div>
 
-/* Edit button */
-.action-buttons .edit-btn {
-    background-color: #007bff; /* blue */
-    color: white;
-}
-.action-buttons .edit-btn:hover {
-    background-color: #0056b3;
-}
+        <div class="action-bar">
+            <div class="search-container">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-box" th:value="${search}" placeholder="Search Combined Key, Transaction Key, Activity, Description...">
+            </div>
+            <button class="btn-premium btn-glass" onclick="clearSearch()">Clear Filters</button>
+        </div>
 
+        <div th:if="${error}" class="alert alert-danger shadow-sm border-0 rounded-4 mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}">Error</span>
+        </div>
 
+        <div class="table-wrapper shadow-lg">
+            <div th:if="${#lists.isEmpty(testheaders)}" class="p-5 text-center">
+                <i class="bi bi-clipboard-x text-muted" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">No test headers found</h4>
+                <p class="text-muted">Link a scenario activity to create your first story.</p>
+            </div>
 
+            <div th:if="${!#lists.isEmpty(testheaders)}" class="table-responsive">
+                <table id="headerTable">
+                    <thead>
+                        <tr>
+                          <th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=0, size=${pageSize}, search=${search},
+            sortBy='combinedKey',
+            sortDir=${sortBy == 'combinedKey' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        Combined Key
+        <i th:class="${sortBy == 'combinedKey'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=${currentPage}, size=${pageSize}, search=${search},
+            sortBy='transactionKey',
+            sortDir=${sortBy == 'transactionKey' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        Activity Key
+        <i th:class="${sortBy == 'transactionKey'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=0, size=${pageSize}, search=${search},
+            sortBy='testCaseNo',
+            sortDir=${sortBy == 'testCaseNo' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        Test Case
+        <i th:class="${sortBy == 'testCaseNo'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=${currentPage}, size=${pageSize}, search=${search},
+            sortBy='activity',
+            sortDir=${sortBy == 'activity' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        Activity
+        <i th:class="${sortBy == 'activity'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=0, size=${pageSize}, search=${search},
+            sortBy='responsible',
+            sortDir=${sortBy == 'responsible' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        Responsible
+        <i th:class="${sortBy == 'responsible'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<th>
+    <a th:href="@{/api/transactions/testcaseheaders(
+            page=0, size=${pageSize}, search=${search},
+            sortBy='tCode',
+            sortDir=${sortBy == 'tCode' ? (sortDir == 'asc' ? 'desc' : 'asc') : 'asc'})}"
+       class="sort-link">
+        T-Code
+        <i th:class="${sortBy == 'tCode'} ? 
+            (${sortDir == 'asc'} ? 'bi bi-sort-alpha-up ms-1' : 'bi bi-sort-alpha-down ms-1') : 
+            'bi bi-arrow-down-up ms-1 opacity-50'"></i>
+    </a>
+</th>
 
+<!-- Screenshots & Actions — not sortable -->
+<th>Screenshots</th>
+<th>Tested By</th>
+<th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${testheaders}">
+                            <td><span class="combined-badge" th:text="${#strings.contains(t.combinedKey, '-') ? #strings.substringAfter(t.combinedKey, '-') : t.combinedKey}">-</span></td>
+                            <td><span class="key-badge" th:text="${#strings.contains(t.transactionKey, '-') ? #strings.substringAfter(t.transactionKey, '-') : t.transactionKey}">-</span></td>
+                            <td class="fw-bold text-white" th:text="${t.testCaseNo}">-</td>
+                            <td class="truncate" th:text="${t.activity}" th:title="${t.activity}">-</td>
+                            <td th:text="${t.responsible}">-</td>
+                            <td class="font-monospace small" th:text="${t.tCode}">-</td>
+                            <td>
+                                <div th:if="${t.imagePathsList != null and !t.imagePathsList.isEmpty()}" class="d-flex gap-1">
+                                    <img th:each="img : ${t.imagePathsList}" 
+                                         th:src="@{'/uploads/screenshots/' + ${img}}" 
+                                         class="screenshot-thumb" onclick="openLightbox(this.src)" th:onerror="this.style.display='none'"/>
+                                </div>
+                                <span th:unless="${t.imagePathsList != null and !t.imagePathsList.isEmpty()}" class="text-white small">None</span>
+                            </td>
+                            <td><span class="badge bg-info-subtle text-info rounded-pill" th:text="${t.testedBy}">-</span></td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a th:href="@{|/api/transactions/viewtestcaseheader/${t.combinedKey}|}" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                    <a th:if="${canAddEdit}" th:href="@{|/api/transactions/edittestcaseheader/${t.combinedKey}|}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                                   <a th:if="${canAddEdit}" th:href="@{|/api/add-transaction?combinedKey=${t.combinedKey}&companyCode=${t.companyCode}|}" class="btn btn-sm btn-outline-success me-1" title="Add Trans"><i class="bi bi-plus-lg"></i></a>
+                                   <button th:if="${canAddEdit and hasChildrenMap != null and !hasChildrenMap.get(t.id)}" class="btn btn-sm btn-outline-danger" title="Delete" th:onclick="deleteTestHeader([[${t.id}]])"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-
-
-	    </style>
-	</head>
-	<body>
-	<a th:href="@{/Menu}" class="back-btn">
-	    <span class="arrow">←</span> Mainmenu
-	</a>
-	
-
-	
-	<h1>Test Case Headers</h1>
-	
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search by Combined Key or TestCaseHeader No" />
-</div>
-
-	
-	<table>
-	    <thead>
-	        <tr>
-	            <th>Combined Key</th>
-	
-	            <th>TestCaseHeader No</th>
-	            <th>Description</th>
-	            <th> Wk-Str</th>
-	            <th>Activity</th>
-	            <th>Responsible</th>
-	            <th>Expected Outcome</th>
-	            <th>T-Code</th>
-	            <th>Prerequisites</th>
-	            <th>Navigate Steps</th>
-	            <th>Test Data</th>
-	            <th>Screenshot</th>
-	            <th>Success Criteria</th>
-	            <th>Tested By</th>
-	            <th>Start Date</th>
-	            <th>End Date</th>
-	            <th>Action</th>
-	        </tr>
-	    </thead>
-	  <tbody>
-	<tr th:each="tc : ${testcases}">
-	    <td th:text="${tc.combinedKey}"></td>
-	    <td class="scenarioKey" th:text="${tc.scenario}"></td>
-	    <td class="editable" th:text="${tc.description}"></td>
-	    <td class="editable" th:text="${tc.workStream}"></td>
-	    <td class="editable" th:text="${tc.activity}"></td>
-	    <td class="editable" th:text="${tc.responsible}"></td>
-	    <td class="editable" th:text="${tc.expectedOutcome}"></td>
-	    <td class="editable" th:text="${tc.tCode}"></td>
-	    <td class="editable" th:text="${tc.prerequisites}"></td>
-	    <td class="editable" th:text="${tc.navigateSteps}"></td>
-	    <td class="editable" th:text="${tc.testData}"></td>
-	    
-	    
-	    
-        <td class="align-middle">
-             <div class="view-mode d-flex flex-wrap gap-2" 
-         th:if="${tc.screenshotBase64List != null and !#lists.isEmpty(tc.screenshotBase64List)}">
-        <div th:each="img, iterStat : ${tc.screenshotBase64List}" class="position-relative">
-            
-            <!-- Thumbnail -->
-            <img th:src="${img}" 
-                 style="width:120px; height:120px; object-fit:cover; border:2px solid #e0e0e0; border-radius:6px;" />
-
-            <!-- Download button -->
-            <a th:href="${img}" 
-               th:attr="download=${'screenshot_' + iterStat.index + '.png'}"
-               class="btn btn-sm btn-light position-absolute top-0 end-0 m-1"
-               title="Download">
-               ⬇
-            </a>
+            <!-- PAGINATION -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center p-3 border-top border-secondary border-opacity-10">
+                <div class="small text-muted">
+                    Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/api/transactions/testcaseheaders(page=${currentPage - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">Prev</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'" th:if="${i >= currentPage - 2 and i <= currentPage + 2}">
+                            <a class="page-link" th:href="@{/api/transactions/testcaseheaders(page=${i}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/api/transactions/testcaseheaders(page=${currentPage + 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
 
-    <div th:if="${tc.screenshotBase64List == null or #lists.isEmpty(tc.screenshotBase64List)}">
-        <span>No Screenshot</span>
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+        <div class="lightbox-close"><i class="bi bi-x-lg"></i></div>
+        <img id="lightboxImg" src="">
     </div>
-</td>
 
-	
-	
-	    </td>  <td class="editable" th:text="${tc.successCriteria}"></td>
-	    <td class="editable" th:text="${tc.testedBy}"></td>
-	    <td class="editable" th:text="${tc.startDate}"></td>
-	    <td class="editable" th:text="${tc.endDate}"></td>
-	    
-	
-	
-	    
-	    <td>
-<!-- HTML -->
-<div class="action-buttons">
-    <form th:action="@{/showAddTransactionForm}" method="get">
-        <input type="hidden" name="combinedKey" th:value="${tc.combinedKey}" />
-        <button type="submit" class="btn add-btn">Add Test Transaction</button>
-    </form>
-
-    <!--<form th:action="@{/api/transactions/edittestheader}" method="get">
-        <input type="hidden" name="combinedKey" th:value="${tc.combinedKey}" />
-        <button type="submit" class="btn edit-btn">Edit</button>
-    </form>-->
-   <a th:href="@{/api/transactions/edittestheader/{combinedKey}(combinedKey=${tc.combinedKey})}" 
-   class="btn edit-btn">
-    Edit
-</a>
-
-
-</div>
-
-
-       <button type="button" class="save-btn" onclick="saveRow(this)" style="display:none;">Save</button>
-	    </td>
-	    
-	    
-	</tr>
-	</tbody>
-	
-	
-	
-	   
-	<script>
-	function enableEdit(btn) {
-	    let row = btn.closest('tr');
-	    row.querySelectorAll('.editable').forEach(td => {
-	        let text = td.innerText;
-	        td.innerHTML = `<input type="text" value="${text}" />`;
-	    });
-	    row.querySelector('.edit-btn').style.display = "none";
-	    row.querySelector('.save-btn').style.display = "inline-block";
-	}
-	
-	function saveRow(btn) {
-    let row = btn.closest('tr');
-    let scenarioKey = row.querySelector('.scenarioKey').innerText;
-
-    // Collect updated values
-    let updatedData = { scenario: scenarioKey };
-
-    let editableCells = row.querySelectorAll('.editable input');
-    let headers = [
-        "description", "workStream", "activity", "responsible", "expectedOutcome",
-        "tCode", "prerequisites", "navigateSteps", "testData",
-        "successCriteria", "testedBy", "startDate", "endDate"
-    ];
-
-    editableCells.forEach((input, index) => {
-        updatedData[headers[index]] = input.value;
-    });
-
-    // Send AJAX request to update
-    fetch(`/api/transactions/edittestheader?scenario=${scenarioKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Row updated successfully!");
-        // Update table with new values
-        row.querySelectorAll('.editable').forEach((td, i) => {
-            td.innerText = updatedData[headers[i]];
-        });
-        row.querySelector('.edit-btn').style.display = "inline-block";
-        row.querySelector('.save-btn').style.display = "none";
-    })
-    .catch(err => alert("Error updating row: " + err));
-}
-
-	</script>
-	
-	
-
-	
-	
-	   
-	<script>
-	function enableEdit(btn) {
-	    let row = btn.closest('tr');
-	    row.querySelectorAll('.editable').forEach(td => {
-	        let text = td.innerText;
-	        td.innerHTML = `<input type="text" value="${text}" />`;
-	    });
-	    row.querySelector('.edit-btn').style.display = "none";
-	    row.querySelector('.save-btn').style.display = "inline-block";
-	}
-	
-	function saveRow(btn) {
-	    let row = btn.closest('tr');
-	    let scenarioKey = row.querySelector('.scenarioKey').innerText;
-	
-	    // Collect updated values
-	    let updatedData = {
-	        scenario: scenarioKey
-	    };
-	
-	    let editableCells = row.querySelectorAll('.editable input');
-	    let headers = [
-	        "description", "workStream", "activity", "responsible", "expectedOutcome",
-	        "tCode", "prerequisites", "navigateSteps", "testData", "screenShotJPG",
-	        "successCriteria", "testedBy", "startDate", "endDate"
-	    ];
-	
-	    editableCells.forEach((input, index) => {
-	        updatedData[headers[index]] = input.value;
-	    });
-	
-	    // Send AJAX request to update
-	    fetch(`/api/transactions/edittestheader?scenario=${scenarioKey}`, {
-	        method: "POST",
-	        headers: { "Content-Type": "application/json" },
-	        body: JSON.stringify(updatedData)
-	    })
-	    .then(response => response.json())
-	    .then(data => {
-	        alert("Row updated successfully!");
-	        // Update table with new values
-	        row.querySelectorAll('.editable').forEach((td, i) => {
-	            td.innerText = updatedData[headers[i]];
-	        });
-	        row.querySelector('.edit-btn').style.display = "inline-block";
-	        row.querySelector('.save-btn').style.display = "none";
-	    })
-	    .catch(err => alert("Error updating row: " + err));
-	}
-	</script>
-	
-	
-	
-	
-	
-	
-	<script>
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll('table tbody tr');
-
-    rows.forEach(row => {
-        let combinedKey = row.querySelector('td:first-child').innerText.toLowerCase();
-        let scenarioKey = row.querySelector('.scenarioKey').innerText.toLowerCase();
-
-        if (combinedKey.includes(filter) || scenarioKey.includes(filter)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+    <script>
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.add('active');
         }
-    });
-});
-</script>
+        document.getElementById("searchInput").addEventListener("keyup", function (e) {
+            if (e.key === 'Enter') {
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', this.value.trim());
+                url.searchParams.set('page', '0');
+                window.location.href = url.toString();
+            }
+        });
+        function clearSearch() {
+            const url = new URL(window.location.origin + window.location.pathname);
+            url.searchParams.set('sortBy', 'combinedKey');
+            url.searchParams.set('sortDir', 'asc');
+            url.searchParams.set('page', '0');
+            window.location.href = url.toString();
+        }
 
-	
-	
-	
-	
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                document.getElementById('lightbox').classList.remove('active');
+            }
+        });
+
+        function downloadCSV() {
+            let table = document.getElementById("headerTable");
+            let rows = [...table.querySelectorAll("tr")];
+            let csv = rows.map(r => [...r.querySelectorAll("th, td")].slice(0, -1).map(c => `"${c.innerText.replace(/"/g, '""').trim()}"`).join(",")).join("\n");
+            let b = new Blob([csv], {type: "text/csv"});
+            let a = document.createElement("a");
+            a.download = "test_headers.csv";
+            a.href = URL.createObjectURL(b); a.click();
+        }
+
+        function deleteTestHeader(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You are about to delete this test case header. This cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/api/transactions/ajax/delete/' + encodeURIComponent(id), {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Deleted!', data.message, 'success')
+                            .then(() => window.location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message, 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Error!', 'An error occurred while deleting.', 'error');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

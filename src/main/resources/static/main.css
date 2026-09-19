@@ -26,3 +26,8 @@
 .back-btn:hover .arrow {
     transform: translateX(-3px);
 }
+
+select.form-control option, select.form-select option {
+    background-color: #ffffff;
+    color: #000000;
+}

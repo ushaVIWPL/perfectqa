@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task Management | PerfectQA</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-page-content {
+            padding: 40px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-page-content > div.container-fluid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        footer {
+            margin-top: auto !important;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title-area h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title-area p {
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-wrapper {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-wrapper select {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .filter-wrapper select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .btn-premium {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-blue { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; }
+        .btn-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; }
+        .btn-red-outline { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); }
+        .btn-red-outline:hover { background: var(--accent-red); color: white; }
+
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        /* ── Scroll Arrow Styles ── */
+        .table-scroll-container {
+            position: relative;
+        }
+
+        .scroll-arrow {
+            position: absolute;
+            top: 25px;
+            z-index: 10;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            background: rgba(15, 23, 42, 0.88);
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: background 0.2s, border-color 0.2s, transform 0.2s, opacity 0.25s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            opacity: 0.9;
+            padding: 0;
+        }
+        .scroll-arrow:hover {
+            background: rgba(59, 130, 246, 0.28);
+            border-color: #60a5fa;
+            transform: scale(1.12);
+            opacity: 1;
+        }
+        .scroll-arrow.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .scroll-arrow-left  { left: 10px; }
+        .scroll-arrow-right { right: 10px; }
+        /* ── End Scroll Arrow Styles ── */
+
+        .table-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(96, 165, 250, 0.3) transparent;
+        }
+        .table-responsive::-webkit-scrollbar { height: 5px; }
+        .table-responsive::-webkit-scrollbar-thumb { background: rgba(96, 165, 250, 0.3); border-radius: 4px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(255, 255, 255, 0.03); padding: 18px 20px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); font-weight: 700; border-bottom: 1px solid var(--glass-border); white-space: nowrap; }
+        td { padding: 18px 20px; color: #cbd5e1; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.9rem; white-space: nowrap; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .ticket-id-badge { background: rgba(96, 165, 250, 0.1); color: #60a5fa; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-family: monospace; }
+        
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; }
+        .status-open { background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.2); }
+        .status-assigned { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+        .status-in_progress { background: rgba(124, 58, 237, 0.1); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.2); }
+        .status-resolved { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .status-closed { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.2); }
+
+        .priority-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px currentColor; }
+        .priority-HIGH { color: var(--accent-red); }
+        .priority-MEDIUM { color: var(--accent-amber); }
+        .priority-LOW { color: var(--accent-green); }
+
+        .btn-action { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; color: white; text-decoration: none; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-action:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+
+        .alert-custom { padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .alert-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .alert-danger { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        @media (max-width: 768px) {
+            .dashboard-header { padding: 25px; text-align: center; }
+            .header-actions { justify-content: center; width: 100%; }
+        }
+
+        .pagination .page-link {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        .pagination .page-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-color: transparent;
+            color: white;
+        }
+        .pagination .page-item.disabled .page-link {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #64748b;
+        }
+
+        /* White search input placeholder */
+        input[name="search"]::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+    </style>
+
+
+<!-- Navbar Fragment -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Notification Scripts Fragment -->
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+    <div class="main-page-content">
+        <div class="container-fluid px-lg-5 animate-in">
+            
+            <div th:if="${success}" class="alert-custom alert-success">
+                <i class="bi bi-check-circle-fill"></i> <span th:text="${success}">Success message</span>
+            </div>
+
+            <div th:if="${error}" class="alert-custom alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}">Error message</span>
+            </div>
+
+            <!-- Dashboard Header Area -->
+            <div class="dashboard-header">
+                <div class="header-title-area">
+                    <h2>🛠️ Task Management</h2>
+                    <p>Manage your software, hardware and network requests</p>
+                </div>
+                <div class="header-actions">
+                    <a th:if="${session.role == 'BUSINESS_MANAGER' or session.role == 'ADMIN'}" th:href="@{/api/tickets/deleted(issueType='IT_SUPPORT')}" class="btn-premium btn-red-outline shadow-sm">
+                        <i class="bi bi-trash3"></i> Deleted Tickets
+                    </a>
+                </div>
+            </div>
+
+            <!-- Action & Filter Bar -->
+            <div class="action-bar" style="width: 100%;">
+                <form method="get" th:action="@{/api/tickets/list}" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; width: 100%;">
+                    <input type="hidden" name="issueType" value="IT_SUPPORT">
+                    
+                    <div style="position: relative; min-width: 300px; flex: 1;">
+                        <i class="bi bi-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                        <input type="text" name="search" th:value="${search}" class="form-control" placeholder="Search Ticket ID, Department, Issue Name..." style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); color: white; padding-left: 40px; border-radius: 12px; height: 45px;">
+                    </div>
+
+
+                    <div class="filter-wrapper" th:if="${isAdmin or session.role == 'MANAGER' or session.role == 'BUSINESS_MANAGER'}">
+                        <i class="bi bi-building text-light"></i>
+                        <span class="text-light small fw-bold me-2">DEPT:</span>
+                        <select name="department" onchange="this.form.submit()">
+                            <option value="">All Departments</option>
+                            <option th:each="dept : ${departments}" 
+                                    th:value="${dept.departmentCode}" 
+                                    th:text="${dept.departmentName}"
+                                    th:selected="${selectedDepartment == dept.departmentCode or selectedDepartment == dept.departmentName}"></option>
+                        </select>
+                    </div>
+
+                    <div class="filter-wrapper">
+                        <i class="bi bi-funnel text-light"></i>
+                        <span class="text-light small fw-bold me-2">STATUS:</span>
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="">All Statuses</option>
+                            <option value="OPEN" th:selected="${selectedStatus == 'OPEN'}">Open</option>
+                            <option value="ASSIGNED" th:selected="${selectedStatus == 'ASSIGNED'}">Assigned</option>
+                            <option value="IN_PROGRESS" th:selected="${selectedStatus == 'IN_PROGRESS'}">In Progress</option>
+                            <option value="RESOLVED" th:selected="${selectedStatus == 'RESOLVED'}">Resolved</option>
+                            <option value="CLOSED" th:selected="${selectedStatus == 'CLOSED'}">Closed</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-premium btn-glass" style="height: 45px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; border-radius: 12px;">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    <a th:href="@{/api/tickets/list(issueType='IT_SUPPORT')}" class="btn-premium btn-glass" style="height: 45px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; text-decoration: none; border-radius: 12px;">
+                        Clear
+                    </a>
+                </form>
+            </div>
+
+            <!-- Main Table Card wrapped in scroll container -->
+            <div class="table-scroll-container">
+
+                <!-- Left Arrow -->
+                <button class="scroll-arrow scroll-arrow-left hidden" id="arrowLeft" onclick="scrollTable(-1)" title="Scroll Left">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <!-- Right Arrow -->
+                <button class="scroll-arrow scroll-arrow-right" id="arrowRight" onclick="scrollTable(1)" title="Scroll Right">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+                <div class="table-card shadow-lg">
+                    <div th:if="${tickets == null or tickets.isEmpty()}" class="empty-state p-5 text-center">
+                        <div class="mb-4"><i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i></div>
+                        <h3>No Support Tickets Found</h3>
+                        <p class="text-muted">There are no Support tickets matching your current filters.</p>
+                        <a th:href="@{/api/tickets/createticket(issueType='IT_SUPPORT')}" class="btn-premium btn-blue mt-3">Raise First Support Ticket</a>
+                    </div>
+
+                    <div class="table-responsive" id="tableScroll" th:if="${tickets != null and !tickets.isEmpty()}">
+                        <table id="ticketsTable">
+                            <thead>
+                                <tr>
+                                    <th>Ticket ID</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th style="width: 200px; max-width: 200px;">Summary</th>
+                                    <th>Department</th>
+                                    <th>Created By</th>
+                                    <th>Assignee</th>
+                                    <th>Created Date</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ticket : ${tickets}">
+                                    <td><span class="ticket-id-badge" th:text="${ticket.ticketNo}">TKT-001</span></td>
+                                    <td>
+                                        <span class="status-badge" 
+                                              th:classappend="'status-' + ${#strings.toLowerCase(ticket.status != null ? ticket.status : 'open')}"
+                                              th:text="${ticket.status}">OPEN</span>
+                                    </td>
+                                    <td>
+                                        <span class="priority-dot" th:classappend="'priority-' + ${ticket.priority}" th:style="'color: ' + (ticket.priority == 'HIGH' ? '#f87171' : (ticket.priority == 'MEDIUM' ? '#fbbf24' : '#34d399'))"></span>
+                                        <span th:text="${ticket.priority ?: 'LOW'}">Medium</span>
+                                    </td>
+                                    <td class="text-truncate" style="width: 200px; max-width: 200px;" th:text="${ticket.issueDescription ?: ticket.summary}" th:title="${ticket.issueDescription ?: ticket.summary}">Summary</td>
+                                    <td th:with="dCode=${ticket.departmentCode}">
+                                        <span class="badge bg-secondary text-white" 
+                                              style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.15);"
+                                              th:text="${(departmentMap != null and departmentMap.get(dCode) != null) ? departmentMap.get(dCode) : (dCode != null and !dCode.isEmpty() ? dCode : '-')}">-</span>
+                                    </td>
+                                    <td th:text="${(creatorNames != null and creatorNames.get(ticket.userCode) != null) ? creatorNames.get(ticket.userCode) : (ticket.userCode ?: ticket.createdBy ?: 'Unknown')}">-</td>
+                                    <td th:with="assigneeName=${ticket.assigneeName ?: ticket.assignedTo ?: ticket.assigneeUserCode ?: 'Unassigned'},
+                                                  assigneeRole=${assigneeRoles != null ? assigneeRoles.get(ticket.assigneeUserCode) : null}"
+                                         th:text="${assigneeRole != null ? (assigneeName + ' (' + assigneeRole + ')') : assigneeName}">-</td>
+                                    <td class="small" style="color: #f8fafc;" th:text="${ticket.createdDate}">2024-01-01</td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a th:href="@{|/api/tickets/view/${ticket.id}|}" class="btn-action" title="View" style="color: #60a5fa;"><i class="bi bi-eye"></i></a>
+                                            <a th:if="${session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER' or ticket.userCode == session.userId or ticket.createdBy == session.userId or ticket.assigneeUserCode == session.userId or ticket.assignee2UserCode == session.userId or ticket.assignee3UserCode == session.userId or ticket.assignedTo == session.userId or ticket.userCode == session.username or ticket.createdBy == session.username or ticket.assigneeUserCode == session.username or ticket.assignee2UserCode == session.username or ticket.assignee3UserCode == session.username or ticket.assignedTo == session.username or ticket.userCode == session.email or ticket.createdBy == session.email or ticket.assigneeUserCode == session.email or ticket.assignee2UserCode == session.email or ticket.assignee3UserCode == session.email or ticket.assignedTo == session.email}" th:href="@{|/api/tickets/edit/${ticket.id}|}" th:data-status="${ticket.status}" th:data-id="${ticket.id}" onclick="return checkEditClosedTicket(event, this.href, this.getAttribute('data-status'), this.getAttribute('data-id'));" class="btn-action" title="Edit" style="color: #f59e0b;"><i class="bi bi-pencil"></i></a>
+                                            <a th:href="@{/api/tickets/download/{id}(id=${ticket.id})}" class="btn-action" title="Download" style="color: #34d399;" hx-boost="false" target="_blank"><i class="bi bi-download"></i></a>
+                                            <button th:if="${(session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER') and ticket.status == 'CLOSED'}" 
+                                                    th:onclick="'deleteTicket(' + ${ticket.id} + ')'"
+                                                    class="btn-action" title="Delete" style="color: #f87171;"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- PAGINATION -->
+                    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center p-4 border-top border-secondary border-opacity-10">
+                        <div class="small text-muted">
+                            Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span> (Total <span th:text="${totalItems}">0</span> tickets)
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/api/tickets/list(page=${currentPage - 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, issueType='IT_SUPPORT')}">Prev</a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'" th:if="${i >= currentPage - 2 and i <= currentPage + 2}">
+                                    <a class="page-link" th:href="@{/api/tickets/list(page=${i}, size=${pageSize}, search=${search}, status=${selectedStatus}, issueType='IT_SUPPORT')}" th:text="${i + 1}">1</a>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/api/tickets/list(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, issueType='IT_SUPPORT')}">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+            <!-- End table-scroll-container -->
+            
+            <footer class="text-center mt-5 p-4 small" style="color: white !important;">
+                &copy; 2026 PERFECTQA &bull; Quality Assured with Precision &bull; <i class="bi bi-rocket-takeoff text-primary"></i>
+            </footer>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+/* ── Delete ticket ── */
+function deleteTicket(ticketId) {
+    Swal.fire({
+        title: 'Move to Trash?',
+        text: 'This ticket will be moved to the Deleted Tickets section.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/tickets/ajax/delete/' + ticketId, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Deleted!', 'Ticket moved to trash.', 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            });
+        }
+    });
+}
+
+/* ── Table scroll arrows ── */
+const SCROLL_STEP = 240;
+
+function scrollTable(dir) {
+    const el = document.getElementById('tableScroll');
+    if (el) el.scrollLeft += dir * SCROLL_STEP;
+}
+
+function updateArrows() {
+    const el = document.getElementById('tableScroll');
+    if (!el) return;
+    const arrowLeft  = document.getElementById('arrowLeft');
+    const arrowRight = document.getElementById('arrowRight');
+    const atStart = el.scrollLeft <= 4;
+    const atEnd   = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+    if (arrowLeft)  arrowLeft.classList.toggle('hidden', atStart);
+    if (arrowRight) arrowRight.classList.toggle('hidden', atEnd);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const el = document.getElementById('tableScroll');
+    if (el) {
+        el.addEventListener('scroll', updateArrows);
+        window.addEventListener('resize', updateArrows);
+        updateArrows();
+    }
+
+    // Live Search Filter for Ticket ID and Summary
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#ticketsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

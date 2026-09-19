@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>QA Bugs & Issues Menu - PerfectQA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/IWPL_LOGO.jpg}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --accent-green: #10b981;
+      --accent-emerald: #059669;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --glass-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text-bright);
+      overflow-x: hidden;
+    }
+
+    .dashboard-container { padding: 30px 0; }
+    
+    .page-title-wrap { margin-bottom: 2.5rem; position: relative; }
+    
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #10b981, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .action-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 25px 20px;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .action-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-card:hover::after { opacity: 1; }
+
+    .action-icon-wrap {
+      width: 50px;
+      height: 50px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.4s;
+    }
+
+    .action-card:hover .action-icon-wrap {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .action-icon {
+      font-size: 24px;
+      color: var(--accent-green);
+      transition: color 0.4s;
+    }
+
+    .action-card:hover .action-icon { color: var(--accent-green); }
+
+    .card-title {
+      color: var(--text-bright);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.3s;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: auto;
+    }
+
+    .action-card:hover .btn-action {
+      background: #ffffff;
+      color: #020617;
+      border-color: #ffffff;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      font-weight: 600;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .back-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); transform: translateX(-5px); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  </style>
+
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="container dashboard-container">
+
+    <div class="text-center page-title-wrap animate-up">
+      <h1 class="page-title">QA Bugs & Issues</h1>
+      <p class="text-white opacity-50 fs-5">Ticketing system for test validation defects, UI bugs, and performance issues</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <!-- 1. Raise QA Support Ticket -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.1s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/createticket'">
+          <div class="action-icon-wrap">
+            <i class="bi bi-bug action-icon"></i>
+          </div>
+          <h6 class="card-title">Raise QA Task Ticket</h6>
+          <p class="card-text">Log a new bug, UI defect, security issue, or critical failure found during QA runs.</p>
+          <a th:href="@{/api/tickets/createticket}" class="btn-action">Raise Ticket</a>
+        </div>
+      </div>
+
+      <!-- 2. QA Ticket Created by Me -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.15s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/my-opened-tickets/qa'">
+          <div class="action-icon-wrap" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+            <i class="bi bi-folder2-open action-icon" style="color: #10b981;"></i>
+          </div>
+          <h6 class="card-title">QA Ticket Created by Me</h6>
+          <p class="card-text">Track the validation workflow and review progress of QA issues reported by you.</p>
+          <a th:href="@{/api/tickets/my-opened-tickets/qa}" class="btn-action" style="background: #10b981;">Check My Bugs</a>
+        </div>
+      </div>
+
+      <!-- 3. QA Ticket Assigned to Me -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.2s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/my-tickets/qa'">
+          <div class="action-icon-wrap" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2);">
+            <i class="bi bi-person-badge action-icon" style="color: #8b5cf6;"></i>
+          </div>
+          <h6 class="card-title">QA Ticket Assigned to Me</h6>
+          <p class="card-text">View and manage QA tickets or bug triage reports currently assigned to you for fixing.</p>
+          <a th:href="@{/api/tickets/my-tickets/qa}" class="btn-action" style="background: #8b5cf6;">Check My Assignments</a>
+        </div>
+      </div>
+
+      <!-- 4. All QA Tickets -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.25s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/list'">
+          <div class="action-icon-wrap" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);">
+            <i class="bi bi-list-ul action-icon" style="color: #f59e0b;"></i>
+          </div>
+          <h6 class="card-title">All QA Tickets</h6>
+          <p class="card-text">Browse and edit the global database of all logged QA bugs, enhancements, and UI issues.</p>
+          <a th:href="@{/api/tickets/list}" class="btn-action" style="background: #f59e0b;">View All Tickets</a>
+        </div>
+      </div>
+
+      <!-- 5. Download QA Tickets Report -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.3s">
+        <div class="action-card">
+          <div class="action-icon-wrap" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2);">
+            <i class="bi bi-file-earmark-spreadsheet action-icon" style="color: #ec4899;"></i>
+          </div>
+          <h6 class="card-title">Export All QA Tickets Report</h6>
+          <p class="card-text">Generate and download a comprehensive report of all QA tickets in Excel or PDF format.</p>
+          <div class="d-flex gap-2 w-100">
+            <a th:href="@{/api/report-all-tickets/excel(issueType='QA')}" class="btn-action" style="background: #10b981;" download hx-boost="false" onclick="handleExcelLoading(this)">Excel</a>
+            <a th:href="@{/api/report-all-tickets/pdf(issueType='QA')}" class="btn-action" style="background: #ef4444;" download hx-boost="false">PDF</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function handleExcelLoading(btn) {
+        if (btn.classList.contains('loading-disabled')) return;
+        
+        const originalHtml = btn.innerHTML;
+        btn.classList.add('loading-disabled');
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.7';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading...';
+        
+        // Restore after 6 seconds to allow clicking again later
+        setTimeout(function() {
+            btn.classList.remove('loading-disabled');
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+            btn.innerHTML = originalHtml;
+        }, 6000);
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

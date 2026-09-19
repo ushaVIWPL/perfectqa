@@ -1,22 +1,17 @@
 package com.example.demo.controller;
-import java.io.File;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
+import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,382 +19,557 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.dto.ScreenshotDTO;
+import com.example.demo.entity.ScenarioActivities;
 import com.example.demo.entity.TestCaseHeader;
-import com.example.demo.entity.TestCaseTransaction;
-import com.example.demo.repo.TestCaseHeaderRepository;
+import com.example.demo.service.ScenarioActivitiesService;
 import com.example.demo.service.TestCaseHeaderService;
+import com.example.demo.service.UserAccountService;
+import com.example.demo.entity.UserAccount;
+import com.example.demo.util.RoleAccessUtil;
 
 import jakarta.servlet.http.HttpSession;
-
 
 @Controller
 @RequestMapping("/api/transactions")
 public class TestCaseHeaderController {
 
-	@Autowired
-    private TestCaseHeaderService testCaseHeaderService;
-	
-	@Autowired
-    private TestCaseHeaderRepository testCaseHeaderRepo;
+    private final TestCaseHeaderService testCaseHeaderService;
+    private final ScenarioActivitiesService scenarioActivitiesService;
+    private final UserAccountService userAccountService;
 
-	
-    @GetMapping("/addtestheaderr")
-    public String showQaAdminMenu() {
-        return "addtestheader";  // Should map to a Thymeleaf template named addtestheader.html
-    }
-    
-    @GetMapping("/edittestheader")
-    public String showEditform() {
-        return "edittestheader";  // Should map to a Thymeleaf template named addtestheader.html
-    }
-    
-   
-    
-    
-    @GetMapping("/addtestheader")
-    public String showTestHeaderForm(@RequestParam("transactionKey") String transactionKey, Model model) {
-        TestCaseHeader testCaseHeader = new TestCaseHeader();
-        testCaseHeader.setTransactionKey(transactionKey);
-        model.addAttribute("testCaseHeader", testCaseHeader);
-        model.addAttribute("editMode", false); // ✅ mark add mode
-        return "addtestheader";
+    @Autowired
+    public TestCaseHeaderController(TestCaseHeaderService testCaseHeaderService,
+                                    ScenarioActivitiesService scenarioActivitiesService,
+                                    UserAccountService userAccountService) {
+        this.testCaseHeaderService = testCaseHeaderService;
+        this.scenarioActivitiesService = scenarioActivitiesService;
+        this.userAccountService = userAccountService;
     }
 
-    @GetMapping("/edittestheader/{combinedKey}")
-    public String showEditHeaderForm(@PathVariable("combinedKey") String combinedKey, Model model) throws IOException {
-        TestCaseHeader header = testCaseHeaderRepo.findByCombinedKey(combinedKey)
-                .orElseThrow(() -> new RuntimeException("Header not found"));
-
-        List<ScreenshotDTO> screenshots = new ArrayList<>();
-        for (String fileName : header.getScreenshotList()) {
-            Path filePath = Paths.get("uploads/testheaders", fileName.trim());
-            if (Files.exists(filePath)) {
-                byte[] bytes = Files.readAllBytes(filePath);
-                String base64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-                screenshots.add(new ScreenshotDTO(fileName.trim(), base64));
-            }
+    @ModelAttribute("companyUsers")
+    public List<UserAccount> populateCompanyUsers(HttpSession session) {
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode != null && !companyCode.isEmpty()) {
+            return userAccountService.getUsersByCompanyCode(companyCode);
         }
-
-        model.addAttribute("testCaseHeader", header);
-        model.addAttribute("screenshots", screenshots);
-
-        model.addAttribute("editMode", true);
-        return "edittestheader";
+        return java.util.Collections.emptyList();
     }
-
-
-    @GetMapping("/deleteHeaderScreenshot")
-    public String deleteHeaderScreenshot(@RequestParam String combinedKey,
-                                         @RequestParam String fileName,
-                                         RedirectAttributes redirectAttrs) {
-        // Decode the URL-encoded fileName
-        fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
-        System.out.println("Decoded File Name: " + fileName);
-
-        Optional<TestCaseHeader> optionalHeader = testCaseHeaderService.getHeaderByCombinedKey(combinedKey);
-        if (optionalHeader.isEmpty()) {
-            redirectAttrs.addFlashAttribute("error", "Header not found");
-            return "redirect:/api/transactions/edittestheader/" + combinedKey;
-        }
-
-        TestCaseHeader header = optionalHeader.get();
-        List<String> paths = new ArrayList<>(Arrays.asList(header.getScreenshotPaths().split(",")));
-
-        if (!paths.remove(fileName)) {
-            System.out.println("File not found in header's list: " + fileName);
-        } else {
-            header.setScreenshotPaths(String.join(",", paths));
-            testCaseHeaderService.saveHeader(header);
-            System.out.println("Deleted screenshot: " + fileName);
-            redirectAttrs.addFlashAttribute("message", "Screenshot deleted successfully");
-        }
-
-        return "redirect:/api/transactions/edittestheader/" + combinedKey;
-    }
-    
-    
-    
-    
-    @PostMapping("/savetestheader")
-    public String saveTestCaseHeader(@ModelAttribute TestCaseHeader testCaseHeader, Model model) {
-        testCaseHeader.generateCombinedKey();
-
-        // folder where files are saved
-        String uploadDir = "uploads/testheaders/";
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
-        List<String> storedFiles = new ArrayList<>();
-
-        if (testCaseHeader.getFiles() != null) {
-            for (MultipartFile file : testCaseHeader.getFiles()) {
-                if (!file.isEmpty()) {
-                    try {
-                        String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                        Path path = Paths.get(uploadDir, uniqueName);
-                        Files.write(path, file.getBytes()); // save file to disk
-                        storedFiles.add(uniqueName);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        if (!storedFiles.isEmpty()) {
-            // save filenames as comma-separated string in DB
-            testCaseHeader.setScreenshotPaths(String.join(",", storedFiles));
-        }
-
-        testCaseHeaderService.saveTestCaseHeader(testCaseHeader);
-        model.addAttribute("message", "Test Case Header saved successfully!");
-        return "addtestheader";
-    }
-    
-    
-    
-    
-
-    
-    
-    @GetMapping("/viewTestHeader/{id}")
-    public String viewTestHeader(@PathVariable String id, Model model) {
-        TestCaseHeader header = testCaseHeaderService.findById(id)
-            .orElseThrow(() -> new RuntimeException("Not found: " + id));
-        model.addAttribute("header", header);
-        return "testheaderlist"; // thymeleaf page
-    }
-
-
-    
-    
-    
- // ✅ Create TestCase with file upload
-    @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<TestCaseHeader> createTestCase(
-            @RequestPart("data") TestCaseHeader header,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
-
-        TestCaseHeader saved = testCaseHeaderService.saveTestCase(header, files);
-        return ResponseEntity.ok(saved);
-    }
-
-  
-    
-  
-    @ResponseBody
-    @PostMapping("/savetestheader-json")
-    public String saveTestHeaderFromJson(@RequestBody TestCaseHeader testCaseHeader) {
-        testCaseHeaderService.saveTestCaseHeader(testCaseHeader);
-        return "Saved TestCaseHeader with transactionKey: " + testCaseHeader.getTransactionKey();
-    }
-    
-	/*
-	 * @GetMapping("/testcaseheaders") public String listTestCaseHeaders(Model
-	 * model) { List<TestCaseHeader> testcases =
-	 * testCaseHeaderService.getAllTestCaseHeaders();
-	 * model.addAttribute("testcases", testcases); // Make sure name matches HTML
-	 * return "testheaderlist"; // This should match the .html file name }
-	 * 
-	 */
-    
-  
-	/*
-	 * @Value("${app.upload-dir:uploads}") private String uploadRoot;
-	 */
-    
-    
-    private String encodeFileToBase64(Path filePath) throws IOException {
-        byte[] bytes = Files.readAllBytes(filePath);
-        return Base64.getEncoder().encodeToString(bytes);
-    }
- 
-    @Value("${app.upload-dir:uploads/testheaders}")
-    private String uploadRoot;
 
     @GetMapping("/testcaseheaders")
-    public String listTestCaseHeaders(Model model, HttpSession session) throws IOException {
-        List<TestCaseHeader> testcases = testCaseHeaderService.findAll();
-
-        for (TestCaseHeader tc : testcases) {
-            List<String> base64List = new ArrayList<>();
-            for (String fileName : tc.getScreenshotList()) {
-                Path filePath = Paths.get(uploadRoot, fileName.trim());
-                if (Files.exists(filePath)) {
-                    byte[] bytes = Files.readAllBytes(filePath);
-                    String ext = fileName.toLowerCase().endsWith(".png") ? "png" : "jpeg";
-                    base64List.add("data:image/" + ext + ";base64," + Base64.getEncoder().encodeToString(bytes));
-                }
-            }
-            tc.setScreenshotBase64List(base64List);
+    public String listHeaders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "combinedKey") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String search,
+            HttpSession session, 
+            Model model) {
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty()) {
+            model.addAttribute("error", "Company Code not found in session.");
+            return "testheaderlist";
         }
 
-        model.addAttribute("testcases", testcases);
+        // Use pagination for better performance
+        org.springframework.data.domain.Page<TestCaseHeader> headersPage;
+        if (search != null && !search.trim().isEmpty()) {
+            headersPage = testCaseHeaderService.searchByCompanyCode(companyCode, search, page, size, sortBy, sortDir);
+        } else {
+            headersPage = testCaseHeaderService.getByCompanyCode(companyCode, page, size, sortBy, sortDir);
+        }
 
-        // ✅ fetch role from session
-        String userRole = (String) session.getAttribute("userRole");
-        if (userRole == null) userRole = "tester"; // fallback for testing
-        model.addAttribute("userRole", userRole);
-
+        model.addAttribute("testheaders", headersPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", headersPage.getTotalPages());
+        model.addAttribute("totalItems", headersPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("search", search);
+        model.addAttribute("companyCode", companyCode);
+        
+        // Add metrics for dashboard boxes
+        model.addAttribute("testersCount", testCaseHeaderService.getDistinctTestedByCount(companyCode));
+        model.addAttribute("transactionKeysCount", testCaseHeaderService.getDistinctTransactionKeysCount(companyCode));
+        
+        Map<Long, Boolean> hasChildrenMap = new java.util.HashMap<>();
+        for (TestCaseHeader h : headersPage.getContent()) {
+            hasChildrenMap.put(h.getId(), testCaseHeaderService.hasChildren(h.getId()));
+        }
+        model.addAttribute("hasChildrenMap", hasChildrenMap);
+        
+        // Add role information for template
+        model.addAttribute("canAddEdit", RoleAccessUtil.canAddEdit(session));
+        
         return "testheaderlist";
     }
 
-    
-    
-    @GetMapping("/api/testcaseheaders")
-    @ResponseBody
-    public List<TestCaseHeader> getTestCasesJson() throws IOException {
-        List<TestCaseHeader> testcases = testCaseHeaderService.findAll();
-
-        for (TestCaseHeader tc : testcases) {
-            List<String> base64List = new ArrayList<>();
-
-            if (tc.getScreenshotPaths() != null && !tc.getScreenshotPaths().isBlank()) {
-                for (String fileName : tc.getScreenshotPaths().split(",")) {
-                    // Correct absolute path
-                    Path filePath = Paths.get("E:/testingtool/testingtool/uploads/testheaders", fileName.trim());
-                    
-                    if (Files.exists(filePath)) {
-                        byte[] bytes = Files.readAllBytes(filePath);
-                        String base64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-                        base64List.add(base64);
-                    } else {
-                        System.out.println("File not found: " + filePath.toAbsolutePath());
-                    }
-                }
-            }
-
-            tc.setScreenshotBase64List(base64List);
+    @GetMapping("/addtestcaseheader/{transactionKey}/{companyCode}")
+    public String showAddForm(@PathVariable String transactionKey,
+                              @PathVariable String companyCode,
+                              HttpSession session,
+                              Model model) {
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/loginform";
         }
 
-        return testcases;
-    }
+        session.setAttribute("companyCode", companyCode);
 
-    
+        TestCaseHeader header = new TestCaseHeader();
+        header.setTransactionKey(transactionKey);
+        header.setCompanyCode(companyCode);
 
-    
-    
-    
-    @GetMapping("/check-scenario")
-    @ResponseBody
-    public ResponseEntity<Boolean> checkScenarioExists(@RequestParam("scenario") String scenario) {
-        boolean exists = testCaseHeaderService.findByScenario(scenario).isPresent();
-        return ResponseEntity.ok(exists);
-    }
+        model.addAttribute("testCaseHeader", header);
+        model.addAttribute("editMode", false);
 
-    @PostMapping("/edittestheader")
-    public ResponseEntity<TestCaseHeader> editTestHeader(
-            @RequestParam String scenario,
-            @RequestBody TestCaseHeader updatedData) {
-
-        TestCaseHeader updated = testCaseHeaderService.updateByScenario(scenario, updatedData);
-        return ResponseEntity.ok(updated);
+        return "addtestcaseheader";
     }
 
 
-
-    @PostMapping("/savetestheaderedit")
-    public String saveTestCaseHeaderEdit(
-            @ModelAttribute TestCaseHeader testCaseHeader,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files,
-            @RequestParam(value = "existingFileNames", required = false) String existingFileNames,
+    @PostMapping("/savetestheader")
+    public String saveTestCaseHeader(
+            @ModelAttribute TestCaseHeader header,
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            @RequestParam(value = "deleteImages", required = false) java.util.List<String> deleteImages,
+            HttpSession session,
             Model model) {
 
-        System.out.println("✅ Updating TestCaseHeader...");
-        System.out.println("➡ Combined Key: " + testCaseHeader.getCombinedKey());
-        System.out.println("➡ Transaction Key: " + testCaseHeader.getTransactionKey());
-        System.out.println("➡ Scenario: " + testCaseHeader.getScenario());
-        System.out.println("➡ Description: " + testCaseHeader.getDescription());
-        System.out.println("➡ Existing Files (from form): " + existingFileNames);
-        System.out.println("➡ New Uploaded Files Count: " + (files != null ? files.size() : 0));
-
-        // Upload directory
-        String uploadDir = "uploads/testheaders/";
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
-        List<String> allFiles = new ArrayList<>();
-
-        // Preserve existing files
-        if (existingFileNames != null && !existingFileNames.isBlank()) {
-            allFiles.addAll(Arrays.asList(existingFileNames.split(",")));
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty()) {
+            model.addAttribute("error", "Company code missing in session.");
+            model.addAttribute("testCaseHeader", header);
+            boolean isEdit = header.getId() != null;
+            model.addAttribute("editMode", isEdit);
+            if (isEdit) {
+                populateEditModeImages(header, model);
+            }
+            return "addtestcaseheader";
         }
 
-        // Save new uploaded files
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    try {
-                        String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                        Path path = Paths.get(uploadDir, uniqueName);
-                        Files.write(path, file.getBytes());
-                        allFiles.add(uniqueName);
-                        System.out.println("📸 Uploaded new file: " + uniqueName);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        model.addAttribute("error", "Error saving file: " + file.getOriginalFilename());
-                        return "edittestheader";
+        boolean isEdit = header.getId() != null;
+
+        /* ===================== EDIT MODE ===================== */
+        if (isEdit) {
+            Optional<TestCaseHeader> existingOpt = testCaseHeaderService.findById(header.getId());
+            if (existingOpt.isEmpty()) {
+                model.addAttribute("error", "Test Case Header not found.");
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", true);
+                populateEditModeImages(header, model);
+                return "addtestcaseheader";
+            }
+
+            TestCaseHeader existing = existingOpt.get();
+            if (!companyCode.equals(existing.getCompanyCode())) {
+                model.addAttribute("error", "You do not have permission to edit this test case header.");
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", true);
+                populateEditModeImages(header, model);
+                return "addtestcaseheader";
+            }
+
+            header.setTransactionKey(existing.getTransactionKey());
+            header.setCompanyCode(companyCode);
+        }
+        /* ===================== ADD MODE ===================== */
+        else {
+            if (header.getTransactionKey() == null || header.getTransactionKey().isEmpty()) {
+                model.addAttribute("error", "Transaction Key is required.");
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", false);
+                return "addtestcaseheader";
+            }
+
+            Optional<ScenarioActivities> scenarioActivityOpt =
+                    scenarioActivitiesService.getActivityByTransactionKey(header.getTransactionKey());
+
+            if (scenarioActivityOpt.isEmpty()) {
+                model.addAttribute("error", "Scenario Activity not found.");
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", false);
+                return "addtestcaseheader";
+            }
+
+            ScenarioActivities scenarioActivity = scenarioActivityOpt.get();
+
+            if (scenarioActivity.getId() != null
+                    && scenarioActivity.getId().getBusinessScenarioId() != null
+                    && !companyCode.equals(
+                            scenarioActivity.getId().getBusinessScenarioId().getCompanyCode())) {
+                model.addAttribute("error", "Invalid Scenario Activity.");
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", false);
+                return "addtestcaseheader";
+            }
+
+            header.setScenarioActivity(scenarioActivity);
+
+            if (header.getTestCaseNo() != null && !header.getTestCaseNo().isEmpty()) {
+                boolean exists =
+                        testCaseHeaderService.existsByTransactionKeyAndTestCaseNo(header.getTransactionKey(), header.getTestCaseNo(), companyCode);
+                if (exists) {
+                    model.addAttribute("error", "Test case header already exists.");
+                    model.addAttribute("testCaseHeader", header);
+                    model.addAttribute("editMode", false);
+                    return "addtestcaseheader";
+                }
+            }
+
+            header.setCompanyCode(companyCode);
+        }
+
+        /* ===================== FILE UPLOAD ===================== */
+        String uploadDir = "uploads/screenshots/";
+        Set<String> imageSet = new LinkedHashSet<>();
+
+        // Load existing images and filter deleted ones
+        if (isEdit) {
+            Optional<TestCaseHeader> existingOpt = testCaseHeaderService.findById(header.getId());
+            if (existingOpt.isPresent()
+                    && existingOpt.get().getScreenshotPaths() != null
+                    && !existingOpt.get().getScreenshotPaths().isEmpty()) {
+
+                String[] existingArray = existingOpt.get().getScreenshotPaths().split(",");
+                for (String img : existingArray) {
+                    String trimmed = img.trim();
+                    String filename = trimmed;
+                    int lastSlashIdx = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'));
+                    if (lastSlashIdx >= 0) {
+                        filename = trimmed.substring(lastSlashIdx + 1);
+                    }
+                    if (deleteImages == null || !deleteImages.contains(filename)) {
+                        imageSet.add(trimmed);
+                    } else {
+                        // delete file
+                        try {
+                            Path path = Paths.get(uploadDir, filename);
+                            Files.deleteIfExists(path);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         }
 
-        // Save screenshot paths to DB
-        String joined = String.join(",", allFiles);
-        testCaseHeader.setScreenshotPaths(joined);
+        if ((files != null && files.length > 0) || (deleteImages != null && !deleteImages.isEmpty())) {
+            try {
+                if (files != null) {
+                    for (MultipartFile file : files) {
+                        if (!file.isEmpty()) {
+                            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                            Path path = Paths.get(uploadDir, fileName);
+                            Files.createDirectories(path.getParent());
+                            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                            imageSet.add(fileName);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                model.addAttribute("error", "Failed to upload screenshots: " + e.getMessage());
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", isEdit);
+                if (isEdit) {
+                    populateEditModeImages(header, model);
+                }
+                return "addtestcaseheader";
+            }
 
-        // Persist to DB
-        testCaseHeaderService.saveTestCaseHeader(testCaseHeader);
-        System.out.println("✅ Saved TestCaseHeader with combined key: " + testCaseHeader.getCombinedKey());
+            if (!imageSet.isEmpty()) {
+                header.setScreenshotPaths(String.join(",", imageSet));
+            } else {
+                header.setScreenshotPaths(null);
+            }
+        } else if (isEdit) {
+            // Keep existing screenshot paths if no changes
+            Optional<TestCaseHeader> existingOpt = testCaseHeaderService.findById(header.getId());
+            existingOpt.ifPresent(e -> header.setScreenshotPaths(e.getScreenshotPaths()));
+        }
 
-        // Add attributes back to model
-        model.addAttribute("testCaseHeader", testCaseHeader);
-        model.addAttribute("existingFileNames", joined); // ✅ important
-        model.addAttribute("message", "Test case header updated successfully!");
+        /* ===================== PRESERVE SCENARIO ACTIVITY ===================== */
+        if (isEdit) {
+            Optional<TestCaseHeader> existingOpt = testCaseHeaderService.findById(header.getId());
+            existingOpt.ifPresent(e -> header.setScenarioActivity(e.getScenarioActivity()));
+        }
 
-        // Rebuild screenshots for display
-        List<Map<String, String>> screenshots = new ArrayList<>();
-        for (String fileName : allFiles) {
-            Path path = Paths.get(uploadDir, fileName.trim());
-            if (Files.exists(path)) {
-                try {
-                    byte[] bytes = Files.readAllBytes(path);
-                    String base64 = Base64.getEncoder().encodeToString(bytes);
+        /* ===================== SAVE ===================== */
+        testCaseHeaderService.save(header);
 
-                    Map<String, String> fileMap = new HashMap<>();
-                    fileMap.put("name", fileName.trim());
-                    fileMap.put("base64", "data:image/png;base64," + base64);
+        if (isEdit) {
+            return "redirect:/api/transactions/testcaseheaders";
+        } else {
+            model.addAttribute("message", "Test Case Header saved successfully!");
+            TestCaseHeader newHeader = new TestCaseHeader();
+            newHeader.setTransactionKey(header.getTransactionKey());
+            newHeader.setCompanyCode(header.getCompanyCode());
+            model.addAttribute("testCaseHeader", newHeader);
+            model.addAttribute("editMode", false);
+            return "addtestcaseheader";
+        }
+    }
 
-                    screenshots.add(fileMap);
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+    // View test case header details (read-only, available for all roles)
+    @GetMapping("/viewtestcaseheader/{combinedKey}")
+    public String viewTestCaseHeader(@PathVariable String combinedKey,
+                                     HttpSession session,
+                                     Model model,
+                                     RedirectAttributes redirectAttributes) {
+        // Check if user is logged in
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/loginform";
+        }
+
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Company code not found in session. Please login again.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        // Find the test case header by combined key
+        Optional<TestCaseHeader> headerOpt = testCaseHeaderService.findByCombinedKey(combinedKey);
+        if (headerOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Test Case Header with Combined Key '" + combinedKey + "' not found.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        TestCaseHeader header = headerOpt.get();
+        
+        // Verify the header belongs to the user's company
+        if (!companyCode.equals(header.getCompanyCode())) {
+            redirectAttributes.addFlashAttribute("error", "You do not have permission to view this test case header.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        model.addAttribute("testCaseHeader", header);
+        
+        // Add role information for template
+        model.addAttribute("canAddEdit", RoleAccessUtil.canAddEdit(session));
+        
+        return "view-test-case-header";
+    }
+
+    // Show edit form by Combined Key (simplified - gets company code from session)
+    @GetMapping("/edittestcaseheader/{combinedKey}")
+    public String showEditTestCaseHeaderByCombinedKey(@PathVariable String combinedKey,
+                                                      HttpSession session,
+                                                      Model model) {
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty()) {
+            model.addAttribute("error", "Company code not found in session. Please login again.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        // Find the test case header by combined key
+        Optional<TestCaseHeader> headerOpt = testCaseHeaderService.findByCombinedKey(combinedKey);
+        if (headerOpt.isEmpty()) {
+            model.addAttribute("error", "Test Case Header with Combined Key '" + combinedKey + "' not found.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        TestCaseHeader header = headerOpt.get();
+        
+        // Verify the header belongs to the user's company
+        if (!companyCode.equals(header.getCompanyCode())) {
+            model.addAttribute("error", "You do not have permission to edit this test case header.");
+            return "redirect:/api/transactions/testcaseheaders";
+        }
+        
+        model.addAttribute("testCaseHeader", header);
+        model.addAttribute("editMode", true);
+        model.addAttribute("companyCode", companyCode);
+        populateEditModeImages(header, model);
+        
+        return "addtestcaseheader";
+    }
+    
+    // Update test case header (for edit mode)
+    @PostMapping("/updatetestheader")
+    public String updateTestCaseHeader(@ModelAttribute TestCaseHeader header,
+                                      @RequestParam(value = "files", required = false) MultipartFile[] files,
+                                      @RequestParam(value = "deleteImages", required = false) java.util.List<String> deleteImages,
+                                      HttpSession session,
+                                      Model model) {
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty()) {
+            model.addAttribute("error", "Company code missing in session.");
+            model.addAttribute("testCaseHeader", header);
+            model.addAttribute("editMode", true);
+            populateEditModeImages(header, model);
+            return "addtestcaseheader";
+        }
+        
+        // Verify header exists and belongs to company
+        Optional<TestCaseHeader> existingOpt = testCaseHeaderService.findById(header.getId());
+        if (existingOpt.isEmpty()) {
+            model.addAttribute("error", "Test Case Header not found.");
+            model.addAttribute("testCaseHeader", header);
+            model.addAttribute("editMode", true);
+            populateEditModeImages(header, model);
+            return "addtestcaseheader";
+        }
+        
+        TestCaseHeader existing = existingOpt.get();
+        if (!companyCode.equals(existing.getCompanyCode())) {
+            model.addAttribute("error", "You do not have permission to edit this test case header.");
+            model.addAttribute("testCaseHeader", header);
+            model.addAttribute("editMode", true);
+            populateEditModeImages(header, model);
+            return "addtestcaseheader";
+        }
+        
+        String uploadDir = "uploads/screenshots/";
+        Set<String> imageSet = new LinkedHashSet<>();
+        
+        // Load existing images and filter deleted ones
+        if (existing.getScreenshotPaths() != null && !existing.getScreenshotPaths().isEmpty()) {
+            String[] existingArray = existing.getScreenshotPaths().split(",");
+            for (String img : existingArray) {
+                String trimmed = img.trim();
+                String filename = trimmed;
+                int lastSlashIdx = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'));
+                if (lastSlashIdx >= 0) {
+                    filename = trimmed.substring(lastSlashIdx + 1);
+                }
+                if (deleteImages == null || !deleteImages.contains(filename)) {
+                    imageSet.add(trimmed);
+                } else {
+                    // delete file
+                    try {
+                        Path path = Paths.get(uploadDir, filename);
+                        Files.deleteIfExists(path);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-        model.addAttribute("screenshots", screenshots);
-
-        return "edittestheader";
+        
+        // Handle new file uploads
+        if (files != null && files.length > 0) {
+            try {
+                for (MultipartFile file : files) {
+                    if (!file.isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                        Path path = Paths.get(uploadDir, fileName);
+                        Files.createDirectories(path.getParent());
+                        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                        imageSet.add(fileName);
+                    }
+                }
+            } catch (Exception e) {
+                model.addAttribute("error", "Failed to upload screenshots: " + e.getMessage());
+                model.addAttribute("testCaseHeader", header);
+                model.addAttribute("editMode", true);
+                populateEditModeImages(header, model);
+                return "addtestcaseheader";
+            }
+        }
+        
+        if (!imageSet.isEmpty()) {
+            header.setScreenshotPaths(String.join(",", imageSet));
+        } else {
+            header.setScreenshotPaths(null);
+        }
+        
+        // Ensure company code and transaction key are preserved
+        header.setCompanyCode(companyCode);
+        header.setTransactionKey(existing.getTransactionKey());
+        
+        // Update scenario activity relationship
+        if (existing.getScenarioActivity() != null) {
+            header.setScenarioActivity(existing.getScenarioActivity());
+        } else {
+            // Find scenario activity if not set
+            ScenarioActivities scenarioActivity = scenarioActivitiesService
+                    .getActivitiesByCompanyCode(companyCode)
+                    .stream()
+                    .filter(a -> a.getTransactionKey().equals(header.getTransactionKey()))
+                    .findFirst()
+                    .orElse(null);
+            if (scenarioActivity != null) {
+                header.setScenarioActivity(scenarioActivity);
+            }
+        }
+        
+        // Save the updated header
+        testCaseHeaderService.save(header);
+        
+        return "redirect:/api/transactions/testcaseheaders";
     }
 
-
-    
-    @PostMapping("/updateTransaction")
-    public String updateTransaction(@ModelAttribute TestCaseTransaction txn, Model model) {
-    	testCaseHeaderService.updateTransaction(txn); // custom method or use save() if using JpaRepository
-        return "redirect:/getall"; // refresh and show all rows again in view mode
+    @GetMapping("/testcaseheaders/exists")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> checkHeaderExists(
+            @RequestParam String transactionKey,
+            @RequestParam String testCaseNo,
+            HttpSession session) {
+        String companyCode = (String) session.getAttribute("companyCode");
+        if (companyCode == null || companyCode.isEmpty() || 
+            transactionKey == null || transactionKey.isEmpty() || 
+            testCaseNo == null || testCaseNo.isEmpty()) {
+            return ResponseEntity.ok(Map.of("exists", false));
+        }
+        
+        boolean exists = testCaseHeaderService.existsByTransactionKeyAndTestCaseNo(transactionKey.trim(), testCaseNo.trim(), companyCode);
+        return ResponseEntity.ok(Map.of("exists", exists));
     }
 
+    @PostMapping("/ajax/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteTestHeader(@PathVariable Long id, HttpSession session) {
+        Map<String, Object> response = new java.util.HashMap<>();
+        try {
+            String role = RoleAccessUtil.getCurrentRole(session);
+            if (!"ADMIN".equals(role) && !"BUSINESS_MANAGER".equals(role)) {
+                response.put("success", false);
+                response.put("message", "You don't have permission to delete.");
+                return ResponseEntity.ok(response);
+            }
+            
+            String companyCode = (String) session.getAttribute("companyCode");
+            if (companyCode == null || companyCode.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Session expired or company code missing.");
+                return ResponseEntity.ok(response);
+            }
 
+            Optional<TestCaseHeader> headerOpt = testCaseHeaderService.findById(id);
+            if (headerOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Test Case Header not found.");
+                return ResponseEntity.ok(response);
+            }
+
+            if (testCaseHeaderService.hasChildren(id)) {
+                response.put("success", false);
+                response.put("message", "Cannot delete because there are dependent transactions.");
+                return ResponseEntity.ok(response);
+            }
+
+            String combinedKey = headerOpt.get().getCombinedKey();
+            testCaseHeaderService.deleteById(id);
+            response.put("success", true);
+            response.put("message", "Deleted! Test Case Header " + (combinedKey != null ? combinedKey : id) + " deleted successfully.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error deleting test case header: " + e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    private void populateEditModeImages(TestCaseHeader header, Model model) {
+        List<String> imagePaths = header.getImagePathsList();
+        model.addAttribute("imagePaths", imagePaths);
+        model.addAttribute("existingImageCount", imagePaths.size());
+    }
 }
-
-   
-

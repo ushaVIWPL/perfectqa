@@ -1,90 +1,604 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>City List</title>
-    <script>
-        function enableEdit(rowId) {
-            document.getElementById("display-" + rowId).style.display = "none";
-            document.getElementById("edit-" + rowId).style.display = "table-row";
-        }
-
-        function cancelEdit(rowId) {
-            document.getElementById("display-" + rowId).style.display = "";
-            document.getElementById("edit-" + rowId).style.display = "none";
-        }
-    </script>
-    <title>City List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Cities Master | IWPL Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
 <body>
-<h2>City List</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>City</th>
-            <th>Subdivision Code</th>
-            <th>Province Code</th>
-            <th>Province</th>
-            <th>Country</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr th:each="c : ${cities}">
-            <td th:text="${c.city}"></td>
-            <td th:text="${c.subdivisionCode}"></td>
-            <td th:text="${c.ProvinceCode}"></td>
-            <td th:text="${c.Province}"></td>
-            <td th:text="${c.country}"></td>
-            <td>
-                <button type="button" class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        th:data-bs-target="'#editModal-' + ${c.city}">
-                    Edit
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
 
-<!-- Modals for each city -->
-<div th:each="c : ${cities}" th:id="'editModal-' + ${c.city}" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form th:action="@{/admin/update}" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit City: <span th:text="${c.city}"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="city" th:value="${c.city}"/>
-                    <div class="mb-2">
-                        <label>Subdivision Code</label>
-                        <input type="text" class="form-control" name="subdivisionCode" th:value="${c.subdivisionCode}"/>
-                    </div>
-                    <div class="mb-2">
-                        <label>Province Code</label>
-                        <input type="text" class="form-control" name="ProvinceCode" th:value="${c.ProvinceCode}"/>
-                    </div>
-                    <div class="mb-2">
-                        <label>Province</label>
-                        <input type="text" class="form-control" name="Province" th:value="${c.Province}"/>
-                    </div>
-                    <div class="mb-2">
-                        <label>Country</label>
-                        <input type="text" class="form-control" name="country" th:value="${c.country}"/>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
+<style>
+  .city-page {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+  }
+  .city-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .city-stat-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 180px;
+    backdrop-filter: blur(12px);
+  }
+  .city-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+  }
+  .city-stat-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .city-stat-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .city-card {
+    background: rgba(30, 41, 59, 0.55);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .city-card-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .city-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .city-card-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 2px 0 0 0;
+  }
+  .search-input-box {
+    position: relative;
+    min-width: 220px;
+  }
+  .search-input-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+  }
+  .search-input-box input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    padding: 8px 12px 8px 36px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+  .search-input-box input:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  }
+  .btn-add-city {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 18px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-add-city:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    color: white;
+  }
+  .custom-table {
+    width: 100%;
+    color: #f8fafc;
+    border-collapse: collapse;
+    margin: 0;
+  }
+  .custom-table thead th {
+    background: rgba(15, 23, 42, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 14px 20px;
+    font-weight: 700;
+  }
+  .custom-table tbody td {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+  .custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .badge-code {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+  .action-btn.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+  /* Dark Modal */
+  .modal-content-dark {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    color: white;
+  }
+  .modal-header-dark {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px;
+  }
+  .modal-footer-dark {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 24px;
+  }
+  .form-label-dark {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-control-dark, .form-select-dark {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 10px 14px;
+  }
+  .form-control-dark:focus, .form-select-dark:focus {
+    background: rgba(30, 41, 59, 1);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    color: white;
+  }
+  .form-control-dark:disabled, 
+  .form-control-dark[readonly],
+  .form-control-dark:disabled:read-only {
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+  }
+  .form-select-dark option {
+    background-color: #1e293b;
+    color: #ffffff;
+  }
+</style>
+
+<div class="city-page">
+  <!-- Stats Header -->
+  <div class="city-stats">
+    <div class="city-stat-card">
+      <div class="city-stat-icon"><i class="bi bi-geo-alt"></i></div>
+      <div>
+        <div class="city-stat-val" th:text="${cities != null ? cities.size() : 0}">0</div>
+        <div class="city-stat-lbl">Registered Cities</div>
+      </div>
     </div>
-</div>
-</body>
+  </div>
 
+  <!-- Main Card -->
+  <div class="city-card">
+    <div class="city-card-head">
+      <div>
+        <h3 class="city-card-title"><i class="bi bi-geo-alt me-2 text-warning"></i>City Master Directory</h3>
+        <p class="city-card-sub">Manage urban location data, state links, and country associations.</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="search-input-box">
+          <i class="bi bi-search"></i>
+          <input type="text" id="citySearchInput" placeholder="Search cities or states..." onkeyup="filterCityTable()">
+        </div>
+        <button class="btn-add-city" onclick="openAddCityModal()">
+          <i class="bi bi-plus-lg"></i> Add City
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="custom-table" id="cityTable">
+        <thead>
+          <tr>
+            <th>City Name</th>
+            <th>Subdivision / State Code</th>
+            <th>Province / State</th>
+            <th>Country</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="c : ${cities}">
+            <td class="fw-semibold text-white" th:text="${c.city}"></td>
+            <td><span class="badge-code" th:text="${c.subdivisionCode != null ? c.subdivisionCode : '-'}"></span></td>
+            <td th:text="${c.province != null ? c.province : '-'}"></td>
+            <td th:text="${c.country != null ? c.country : '-'}"></td>
+            <td class="text-end">
+              <button class="action-btn me-1 btn-edit-city" title="Edit City" th:data-city="${c.city}">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="action-btn btn-delete btn-delete-city" title="Delete City" th:data-city="${c.city}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr th:if="${cities == null or #lists.isEmpty(cities)}">
+            <td colspan="5" class="text-center py-4 text-muted">No cities found. Click "Add City" to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add City Modal -->
+<div class="modal fade" id="addCityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-plus-circle me-2 text-warning"></i>Add New City</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label-dark">City Name</label>
+          <input type="text" class="form-control form-control-dark" id="addCityName" placeholder="e.g. Los Angeles, Mumbai">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Select State / Subdivision</label>
+          <select class="form-select form-select-dark" id="addCityStateSelect" onchange="onAddCityStateChange()">
+            <option value="">-- Select State --</option>
+            <option th:each="s : ${states}" 
+                    th:value="${s.stateSubdivisionCode}" 
+                    th:data-state-name="${s.stateSubdivisionName}"
+                    th:data-country="${s.country}"
+                    th:text="${s.stateSubdivisionName + ' (' + s.stateSubdivisionCode + ')'}">
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Province / State Name</label>
+          <input type="text" class="form-control form-control-dark" id="addProvinceNameInput" placeholder="e.g. California">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name</label>
+          <input type="text" class="form-control form-control-dark" id="addCityCountryInput" placeholder="e.g. United States">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Province Code (Optional)</label>
+          <input type="text" class="form-control form-control-dark" id="addProvinceCodeInput" placeholder="e.g. CA">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning text-dark font-weight-bold rounded-pill px-4" onclick="saveAddCity()">Save City</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit City Modal -->
+<div class="modal fade" id="editCityModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-pencil-square me-2 text-warning"></i>Edit City</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="editCityKey">
+        <div class="mb-3">
+          <label class="form-label-dark">City Name</label>
+          <input type="text" class="form-control form-control-dark" id="editCityName" placeholder="City name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Select State / Subdivision</label>
+          <select class="form-select form-select-dark" id="editCityStateSelect" onchange="onEditCityStateChange()">
+            <option value="">-- Select State --</option>
+            <option th:each="s : ${states}" 
+                    th:value="${s.stateSubdivisionCode}" 
+                    th:data-state-name="${s.stateSubdivisionName}"
+                    th:data-country="${s.country}"
+                    th:text="${s.stateSubdivisionName + ' (' + s.stateSubdivisionCode + ')'}">
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Province / State Name</label>
+          <input type="text" class="form-control form-control-dark" id="editProvinceNameInput" placeholder="Province name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name</label>
+          <input type="text" class="form-control form-control-dark" id="editCityCountryInput" placeholder="Country name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Province Code (Optional)</label>
+          <input type="text" class="form-control form-control-dark" id="editProvinceCodeInput" placeholder="Province code">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning text-dark font-weight-bold rounded-pill px-4" onclick="saveEditCity()">Update City</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.btn-edit-city');
+    if (editBtn) {
+      var cityName = editBtn.getAttribute('data-city');
+      if (cityName) openEditCityModal(cityName);
+    }
+    var delBtn = e.target.closest('.btn-delete-city');
+    if (delBtn) {
+      var cityName = delBtn.getAttribute('data-city');
+      if (cityName) deleteCity(cityName);
+    }
+  });
+
+  function filterCityTable() {
+    var input = document.getElementById('citySearchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('#cityTable tbody tr');
+    rows.forEach(function(row) {
+      var text = row.innerText.toLowerCase();
+      row.style.display = text.indexOf(input) > -1 ? '' : 'none';
+    });
+  }
+
+  function onAddCityStateChange() {
+    var sel = document.getElementById('addCityStateSelect');
+    var opt = sel.options[sel.selectedIndex];
+    if (opt) {
+      if (opt.getAttribute('data-state-name')) {
+        document.getElementById('addProvinceNameInput').value = opt.getAttribute('data-state-name');
+      }
+      if (opt.getAttribute('data-country')) {
+        document.getElementById('addCityCountryInput').value = opt.getAttribute('data-country');
+      }
+    }
+  }
+
+  function onEditCityStateChange() {
+    var sel = document.getElementById('editCityStateSelect');
+    var opt = sel.options[sel.selectedIndex];
+    if (opt) {
+      if (opt.getAttribute('data-state-name')) {
+        document.getElementById('editProvinceNameInput').value = opt.getAttribute('data-state-name');
+      }
+      if (opt.getAttribute('data-country')) {
+        document.getElementById('editCityCountryInput').value = opt.getAttribute('data-country');
+      }
+    }
+  }
+
+  function openAddCityModal() {
+    document.getElementById('addCityName').value = '';
+    document.getElementById('addCityStateSelect').value = '';
+    document.getElementById('addProvinceNameInput').value = '';
+    document.getElementById('addCityCountryInput').value = '';
+    document.getElementById('addProvinceCodeInput').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('addCityModal'));
+    modal.show();
+  }
+
+  function saveAddCity() {
+    var city = document.getElementById('addCityName').value.trim();
+    var stateCode = document.getElementById('addCityStateSelect').value;
+    var province = document.getElementById('addProvinceNameInput').value.trim();
+    var country = document.getElementById('addCityCountryInput').value.trim();
+    var provinceCode = document.getElementById('addProvinceCodeInput').value.trim();
+
+    if (!city) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'City Name is required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      city: city,
+      subdivisionCode: stateCode,
+      provinceCode: provinceCode,
+      country: country,
+      province: province
+    };
+
+    fetch('/admin/cities/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.text();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('addCityModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Success!', text: 'City added successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/cities');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to add city.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function openEditCityModal(cityName) {
+    fetch('/admin/cities/get/' + encodeURIComponent(cityName))
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      document.getElementById('editCityKey').value = data.city;
+      document.getElementById('editCityName').value = data.city || '';
+      document.getElementById('editCityStateSelect').value = data.subdivisionCode || '';
+      document.getElementById('editProvinceNameInput').value = data.province || '';
+      document.getElementById('editCityCountryInput').value = data.country || '';
+      document.getElementById('editProvinceCodeInput').value = data.provinceCode || '';
+      var modal = new bootstrap.Modal(document.getElementById('editCityModal'));
+      modal.show();
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Could not load city details.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function saveEditCity() {
+    var cityKey = document.getElementById('editCityKey').value;
+    var city = document.getElementById('editCityName').value.trim();
+    var stateCode = document.getElementById('editCityStateSelect').value;
+    var province = document.getElementById('editProvinceNameInput').value.trim();
+    var country = document.getElementById('editCityCountryInput').value.trim();
+    var provinceCode = document.getElementById('editProvinceCodeInput').value.trim();
+
+    if (!city) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'City Name is required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      city: city,
+      subdivisionCode: stateCode,
+      provinceCode: provinceCode,
+      country: country,
+      province: province
+    };
+
+    fetch('/admin/cities/update/' + encodeURIComponent(cityKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.text();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('editCityModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Updated!', text: 'City updated successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/cities');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to update city.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function deleteCity(cityName) {
+    Swal.fire({
+      title: 'Delete City?',
+      text: 'Are you sure you want to delete city: ' + cityName + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Delete',
+      background: '#0f172a',
+      color: '#fff'
+    }).then(function(result) {
+      if (result.isConfirmed) {
+        fetch('/admin/cities/delete/' + encodeURIComponent(cityName), {
+          method: 'POST'
+        })
+        .then(function(res) {
+          if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+          return res.text();
+        })
+        .then(function() {
+          Swal.fire({ icon: 'success', title: 'Deleted!', text: 'City deleted successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+          if (typeof loadContent === 'function') {
+            loadContent('/admin/cities');
+          } else {
+            location.reload();
+          }
+        })
+        .catch(function(err) {
+          Swal.fire({ icon: 'error', title: 'Cannot Delete', text: err.message || 'Failed to delete city.', background: '#0f172a', color: '#fff' });
+        });
+      }
+    });
+  }
+</script>
+
+</body>
 </html>

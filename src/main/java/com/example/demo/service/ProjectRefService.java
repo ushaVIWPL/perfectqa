@@ -42,4 +42,33 @@ public class ProjectRefService {
 		public List<ProjectRef> getAll() {
 	        return repository.findAll();
 	    }
+		
+		// Get projects by company code
+		public List<ProjectRef> getByCompanyCode(String companyCode) {
+			return repository.findByCompanyCode(companyCode);
+		}
+		
+		// Search projects by company name (case-insensitive partial match)
+		public List<ProjectRef> searchByCompanyName(String companyName) {
+			if (companyName == null || companyName.trim().isEmpty()) {
+				return getAll();
+			}
+			return repository.findByCompanyNameContainingIgnoreCase(companyName.trim());
+		}
+		
+		// Search projects by company code (case-insensitive partial match)
+		public List<ProjectRef> searchByCompanyCode(String companyCode) {
+			if (companyCode == null || companyCode.trim().isEmpty()) {
+				return getAll();
+			}
+			return repository.findByCompanyCodeContainingIgnoreCase(companyCode.trim());
+		}
+		
+		// Search projects by company name or company code (case-insensitive partial match)
+		public List<ProjectRef> searchByCompanyNameOrCode(String searchTerm) {
+			if (searchTerm == null || searchTerm.trim().isEmpty()) {
+				return getAll();
+			}
+			return repository.findByCompanyNameOrCodeContainingIgnoreCase(searchTerm.trim());
+		}
 }

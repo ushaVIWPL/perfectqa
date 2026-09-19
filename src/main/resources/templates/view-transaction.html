@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Transaction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+
+<style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #7c3aed, #4f46e5);
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-page-content {
+            padding: 40px 20px;
+        }
+
+        .container-fluid {
+            padding-left: 2%;
+            padding-right: 2%;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title-area h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title-area p {
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+        }
+
+        .btn-premium {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; }
+        .btn-violet { background: var(--primary-gradient); color: white; }
+        .btn-amber { background: var(--warning-gradient); color: #1e293b; }
+        .btn-red { background: var(--danger-gradient); color: white; }
+
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        .details-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .details-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-purple);
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #f8fafc;
+            line-height: 1.6;
+        }
+
+        .badge-premium {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: monospace;
+        }
+
+        .badge-violet { background: rgba(167, 139, 250, 0.1); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.2); }
+        .badge-blue { background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.2); }
+        .badge-pass { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .badge-fail { background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2); }
+        .badge-pending { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .screenshot-item {
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .screenshot-item:hover { transform: scale(1.05); border-color: var(--accent-blue); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        .screenshot-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 16px; box-shadow: 0 0 50px rgba(0,0,0,0.7); }
+        .lightbox-close { position: absolute; top: 40px; right: 40px; color: white; font-size: 30px; cursor: pointer; transition: 0.2s; }
+        .lightbox-close:hover { color: #f87171; transform: rotate(90deg); }
+
+        @media (max-width: 768px) {
+            .dashboard-header { padding: 30px 20px; text-align: center; }
+            .header-actions { justify-content: center; width: 100%; }
+            .details-card { padding: 25px; }
+        }
+        /* Enhanced Input Styles */
+        .form-control[readonly] {
+            border-radius: 8px !important;
+            padding: 10px 15px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            transition: all 0.3s ease !important;
+            color: #f8fafc;
+        }
+        
+        .form-control[readonly]:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .form-control[readonly]:focus {
+            outline: none !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+        }
+
+        textarea.form-control[readonly] {
+            border-radius: 12px !important;
+            resize: vertical !important;
+        }
+    </style>
+
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div class="main-page-content">
+        <div class="container-fluid animate-in">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-title-area">
+                    <h2>View Transaction</h2>
+                    <p>Complete details and artifacts for this test step</p>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn-premium" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2);" data-bs-toggle="modal" data-bs-target="#hierarchyModal">
+                        <i class="bi bi-diagram-3"></i> View Test Case Header &amp; Scenario Hierarchy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Messages -->
+            <div th:if="${error}" class="alert-premium alert-danger mb-4">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Details Card -->
+            <div class="details-card" th:if="${transaction != null}">
+                <!-- Identification Information -->
+                <div class="details-section">
+                    <div class="section-title">
+                        <i class="bi bi-info-circle"></i> Identification Information
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-key"></i> Main Key</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #60a5fa; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${#strings.contains(transaction.mainKey, '-') ? #strings.substringAfter(transaction.mainKey, '-') : transaction.mainKey}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-123"></i> Step No</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #a78bfa; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.stepNo}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-tag"></i> Type</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.type ?: 'Not specified'}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-shield-check"></i> Final Status</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.passFail ?: 'PENDING'}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Case Context & Results -->
+                <div class="details-section">
+                    <div class="section-title">
+                        <i class="bi bi-file-earmark-text"></i> Context & Results
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-file-text"></i> Test Case Description</label>
+                            <textarea class="form-control" rows="4" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:text="${transaction.testcaseHeader != null ? transaction.testcaseHeader.description : 'Not available'}"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-bullseye"></i> Expected Result</label>
+                            <textarea class="form-control" rows="4" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:text="${transaction.expectedResults}"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-check-circle"></i> Actual Result</label>
+                            <textarea class="form-control" rows="4" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:text="${transaction.actualResults}"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Details -->
+                <div class="details-section">
+                    <div class="section-title">
+                        <i class="bi bi-list-task"></i> Step Execution Details
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-gear"></i> Action</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.action}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-link-45deg"></i> Target URL</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #60a5fa; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.url ?: 'No URL specified'}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-calendar3"></i> Tested Date</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.testedDate != null ? #temporals.format(transaction.testedDate, 'yyyy-MM-dd') : 'Not tested'}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted fw-bold"><i class="bi bi-bug"></i> Defects Linked</label>
+                            <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); color: #fbbf24; border: 1px solid rgba(255,255,255,0.1);" readonly th:value="${transaction.defects ?: 'None'}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Area -->
+                <div class="details-section" th:if="${transaction.screenshotPaths != null and !transaction.screenshotPaths.isEmpty()}">
+                    <div class="section-title">
+                        <i class="bi bi-camera"></i> Visual Evidence
+                    </div>
+                    <div class="screenshot-grid">
+                        <div th:each="imagePath : ${transaction.imagePathsList}" class="screenshot-item">
+                            <img th:src="@{'/uploads/screenshots/' + ${imagePath}}" onclick="openLightbox(this.src)" th:onerror="this.style.display='none'"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Actions -->
+                <div class="d-flex flex-wrap gap-3 mt-5 pt-4 border-top border-white border-opacity-10">
+                    <a th:if="${canAddEdit != null and canAddEdit}" th:href="@{|/api/transactions/edit-transaction/${transaction.id}|}" class="btn-premium btn-amber">
+                        <i class="bi bi-pencil-square"></i> Edit Step
+                    </a>
+                    <a th:href="@{|/api/tickets/raise/${transaction.id}|}" class="btn-premium btn-red">
+                        <i class="bi bi-ticket-detailed"></i> Raise Ticket
+                    </a>
+                    <a th:href="@{/Menu}" class="btn-premium btn-violet">
+                        <i class="bi bi-house-door"></i> Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Hierarchy Modal -->
+<div class="modal fade" id="hierarchyModal" tabindex="-1" aria-labelledby="hierarchyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+            <div class="modal-header border-bottom border-white border-opacity-10">
+                <h5 class="modal-title" id="hierarchyModalLabel" style="color: #a78bfa; font-weight: 600;"><i class="bi bi-diagram-3"></i> Test Case Header &amp; Scenario Hierarchy</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <!-- 1. Business Scenario -->
+                    <div class="col-md-4" th:if="${transaction.testcaseHeader != null and transaction.testcaseHeader.scenarioActivity != null and transaction.testcaseHeader.scenarioActivity.businessScenario != null}">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; height: 100%;">
+                            <h5 style="color: #c084fc; border-bottom: 1px solid rgba(192, 132, 252, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="bi bi-briefcase"></i> 1. Business Scenario
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO CODE</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.id.businessScenario}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO ACTIVITY</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.activity ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO T-CODE</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.tcode ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO DESCRIPTION</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.scenarioDescription ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO EXPECTED OUTCOME</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.expectedOutcome ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">BUSINESS SCENARIO RESPONSIBLE</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.businessScenario.responsible ?: 'Not specified'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. Scenario Activity -->
+                    <div class="col-md-4" th:if="${transaction.testcaseHeader != null and transaction.testcaseHeader.scenarioActivity != null}">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; height: 100%;">
+                            <h5 style="color: #60a5fa; border-bottom: 1px solid rgba(96, 165, 250, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="bi bi-activity"></i> 2. Scenario Activity / EPIC
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">SCENARIO ACTIVITY KEY</label>
+                                <div th:text="${#strings.contains(transaction.testcaseHeader.scenarioActivity.transactionKey, '-') ? #strings.substringAfter(transaction.testcaseHeader.scenarioActivity.transactionKey, '-') : transaction.testcaseHeader.scenarioActivity.transactionKey}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">SCENARIO ACTIVITY SUFFIX</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.id.transactionSuffix}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">SCENARIO ACTIVITY NAME</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.activity ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">SCENARIO ACTIVITY T-CODE</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.tcode ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">SCENARIO ACTIVITY DESCRIPTION</label>
+                                <div th:text="${transaction.testcaseHeader.scenarioActivity.scenarioDescription ?: 'Not specified'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. Test Case Header -->
+                    <div class="col-md-4" th:if="${transaction.testcaseHeader != null}">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; height: 100%;">
+                            <h5 style="color: #34d399; border-bottom: 1px solid rgba(52, 211, 153, 0.3); padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="bi bi-card-text"></i> 3. Test Case Header / Story
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">TEST CASE ID</label>
+                                <div th:text="${transaction.testcaseHeader.combinedKey != null ? (#strings.contains(transaction.testcaseHeader.combinedKey, '-') ? #strings.substringAfter(transaction.testcaseHeader.combinedKey, '-') : transaction.testcaseHeader.combinedKey) : (transaction.testcaseHeader.id != null ? transaction.testcaseHeader.id : 'Not specified')}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">TEST CASE SEQUENCE NO</label>
+                                <div th:text="${transaction.testcaseHeader.testCaseNo}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">TEST CASE ACTIVITY</label>
+                                <div th:text="${transaction.testcaseHeader.activity ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">TEST CASE T-CODE</label>
+                                <div th:text="${transaction.testcaseHeader.tCode ?: 'Not specified'}"></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">TEST CASE DESCRIPTION</label>
+                                <div th:text="${transaction.testcaseHeader.description ?: 'Not specified'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-white border-opacity-10">
+                <button type="button" class="btn" style="background: rgba(255,255,255,0.1); color: white;" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <div class="lightbox-close"><i class="bi bi-x-lg"></i></div>
+    <img id="lightbox-img" src="" alt="Screenshot">
+</div>
+
+<script>
+// Lightbox functionality
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('active');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
+
+
+
+
+    </div>
+    <!-- Bootstrap JS for Modals -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

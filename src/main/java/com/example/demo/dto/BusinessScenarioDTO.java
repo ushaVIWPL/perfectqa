@@ -14,5 +14,7 @@ public class BusinessScenarioDTO {
     private String responsible;
     private String expectedOutcome;
     private String tcode;
+    private String scenarioNumber;  // for UI only
+
     private List<ScenariotransactionDTO> transactions;
 }

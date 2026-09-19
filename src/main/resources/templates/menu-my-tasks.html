@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks Menu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0f19; /* Very dark background */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .menu-card {
+            background: #151a2a; /* Slightly lighter dark card */
+            border-radius: 16px;
+            width: 100%;
+            max-width: 360px;
+            padding: 30px;
+            /* Top cyan border effect */
+            border-top: 4px solid #06b6d4;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(6, 182, 212, 0.1); /* Cyan background with opacity */
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-box i {
+            font-size: 20px;
+            color: #06b6d4;
+        }
+
+        .menu-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .menu-link i {
+            font-size: 0.8rem;
+            color: #06b6d4;
+            transition: transform 0.2s ease;
+        }
+
+        .menu-link:hover {
+            color: #e2e8f0;
+        }
+
+        .menu-link:hover i {
+            transform: translateX(3px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-card">
+        <div class="icon-box">
+            <i class="bi bi-check-square"></i>
+        </div>
+        
+        <h2 class="menu-title">MY TASKS</h2>
+        
+        <ul class="menu-list">
+            <li>
+                <a th:href="@{/api/tasks/my-tasks}" class="menu-link">
+                    <i class="bi bi-chevron-right"></i> View All My Tasks
+                </a>
+            </li>
+            <li>
+                <a href="#" class="menu-link">
+                    <i class="bi bi-chevron-right"></i> Add / Edit Tasks
+                </a>
+            </li>
+            <li>
+                <a href="#" class="menu-link">
+                    <i class="bi bi-chevron-right"></i> Track Billable Hours
+                </a>
+            </li>
+            <li>
+                <a href="#" class="menu-link">
+                    <i class="bi bi-chevron-right"></i> Task Status & Progress
+                </a>
+            </li>
+            <li>
+                <a href="#" class="menu-link">
+                    <i class="bi bi-chevron-right"></i> Print Task Report
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</body>
+</html>

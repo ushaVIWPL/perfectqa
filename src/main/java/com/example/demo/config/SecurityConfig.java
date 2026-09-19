@@ -1,41 +1,24 @@
 /*
  * package com.example.demo.config;
  * 
- * import com.example.demo.service.CustomUserDetailsService; import
- * org.springframework.context.annotation.Bean; import
+ * import org.springframework.context.annotation.Bean; import
  * org.springframework.context.annotation.Configuration; import
- * org.springframework.security.authentication.AuthenticationManager; import
- * org.springframework.security.config.annotation.authentication.builders.
- * AuthenticationManagerBuilder; import
  * org.springframework.security.config.annotation.web.builders.HttpSecurity;
- * import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
- * import org.springframework.security.crypto.password.PasswordEncoder; import
- * org.springframework.security.web.SecurityFilterChain; import
- * org.springframework.beans.factory.annotation.Autowired;
+ * import org.springframework.security.web.SecurityFilterChain;
  * 
  * @Configuration public class SecurityConfig {
  * 
- * @Autowired private CustomUserDetailsService userDetailsService;
- * 
- * @Bean public PasswordEncoder passwordEncoder() { return new
- * BCryptPasswordEncoder(); }
- * 
- * @Bean public AuthenticationManager authManager(HttpSecurity http,
- * PasswordEncoder encoder) throws Exception { AuthenticationManagerBuilder auth
- * = http.getSharedObject(AuthenticationManagerBuilder.class);
- * auth.userDetailsService(userDetailsService).passwordEncoder(encoder); return
- * auth.build(); }
- * 
  * @Bean public SecurityFilterChain securityFilterChain(HttpSecurity http)
- * throws Exception { http .csrf(csrf -> csrf.disable()) // Disable only if
- * using form login safely .authorizeHttpRequests(auth -> auth
- * .requestMatchers("/register", "/create", "/forgot-password",
- * "/reset-password", "/css/**", "/js/**").permitAll()
- * .anyRequest().authenticated() ) .formLogin(form -> form .loginPage("/login")
- * // your Thymeleaf login page .loginProcessingUrl("/perform_login") // form
- * action .defaultSuccessUrl("/dashboard", true) // redirect after success
- * .failureUrl("/login?error=true") // redirect on failure .permitAll() )
- * .logout(logout -> logout .logoutUrl("/logout")
- * .logoutSuccessUrl("/login?logout=true") .invalidateHttpSession(true)
- * .clearAuthentication(true) .permitAll() ); return http.build(); } }
+ * throws Exception { http .authorizeHttpRequests(auth -> auth // Allow login
+ * and static resources without authentication .requestMatchers("/loginform",
+ * "/css/**", "/js/**", "/images/**").permitAll() // Everything else requires
+ * login .anyRequest().authenticated() ) .formLogin(form -> form
+ * .loginPage("/loginform") // Your login page .loginProcessingUrl("/login") //
+ * POST URL for login form .defaultSuccessUrl("/Menu", true) // Redirect after
+ * successful login .permitAll() ) .logout(logout -> logout
+ * .logoutSuccessUrl("/loginform?logout") // Redirect after logout .permitAll()
+ * ) .csrf(csrf -> csrf.disable()); // optional if you’re not using CSRF tokens
+ * in form
+ * 
+ * return http.build(); } }
  */

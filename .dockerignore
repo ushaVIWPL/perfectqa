@@ -1,0 +1,16 @@
+.git
+.gitignore
+.vscode
+.settings
+.classpath
+.project
+.apt_generated
+target/
+bin/
+logs/
+uploads/
+*.log
+*.tmp
+db_check_result.txt
+out.txt
+compile_out.txt

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Test Case List</title>
+</head>
+<body>
+
+<h2>Test Cases For Transaction: <span th:text="${transactionKey}"></span></h2>
+
+
+	   <a th:href="@{/Menu}" class="back-btn">
+	    <span class="arrow">←</span> Mainmenu
+	</a>
+	
+<table border="1">
+    <thead>
+    <tr>
+        <th>Test Case No</th>
+        <th>Activity</th>
+        <th>Description</th>
+        <th>Expected Outcome</th>
+        <th>Tested By</th>
+        <th>Work Stream</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="t : ${testcases}">
+        <td th:text="${t.testCaseNo}"></td>
+        <td th:text="${t.activity}"></td>
+        <td th:text="${t.description}"></td>
+        <td th:text="${t.expectedOutcome}"></td>
+        <td th:text="${t.testedBy}"></td>
+        <td th:text="${t.workStream}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Scenario Selection - Testing Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .selection-header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .scenario-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .activity-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        .checkbox-custom {
+            transform: scale(1.2);
+            margin-right: 10px;
+        }
+        .btn-generate {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        .activity-card {
+            transition: all 0.3s ease;
+        }
+        .activity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+        }
+    </style>
+
+<div class="container mt-4 mb-5">
+
+    <div class="selection-header">
+        <h2 class="mb-0">📋 Scenario Activities Report</h2>
+        <p class="mb-0 mt-2">Get scenario activities based on business scenarios and download the report</p>
+    </div>
+
+    <div class="scenario-card">
+        <h4 class="mb-4">🎯 Business Scenarios & Activities Overview</h4>
+
+        <div th:if="${scenariosWithActivities == null or scenariosWithActivities.isEmpty()}" class="alert alert-warning">
+            <h5>⚠️ No business scenarios found</h5>
+            <p>Please add business scenarios first to use this feature.</p>
+        </div>
+
+        <div th:if="${scenariosWithActivities != null and !scenariosWithActivities.isEmpty()}" class="mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="summary-card">
+                        <h5 class="mb-2">📊 Summary</h5>
+                        <p class="mb-1"><strong>Total Business Scenarios:</strong> <span th:text="${scenariosWithActivities.size()}" class="badge bg-primary"></span></p>
+                        <p class="mb-1"><strong>Total Activities:</strong>
+                            <span th:text="${#aggregates.sum(scenariosWithActivities.values().![#lists.size(it)])}" class="badge bg-success"></span>
+                        </p>
+                        <p class="mb-1"><strong>Company Code:</strong> <span th:text="${companyCode}" class="badge bg-info"></span></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="summary-card">
+                        <h5 class="mb-3">📥 Download Options</h5>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/api/scenario-activities/pdf}" class="btn btn-danger">
+                                📄 Download Scenario Activities PDF
+                            </a>
+                            <a th:href="@{/api/reporttwoscenarios}" class="btn btn-primary">
+                                📊 View All Scenarios & Activities
+                            </a>
+                            <a th:href="@{/api/report-business-scenarios/pdf}" class="btn btn-warning">
+                                📊 Download Business Scenarios PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Business Scenarios and their Activities -->
+        <div th:if="${scenariosWithActivities != null and !scenariosWithActivities.isEmpty()}">
+            <div th:each="entry : ${scenariosWithActivities}" class="mb-4">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            📊 Business Scenario: <strong th:text="${entry.key}"></strong>
+                            <span class="badge bg-light text-dark ms-2" th:text="${entry.value.size()}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${entry.value.isEmpty()}" class="alert alert-light">
+                            <em>No activities found for this business scenario.</em>
+                        </div>
+
+                        <div th:if="${!entry.value.isEmpty()}" class="row">
+                            <div th:each="activity : ${entry.value}" class="col-md-6 mb-3">
+                                <div class="activity-card border rounded p-3 bg-light">
+                                    <h6 class="mb-2">
+                                        <strong th:text="${activity.transactionKey}"></strong>
+                                    </h6>
+                                    <p class="mb-2"><strong>Activity:</strong> <span th:text="${activity.activity}"></span></p>
+                                    <p class="mb-2"><strong>Expected Outcome:</strong> <span th:text="${activity.expectedOutcome}"></span></p>
+                                    <p class="mb-2"><strong>Responsible:</strong> <span th:text="${activity.responsible}"></span></p>
+                                    <p class="mb-1"><strong>T-Code:</strong> <span th:text="${activity.tcode}"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Select All Scenarios functionality
+document.getElementById('selectAllScenarios').addEventListener('change', function() {
+    const scenarioCheckboxes = document.querySelectorAll('.scenario-checkbox');
+    scenarioCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// Scenario checkbox change - update activity checkboxes
+document.querySelectorAll('.scenario-checkbox').forEach(scenarioCheckbox => {
+    scenarioCheckbox.addEventListener('change', function() {
+        const scenarioKey = this.value;
+        const activityCheckboxes = document.querySelectorAll(`input[name="selectedActivities"][value^="ALL_${scenarioKey}"]`);
+
+        if (!this.checked) {
+            // Uncheck "Select All Activities" for this scenario
+            activityCheckboxes.forEach(cb => cb.checked = false);
+        }
+    });
+});
+
+// Activity "Select All" functionality
+document.querySelectorAll('input[name="selectedActivities"][value^="ALL_"]').forEach(selectAllActivity => {
+    selectAllActivity.addEventListener('change', function() {
+        const scenarioKey = this.value.replace('ALL_', '');
+        const activityCheckboxes = document.querySelectorAll(`input[name="selectedActivities"]:not([value^="ALL_"])`);
+
+        activityCheckboxes.forEach(checkbox => {
+            const activityValue = checkbox.value;
+            if (activityValue.startsWith(scenarioKey)) {
+                checkbox.checked = this.checked;
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

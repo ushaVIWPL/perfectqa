@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications | PerfectQA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        :root { --glass-bg: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08); --accent-purple: #a78bfa; --accent-blue: #60a5fa; --accent-green: #34d399; --accent-red: #f87171; --accent-amber: #fbbf24; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #f8fafc; margin: 0; padding: 0; }
+        .main-page-content { padding: 40px 20px; }
+        .notif-container { max-width: 900px; margin: 0 auto; }
+
+        .dashboard-header { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px 40px; margin-bottom: 30px; backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .header-title-area h2 { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; margin: 0; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-title-area p { color: #94a3b8; margin: 5px 0 0 0; }
+
+        .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 22px; text-align: center; backdrop-filter: blur(10px); }
+        .stat-card .number { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card.unread .number { background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card .label { color: #94a3b8; font-size: 0.8rem; margin-top: 5px; }
+
+        .action-bar { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px 20px; margin-bottom: 25px; backdrop-filter: blur(10px); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+        .btn-premium { padding: 10px 18px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.85rem; }
+        .btn-amber { background: linear-gradient(135deg, #d97706, #fbbf24); color: white; }
+        .btn-violet { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        .notifications-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); }
+
+        .notification-item { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.3s; display: flex; gap: 15px; align-items: flex-start; }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item:hover { background: rgba(255,255,255,0.02); }
+        .notification-item.unread { background: rgba(251, 191, 36, 0.03); border-left: 4px solid var(--accent-amber); }
+
+        .notification-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; flex-shrink: 0; }
+        .notification-icon.ticket { background: linear-gradient(135deg, #7c3aed, #4f46e5); }
+        .notification-icon.status { background: linear-gradient(135deg, #059669, #34d399); }
+        .notification-icon.comment { background: linear-gradient(135deg, #d97706, #fbbf24); }
+        .notification-icon.default { background: rgba(255,255,255,0.1); }
+
+        .notification-content { flex-grow: 1; }
+        .notification-title { font-weight: 600; color: #f8fafc; margin-bottom: 4px; }
+        .notification-message { color: #94a3b8; font-size: 0.88rem; margin-bottom: 8px; line-height: 1.5; }
+        .notification-meta { font-size: 0.75rem; color: #64748b; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+
+        .reference-badge { background: rgba(167, 139, 250, 0.1); color: #a78bfa; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-family: monospace; font-size: 0.7rem; border: 1px solid rgba(167, 139, 250, 0.2); }
+
+        .notification-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .btn-action { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; color: white; text-decoration: none; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); background: transparent; cursor: pointer; font-size: 0.85rem; }
+        .btn-action:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: #94a3b8; }
+        .empty-state i { font-size: 4rem; display: block; margin-bottom: 20px; opacity: 0.3; }
+
+        @media (max-width: 768px) { .action-bar { flex-direction: column; } .notification-item { flex-direction: column; } .notification-actions { margin-top: 10px; } }
+    </style>
+
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+<div class="main-page-content">
+    <div class="notif-container">
+
+        <div class="dashboard-header">
+            <div class="header-title-area">
+                <h2><i class="bi bi-bell-fill"></i> Notifications</h2>
+                <p>Stay updated with all your assigned tasks and ticket updates</p>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="number" th:text="${notifications != null ? #lists.size(notifications) : 0}">0</div>
+                <div class="label">Total</div>
+            </div>
+            <div class="stat-card unread">
+                <div class="number" th:text="${unreadCount}">0</div>
+                <div class="label">Unread</div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-premium btn-amber" onclick="markAllAsRead()">
+                <i class="bi bi-check-all"></i> Mark All Read
+            </button>
+        </div>
+
+        <div class="notifications-card">
+            <div th:if="${notifications == null or notifications.empty}" class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h4>No Notifications</h4>
+                <p>You're all caught up! No notifications at the moment.</p>
+            </div>
+
+            <div th:if="${notifications != null and !notifications.empty}">
+                <div th:each="n : ${notifications}"
+                     th:class="'notification-item' + (${!n.isRead} ? ' unread' : '')">
+
+                    <div th:class="'notification-icon ' + ${n.notificationType == 'TICKET_ASSIGNED' ? 'ticket' : (n.notificationType == 'TICKET_STATUS_CHANGED' ? 'status' : (n.notificationType == 'TICKET_COMMENT' ? 'comment' : 'default'))}">
+                        <i th:class="${n.notificationType == 'TICKET_ASSIGNED' ? 'bi bi-ticket-detailed-fill' : (n.notificationType == 'TICKET_STATUS_CHANGED' ? 'bi bi-arrow-repeat' : (n.notificationType == 'TICKET_COMMENT' ? 'bi bi-chat-dots-fill' : 'bi bi-bell-fill'))}"></i>
+                    </div>
+
+                    <div class="notification-content">
+                        <div class="notification-title" th:text="${n.title}">Notification Title</div>
+                        <div class="notification-message" th:text="${n.message}">Notification message...</div>
+                        <div class="notification-meta">
+                            <span th:if="${n.referenceCode}">
+                                <span class="reference-badge" th:text="${n.referenceCode}">TKT-00001</span>
+                            </span>
+                            <span th:if="${n.senderName}">
+                                <i class="bi bi-person"></i> <span th:text="${n.senderName}">Sender</span>
+                            </span>
+                            <span>
+                                <i class="bi bi-clock"></i>
+                                <span th:text="${#temporals.format(n.createdAt, 'MMM dd, yyyy HH:mm')}">Jan 01, 2025</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="notification-actions">
+                        <a th:if="${n.actionUrl}" th:href="${n.actionUrl}" class="btn-action" title="View" style="color: #60a5fa;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <button th:if="${!n.isRead}" class="btn-action mark-read-btn" th:data-notification-id="${n.id}" title="Mark as Read" style="color: #fbbf24;">
+                            <i class="bi bi-check"></i>
+                        </button>
+                        <button class="btn-action delete-notification-btn" th:data-notification-id="${n.id}" title="Delete" style="color: #f87171;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function markAsRead(id) {
+    fetch('/api/notifications/mark-read/' + id, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => { if (data.success) location.reload(); })
+        .catch(() => Swal.fire('Error', 'Failed to mark notification as read', 'error'));
+}
+
+function markAllAsRead() {
+    fetch('/api/notifications/mark-all-read', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Done!', text: 'All notifications marked as read', timer: 1500, showConfirmButton: false }).then(() => location.reload());
+            }
+        })
+        .catch(() => Swal.fire('Error', 'Failed to mark notifications as read', 'error'));
+}
+
+function deleteNotification(id) {
+    Swal.fire({
+        title: 'Delete Notification?', text: 'This cannot be undone', icon: 'warning',
+        showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/notifications/delete/' + id, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => { if (data.success) location.reload(); else Swal.fire('Error', data.message || 'Failed to delete', 'error'); })
+                .catch(() => Swal.fire('Error', 'Failed to delete notification', 'error'));
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.mark-read-btn').forEach(button => {
+        button.addEventListener('click', function() { const id = this.getAttribute('data-notification-id'); if (id) markAsRead(id); });
+    });
+    document.querySelectorAll('.delete-notification-btn').forEach(button => {
+        button.addEventListener('click', function() { const id = this.getAttribute('data-notification-id'); if (id) deleteNotification(id); });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,126 +1,299 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Add Test Case Transaction</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">Add Test Case Transaction</h2>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Display error if testCaseNo already exists -->
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            margin: 0; padding: 0; min-height: 100vh;
+            color: #f8fafc;
+        }
+        
+        /* Changed to container-fluid to use full screen width with padding */
+        .container-fluid { padding: 40px; }
+        
+        .page-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 25px 30px; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .form-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(10px);
+            border-radius: 16px; 
+            padding: 40px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
+        }
+        
+        .form-label { font-weight: 600; color: #a78bfa; margin-bottom: 8px; display: block; }
+        
+        /* Input styling */
+        .form-control, .form-select { 
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            border-radius: 10px; 
+            padding: 12px 16px; 
+            width: 100%; 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus { 
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #60a5fa; 
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2); 
+            outline: none; 
+            color: #f8fafc;
+        }
+        
+        .form-control::placeholder {
+            color: #64748b;
+        }
 
- <form th:action="@{/save}" th:object="${transaction}" 
-          method="post" enctype="multipart/form-data" class="row g-3">
-        <!-- MainKey = combinedKey (readonly) -->
-        <div class="col-md-6">
-            <label class="form-label">Main Key:</label>
-            <input type="text" th:field="*{mainKey}" class="form-control" readonly />
-        </div>
+        .form-control[readonly] {
+            background: rgba(255, 255, 255, 0.02) !important;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
 
-        <div class="col-md-6">
-            <label class="form-label">Test Case  Transaction No:</label>
-            <input type="text" th:field="*{testCaseNo}" class="form-control" required />
-        </div>
+        /* Select option colors inside dark theme */
+        .form-select option {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+        
+        .btn-submit { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; padding: 16px 30px; border-radius: 10px; font-weight: 600; font-size: 16px; width: auto; min-width: 200px; margin-top: 20px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .text-danger { color: #f87171; }
+        
+        h4.text-primary {
+            color: #a78bfa !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
 
-     <!--   <div class="col-md-4">
-            <label class="form-label">Serial No:</label>
-            <input type="number" th:field="*{serialNo}" class="form-control" />
-        </div>
--->
-        <div class="col-md-4">
-            <label class="form-label">Type:</label>
-            <input type="text" th:field="*{type}" class="form-control" />
-        </div>
+        /* Form rows spacing */
+        .row.mb-4 { margin-bottom: 1.5rem !important; }
+    </style>
 
-        <div class="col-md-4">
-            <label class="form-label">Action:</label>
-            <input type="text" th:field="*{action}" class="form-control" />
-        </div>
+<div class="container-fluid">
+    <!-- Header with Action Button -->
+    <div class="page-header">
+        <h2 class="m-0" th:text="${editMode} ? 'Edit Test Case Transactions / Tasks' : 'Add Test Case Transactions / Tasks'"></h2>
+        <a th:href="@{/api/all-transactions}" class="btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 10px; font-weight: 600; padding: 10px 20px; transition: all 0.3s ease;">
+            <i class="bi bi-list-ul"></i> View Test Case Transactions
+        </a>
+    </div>
 
-        <div class="col-md-12">
-            <label class="form-label">URL:</label>
-            <input type="text" th:field="*{url}" class="form-control" />
-        </div>
+    <!-- Error Message -->
+    <div th:if="${error}" class="alert alert-danger shadow-sm" th:text="${error}"></div>
 
-        <div class="col-md-6">
-            <label class="form-label">Expected Results:</label>
-            <textarea th:field="*{expectedResults}" class="form-control"></textarea>
-        </div>
+    <!-- Form -->
+    <div class="form-card">
+        <form th:action="${editMode} ? @{/editTransactionform} : @{/api/save-transaction}" th:object="${transaction}" method="post" enctype="multipart/form-data" id="transactionForm" hx-boost="false">
+            <!-- Hidden Fields -->
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{combinedKey}">
+            <input type="hidden" th:field="*{testcaseHeaderId}">
+            <input type="hidden" th:field="*{companyCode}">
+            <input type="hidden" th:field="*{screenshotPaths}">
 
-        <div class="col-md-6">
-            <label class="form-label">Actual Results:</label>
-            <textarea th:field="*{actualResults}" class="form-control"></textarea>
-        </div>
+            <h4 class="mb-4 text-primary border-bottom pb-2">Identification</h4>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Combined Key</label>
+                    <input type="hidden" th:field="*{mainKey}" id="mainKey">
+                    <input type="text" class="form-control" th:value="${#strings.contains(transaction.mainKey, '-') ? #strings.substringAfter(transaction.mainKey, '-') : transaction.mainKey}" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Step No <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{stepNo}" id="stepNo" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="error-msg text-danger" id="stepNoError" style="font-size: 0.85em; margin-top: 5px;"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Serial No</label>
+                    <input type="number" class="form-control" th:field="*{serialNo}">
+                </div>
+            </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Tested Date:</label>
-            <input type="date" th:field="*{testedDate}" class="form-control" />
-        </div>
+            <h4 class="mb-4 mt-5 text-primary border-bottom pb-2">Execution Details</h4>
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <label class="form-label">Action <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:field="*{action}" name="testAction" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Pass/Fail <span class="text-danger">*</span></label>
+                    <select class="form-select" th:field="*{passFail}" required>
+                        <option value="" disabled selected>Select status</option>
+                        <option th:value="'Pass'">Pass</option>
+                        <option th:value="'Fail'">Fail</option>
+                        <option th:value="'Pending'">Pending</option>
+                    </select>
+                </div>
+            </div>
 
-       <div class="col-md-4">
-    <label class="form-label">Pass/Fail:</label>
-    <select th:field="*{passFail}" class="form-control">
-        <option value="">-- Select --</option>
-        <option value="Pass">Pass</option>
-        <option value="Fail">Fail</option>
-    <option value="Hold">Hold</option>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Expected Results <span class="text-danger">*</span></label>
+                    <textarea class="form-control" th:field="*{expectedResults}" placeholder="Describe expected results" required rows="4"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Actual Results</label>
+                    <textarea class="form-control" th:field="*{actualResults}" placeholder="Describe actual results" rows="4"></textarea>
+                </div>
+            </div>
 
-    </select>
-</div>
+            <h4 class="mb-4 mt-5 text-primary border-bottom pb-2">Additional Information</h4>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Comments</label>
+                    <textarea class="form-control" th:field="*{comments}" placeholder="Enter comments" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Defects</label>
+                    <textarea class="form-control" th:field="*{defects}" placeholder="Enter defect IDs" rows="3"></textarea>
+                </div>
+            </div>
 
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Tested Date</label>
+                    <input type="date" class="form-control" th:field="*{testedDate}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Type</label>
+                    <input type="text" class="form-control" th:field="*{type}" placeholder="Enter type">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">URL</label>
+                    <input type="text" class="form-control" th:field="*{url}" placeholder="Enter target URL">
+                </div>
+            </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Defects:</label>
-            <input type="text" th:field="*{defects}" class="form-control" />
-        </div>
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <label class="form-label">Evidence Screenshot</label>
+                    <div class="p-4 rounded" style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.2);">
+                        <input type="file" class="form-control mb-2" name="screenshotFiles" multiple accept="image/*">
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Upload evidence images up to 10MB each.</small>
+                        
+                        <!-- Existing Screenshots -->
+                        <div th:if="${transaction != null and transaction.screenshotPaths != null and !transaction.screenshotPaths.isEmpty()}" class="mt-3">
+                            <h6 class="mb-2" style="color: #60a5fa;">Existing Screenshots (Check to Delete):</h6>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div th:each="imagePath : ${transaction.imagePathsList}" class="text-center p-2 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                    <img th:src="@{'/uploads/screenshots/' + ${imagePath}}" style="height: 100px; border-radius: 8px; border: 1px solid #ccc; object-fit: cover; display: block;" class="mb-2">
+                                    <label class="d-flex align-items-center justify-content-center text-danger small" style="cursor: pointer; gap: 4px;">
+                                        <input type="checkbox" name="deleteImages" th:value="${imagePath}" class="form-check-input m-0"> Delete
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="col-md-12">
-            <label class="form-label">Comments:</label>
-            <textarea th:field="*{comments}" class="form-control"></textarea>
-        </div>
-
-<!-- Display existing screenshots -->
-<!-- Display existing screenshots -->
-<div class="mb-3">
-    <label class="form-label fw-bold">Uploaded Screenshots</label>
-    <div class="d-flex flex-wrap gap-2">
-        <div th:each="img : ${base64Screenshots}" class="position-relative">
-            <img th:src="${img}" alt="screenshot"
-                 class="rounded shadow-sm"
-                 style="width:120px; height:120px; object-fit:cover; border:2px solid #ccc;" />
-            <a th:href="${img}" download="screenshot.png"
-               class="btn btn-sm btn-light position-absolute top-0 end-0 m-1">
-                ⬇
-            </a>
-        </div>
+            <div class="text-end">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-floppy"></i> <span th:text="${editMode} ? 'Update Transaction' : 'Save Transaction'"></span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+(function() {
+    const stepNo = document.getElementById('stepNo');
+    const stepNoError = document.getElementById('stepNoError');
+    const mainKey = document.getElementById('mainKey');
 
+    if (stepNo && !stepNo.readOnly && mainKey) {
+        stepNo.addEventListener('input', function() {
+            const val = this.value.trim();
+            const keyVal = mainKey.value.trim();
+            if (!val || !keyVal) {
+                stepNoError.textContent = '';
+                return;
+            }
 
-<!-- Upload new screenshots -->
-<div class="col-md-12">
-    <label class="form-label">Upload Screenshots:</label>
-    <input type="file" name="uploadedScreenshots" multiple class="form-control" />
-    <small class="text-muted">You can select more than one file</small>
-</div>
+            // Perform AJAX check
+            fetch(`/api/testcase-transactions/exists?mainKey=${encodeURIComponent(keyVal)}&stepNo=${encodeURIComponent(val)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (stepNo.value.trim() === val) {
+                        if (data.exists) {
+                            stepNoError.textContent = 'Duplicate Step Number! Already exists for this test case.';
+                        } else {
+                            stepNoError.textContent = '';
+                        }
+                    }
+                })
+                .catch(err => console.error('Error checking duplicate:', err));
+        });
+    }
 
-        
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary">Save Transaction</button>
+    const form = document.getElementById('transactionForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (stepNoError && stepNoError.textContent.trim() !== '') {
+                e.preventDefault();
+                stepNo.focus();
+                return;
+            }
+
+            e.preventDefault();
+            const formData = new FormData(this);
+            Swal.fire({ title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             
-    <a href="/getall" class="btn btn-primary me-2">List Transaction</a>
-
-
-
-<div th:if="${successMessage}" class="alert alert-success" role="alert">
-    <span th:text="${successMessage}"></span>
-</div>
-
-        </div>
-    </form>
-</div>
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(resp => {
+                const contentType = resp.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    return resp.json();
+                } else {
+                    return resp.text().then(text => ({ success: true, isHtml: true }));
+                }
+            })
+            .then(data => {
+                Swal.close();
+                if (data.success || data.isHtml) {
+                    Swal.fire('Success', data.message || 'Transaction saved successfully', 'success')
+                        .then(() => window.location.href = '/api/all-transactions');
+                } else {
+                    Swal.fire('Error', data.message || 'An error occurred', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.close();
+                Swal.fire('Error', 'Server error occurred while saving.', 'error');
+                console.error(err);
+            });
+        });
+    }
+})();
+/*]]>*/
+</script>
 </body>
 </html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Quality Control System - PerfectQA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/IWPL_LOGO.jpg}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --accent-green: #10b981;
+      --accent-blue: #3b82f6;
+      --accent-orange: #f59e0b;
+      --glass-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text-bright);
+      overflow-x: hidden;
+    }
+
+    .dashboard-container { padding: 30px 0; }
+    
+    .page-title-wrap { margin-bottom: 2.5rem; position: relative; }
+    
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header {
+      color: var(--accent-green);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin: 60px 0 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .action-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 25px 20px;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .action-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-card:hover::after { opacity: 1; }
+
+    .action-icon-wrap {
+      width: 50px;
+      height: 50px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.4s;
+    }
+
+    .action-card:hover .action-icon-wrap {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .action-icon {
+      font-size: 24px;
+      color: var(--accent-green);
+      transition: color 0.4s;
+    }
+
+    .action-card:hover .action-icon { color: var(--accent-green); }
+
+    .card-title {
+      color: var(--text-bright);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.3s;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: auto;
+      letter-spacing: 0.5px;
+    }
+
+    .action-card:hover .btn-action {
+      background: #ffffff;
+      color: #020617;
+      border-color: #ffffff;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      font-weight: 600;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .back-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); transform: translateX(-5px); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  </style>
+
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="container dashboard-container">
+
+    <div class="text-center page-title-wrap animate-up">
+      <h1 class="page-title">Quality Control System</h1>
+      <p class="text-white opacity-50 fs-5">Advanced test management and execution platform</p>
+    </div>
+
+    <!-- Section 1: User Stories (Test Case Headers) -->
+    <div class=\"animate-up\" style=\"animation-delay: 0.1s\">
+      <h5 class=\"section-header\">
+        <i class=\"bi bi-journal-text\"></i> User Stories (Headers)
+      </h5>
+      <div class=\"row g-4\">
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/activities'\">
+            <div class=\"action-icon-wrap\">
+              <i class=\"bi bi-file-earmark-plus action-icon\"></i>
+            </div>
+            <h6 class=\"card-title\">Create User Stories (Test Case Headers)</h6>
+            <p class=\"card-text\">Define high-level test case headers and map them to scenario activities.</p>
+            <a th:href=\"@{/activities}\" class=\"btn-action\">Start Creation</a>
+          </div>
+        </div>
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/api/transactions/testcaseheaders'\">
+            <div class=\"action-icon-wrap\" style=\"background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);\">
+              <i class=\"bi bi-pencil-square action-icon\" style=\"color: #3b82f6;\"></i>
+            </div>
+            <h6 class=\"card-title\">View/Edit User Stories (Test Case Headers)</h6>
+            <p class=\"card-text\">Access, search, and edit existing test case headers and requirements.</p>
+            <a th:href=\"@{/api/transactions/testcaseheaders}\" class=\"btn-action\">View Repository</a>
+          </div>
+        </div>
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/api/report-test-case-headers'\">
+            <div class=\"action-icon-wrap\" style=\"background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);\">
+              <i class=\"bi bi-printer action-icon\" style=\"color: #f59e0b;\"></i>
+            </div>
+            <h6 class=\"card-title\"> Print/Download User Stories(Test Cases Headers)</h6>
+            <p class=\"card-text\">Generate and download comprehensive reports for all test case headers.</p>
+            <a th:href=\"@{/api/report-test-case-headers}\" class=\"btn-action\">Download Report</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: User Stories (Test Case Steps) -->
+    <div class=\"animate-up\" style=\"animation-delay: 0.2s\">
+      <h5 class=\"section-header\" style=\"color: #8b5cf6; border-color: rgba(139, 92, 246, 0.2);\">
+        <i class=\"bi bi-list-ol\"></i> Test Execution Steps
+      </h5>
+      <div class=\"row g-4\">
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/api/transactions/testcaseheaders'\">
+            <div class=\"action-icon-wrap\" style=\"background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2);\">
+              <i class=\"bi bi-plus-square action-icon\" style=\"color: #8b5cf6;\"></i>
+            </div>
+            <h6 class=\"card-title\">Create Test Steps</h6>
+            <p class=\"card-text\">Add detailed execution steps and expected results to your test headers.</p>
+            <a th:href=\"@{/api/transactions/testcaseheaders}\" class=\"btn-action\">Add Steps</a>
+          </div>
+        </div>
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/api/test-case-transactions/search'\">
+            <div class=\"action-icon-wrap\" style=\"background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.2);\">
+              <i class=\"bi bi-search action-icon\" style=\"color: #06b6d4;\"></i>
+            </div>
+            <h6 class=\"card-title\">Search Test Steps</h6>
+            <p class=\"card-text\">Quickly find and filter specific test steps across your entire repository.</p>
+            <a th:href=\"@{/api/test-case-transactions/search}\" class=\"btn-action\">Search Repository</a>
+          </div>
+        </div>
+        <div class=\"col-lg-4\">
+          <div class=\"action-card\" onclick=\"window.location.href='/api/report-test-case-transactions'\">
+            <div class=\"action-icon-wrap\" style=\"background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2);\">
+              <i class=\"bi bi-file-earmark-bar-graph action-icon\" style=\"color: #ec4899;\"></i>
+            </div>
+            <h6 class=\"card-title\">Execution Reports</h6>
+            <p class=\"card-text\">Generate detailed reports covering test execution steps and results.</p>
+            <a th:href=\"@{/api/report-test-case-transactions}\" class=\"btn-action\">Download Report</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Section 3: Defect Management -->
+    <div class="animate-up" style="animation-delay: 0.3s">
+      <h5 class="section-header" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+        <i class="bi bi-bug"></i> Defect Management
+      </h5>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="action-card" onclick="window.location.href='/api/tickets/createticket'">
+            <div class="action-icon-wrap" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2);">
+              <i class="bi bi-plus-circle action-icon" style="color: #ef4444;"></i>
+            </div>
+            <h6 class="card-title">Raise a Ticket</h6>
+            <p class="card-text">Create a new ticket for system bugs, functional issues, or quality concerns.</p>
+            <a th:href="@{/api/tickets/createticket}" class="btn-action">Create Ticket</a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="action-card" onclick="window.location.href='/api/tickets/list'">
+            <div class="action-icon-wrap" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2);">
+              <i class="bi bi-list-columns-reverse action-icon" style="color: #8b5cf6;"></i>
+            </div>
+            <h6 class="card-title">Ticket List</h6>
+            <p class="card-text">Access, search, and manage all recorded support and defect tickets.</p>
+            <a th:href="@{/api/tickets/list}" class="btn-action">View Ticket List</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>
+</body>
+</html>

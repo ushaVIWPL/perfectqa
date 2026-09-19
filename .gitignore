@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Runtime uploaded files
+uploads/
+
+# Logs
+*.log
+
+# Compiled Java files
+*.class
+
+# Temporary files
+*.txt
+
+# ZIP/archive files
+*.zip

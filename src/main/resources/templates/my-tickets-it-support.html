@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task Tickets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Reuse styles from my-tickets.html */
+        /* ... (same CSS as my-tickets.html) ... */
+        /* For brevity, you can include the same styles or import a shared CSS file */
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="main-content-wrapper">
+    <div th:if="${success}" class="alert-success">✅ <span th:text="${success}"></span></div>
+    <div th:if="${error}" class="alert-error">❌ <span th:text="${error}"></span></div>
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1 class="page-title">🛠 My Support Tickets</h1>
+            <div class="user-pill">
+                <span style="font-size:25px; font-weight:bold;">👤 <span th:text="${username}">User</span></span>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+            <a href="/api/tickets/list" class="btn btn-back">All Tickets</a>
+        </div>
+    </div>
+    <!-- Reuse the same stats, filter bar, and table markup from my-tickets.html -->
+    <!-- Include the fragment using Thymeleaf layout if desired -->
+    <div th:replace="my-tickets :: stats-filter-table"></div>
+</div>
+<script>
+    // Client‑side search filter (same as my-tickets.html)
+    function filterTable() {
+        const q = document.getElementById('searchBox').value.toLowerCase();
+        const rows = document.querySelectorAll('#ticketTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

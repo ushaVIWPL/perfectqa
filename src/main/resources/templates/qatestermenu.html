@@ -1,264 +1,537 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <title>QA Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-    <style>
-        body {
-            background: #f8f9fc;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .dashboard-container {
-            background: #fff;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 40px;
-        }
-
-        h4 {
-            color: #0d6efd;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .welcome-bar {
-            background: #0d6efd;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 0 0 8px 8px;
-            text-align: center;
-            font-size: 18px;
-            letter-spacing: 0.5px;
-        }
-
-        .welcome-bar b {
-            color: #ffe600;
-        }
-
-        .btn-outline-primary, 
-        .btn-outline-success, 
-        .btn-outline {
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-primary:hover, 
-        .btn-outline-success:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-        }
-
-        .dropdown-menu {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-item:hover {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .modal-content {
-            border-radius: 15px;
-        }
-
-        .modal-header {
-            border-radius: 15px 15px 0 0;
-        }
-
-        .footer-note {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-top: 40px;
-        }
-        .welcome-bar .dropdown .btn {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-}
-
-.welcome-bar .dropdown .btn:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.rounded-circle{
-	color:#fff;
-}
-
-    </style>
+  <meta charset="UTF-8">
+  <title th:text="${(session.companyName != null ? session.companyName : 'PerfectQA') + ' | Dashboard'}">QA Dashboard</title>
+  <link rel="icon" type="image/png" th:href="${session.companyCode != null ? '/company/logo/' + session.companyCode : '/img/IWPL.png'}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-<!-- Header Fragment -->
-<div th:replace="~{fragments/reportsHeader :: header}"></div>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --accent-blue: #3b82f6;
+      --accent-sky: #60a5fa;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --accent-red: #ef4444;
+      --glass-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+    }
 
-<!-- ✅ Welcome Bar -->
-<!-- ✅ Welcome Bar -->
-<div class="welcome-bar d-flex justify-content-between align-items-center">
-    <div>
-        Welcome, <b th:text="${session.username + ' '}">User</b>!
+    body {
+      background: var(--bg-dark);
+      background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text-bright);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-container { padding: 10px 0 30px 0; flex: 1; display: flex; flex-direction: column; }
+    .dashboard-container > .container { flex: 1; }
+    .footer-note { margin-top: auto !important; }
+    
+    .page-title-wrap { margin-bottom: 2.5rem; }
+    
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .action-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 25px 20px;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .action-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-icon-wrap {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.3s;
+    }
+
+    .action-card:hover .action-icon-wrap {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .action-icon {
+      font-size: 24px;
+      transition: all 0.3s;
+    }
+
+    .card-title {
+      color: var(--text-bright);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      min-height: 2.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.3s;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: auto;
+    }
+
+    .action-card:hover .btn-action {
+      background: #fff;
+      color: #020617;
+      border-color: #fff;
+    }
+
+    /* Color variations */
+    .card-it .action-icon { color: var(--accent-blue); }
+    .card-it:hover { border-color: var(--accent-blue); }
+    
+    .card-repo .action-icon { color: var(--accent-sky); }
+    .card-repo:hover { border-color: var(--accent-sky); }
+    
+    .card-qc .action-icon { color: var(--accent-green); }
+    .card-qc:hover { border-color: var(--accent-green); }
+    
+    .card-testcase .action-icon { color: #f59e0b; }
+    .card-testcase:hover { border-color: #f59e0b; }
+
+    .card-tasks .action-icon { color: #ec4899; }
+    .card-tasks:hover { border-color: #ec4899; }
+
+    .card-qcprocess .action-icon { color: #14b8a6; }
+    .card-qcprocess:hover { border-color: #14b8a6; }
+
+    .card-qaplan .action-icon { color: var(--accent-purple); }
+    .card-qaplan:hover { border-color: var(--accent-purple); }
+
+    .card-migration .action-icon { color: #f97316; }
+    .card-migration:hover { border-color: #f97316; }
+
+    .card-cutover .action-icon { color: #06b6d4; }
+    .card-cutover:hover { border-color: #06b6d4; }
+
+    .card-qcmgmt .action-icon { color: #a78bfa; }
+    .card-qcmgmt:hover { border-color: #a78bfa; }
+
+    .card-migmgmt .action-icon { color: #34d399; }
+    .card-migmgmt:hover { border-color: #34d399; }
+
+    .card-scrum .action-icon { color: var(--accent-purple); }
+    .card-scrum:hover { border-color: var(--accent-purple); }
+    
+    .card-logout .action-icon { color: var(--accent-red); }
+    .card-logout:hover { border-color: var(--accent-red); }
+
+    .stats-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+
+    .footer-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 20px;
+      padding-bottom: 40px;
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    /* Modern Glassmorphic OCPNA Main Menu Styles */
+    .ocp-row-container {
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .ocp-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 28px 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .ocp-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      transition: all 0.4s ease;
+    }
+
+    /* Glow lines for different columns */
+    .card-yellow::before { background: #fbbf24; }
+    .card-peach::before { background: #fca5a5; }
+    .card-blue::before { background: #3b82f6; }
+    .card-cyan::before { background: #06b6d4; }
+    .card-green::before { background: #10b981; }
+    .card-pink::before { background: #ec4899; }
+
+    .ocp-card:hover {
+      transform: translateY(-8px);
+      background: rgba(30, 41, 59, 0.7);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Glow effect on hover */
+    .card-yellow:hover { box-shadow: 0 0 30px rgba(251, 191, 36, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(251, 191, 36, 0.3); }
+    .card-peach:hover { box-shadow: 0 0 30px rgba(252, 165, 165, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(252, 165, 165, 0.3); }
+    .card-blue:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(59, 130, 246, 0.3); }
+    .card-cyan:hover { box-shadow: 0 0 30px rgba(6, 182, 212, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(6, 182, 212, 0.3); }
+    .card-green:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(16, 185, 129, 0.3); }
+    .card-pink:hover { box-shadow: 0 0 30px rgba(236, 72, 153, 0.15), 0 20px 40px rgba(0, 0, 0, 0.4); border-color: rgba(236, 72, 153, 0.3); }
+
+    .ocp-card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ocp-card-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: all 0.3s ease;
+    }
+
+    .card-yellow .ocp-card-icon-box { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+    .card-peach .ocp-card-icon-box { background: rgba(252, 165, 165, 0.1); color: #fca5a5; border: 1px solid rgba(252, 165, 165, 0.2); }
+    .card-blue .ocp-card-icon-box { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+    .card-cyan .ocp-card-icon-box { background: rgba(6, 182, 212, 0.1); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.2); }
+    .card-green .ocp-card-icon-box { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .card-pink .ocp-card-icon-box { background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2); }
+
+    .ocp-card:hover .ocp-card-icon-box {
+      transform: scale(1.1);
+    }
+
+    .ocp-card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+    }
+
+    .ocp-card-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ocp-card-list li {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #94a3b8;
+      display: flex;
+      align-items: flex-start;
+      line-height: 1.4;
+      transition: all 0.2s ease;
+    }
+
+    .ocp-card:hover .ocp-card-list li {
+      color: #cbd5e1;
+    }
+
+    .ocp-card-list li:hover {
+      color: #ffffff !important;
+      transform: translateX(4px);
+    }
+
+    .ocp-card-list li i {
+      margin-top: 3px;
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+    }
+
+    .ocp-card-list li:hover i {
+      transform: scale(1.2);
+    }
+
+    .style-peach { color: #fca5a5 !important; }
+    .text-pink { color: #ec4899 !important; }
+  </style>
+
+
+  <!-- Header Fragment -->
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <!-- Notification Scripts Fragment -->
+  <div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+  <div class="container-fluid px-lg-5 dashboard-container">
+    
+    <div class="text-center mb-4 animate-up">
+      <h1 class="page-title mb-0" th:text="${session.companyName} + ' SUPPORT MENU'">Company Name Task MENU</h1>
     </div>
-    <form id="logoutForm" th:action="@{/logout}" method="post" class="m-0">
-<!--  <button type="button" class="btn btn-light btn-sm fw-bold text-primary" onclick="logoutUser()">
-    Logout
-  </button>-->
-  
-  <!-- Profile Dropdown -->
-<div class="dropdown ms-3">
-  <button class="btn btn-light btn-sm rounded-circle p-2" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="bi bi-person-circle fs-4"></i>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-    <li><a class="dropdown-item" th:href="@{/profile}">Edit Profile</a></li>
-    <li><a class="dropdown-item" th:href="@{/settings}">Settings</a></li>
-    <li><a class="dropdown-item" th:href="@{/createticket}">Raise a Ticket</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()">Logout</a></li>
-  </ul>
-</div>
 
-</form>
+    <!-- OCPNA Main Menu Design -->
+      <div class="row row-cols-1 row-cols-md-3 row-cols-lg-3 g-4 ocp-row-container justify-content-center">
+          <!-- Col 1: END-USER SUPPORT -->
+          <div class="col" onclick="window.location.href='/Menu/ITSupport'">
+              <div class="ocp-card card-yellow">
+                  <div class="ocp-card-header">
+                      <div class="ocp-card-icon-box">
+                          <i class="bi bi-headset"></i>
+                      </div>
+                      <h3 class="ocp-card-title">End-User Task</h3>
+                  </div>
+                  <ul class="ocp-card-list">
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>Raise Task Ticket</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>Modify Existing Tickets</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>View My Tickets</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>Print Support Tickets</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>Export Ticket Data</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-warning"></i><span>My Tasks</span></li>
+                  </ul>
+              </div>
+          </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function logoutUser() {
-  fetch('/logout', { method: 'POST' })
-    .then(response => {
-      if (response.ok) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Logged Out!',
-          text: 'You have been logged out successfully.',
-          confirmButtonColor: '#3085d6'
-        }).then(() => {
-          window.location.href = '/loginform'; // redirect to login
-        });
-      } else {
-        Swal.fire('Oops!', 'Logout failed. Please try again.', 'error');
-      }
-    })
-    .catch(() => {
-      Swal.fire('Error', 'Something went wrong. Try again later.', 'error');
-    });
-}
-</script>
+          <!-- Col 2: BUSINESS SCENARIOS -->
+          <div class="col" onclick="window.location.href='/Menu/BusinessScenarios'">
+              <div class="ocp-card card-peach">
+                  <div class="ocp-card-header">
+                      <div class="ocp-card-icon-box">
+                          <i class="bi bi-layers-fill"></i>
+                      </div>
+                      <h3 class="ocp-card-title">Business Scenarios</h3>
+                  </div>
+                  <ul class="ocp-card-list">
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 style-peach"></i><span>Add New Scenario</span></li>
+                      <li><i class="bi bi-chevron-right me-2 style-peach"></i><span th:text="${session.role == 'TESTER'} ? 'View Scenario' : 'View/Edit Scenario'">View/Edit Scenario</span></li>
+                      <li><i class="bi bi-chevron-right me-2 style-peach"></i><span th:text="${session.role == 'TESTER'} ? 'View Activities' : 'Add/View/Edit Activities'">Add/View/Edit Activities</span></li>
+                      <li><i class="bi bi-chevron-right me-2 style-peach"></i><span>Print/Download Scenarios</span></li>
+                      <li><i class="bi bi-chevron-right me-2 style-peach"></i><span>Print/Download Activities</span></li>
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 style-peach"></i><span>Add Test Cases</span></li>
+                  </ul>
+              </div>
+          </div>
 
-</div>
+          <!-- Col 3: TESTCASES (STORIES) -->
+          <div class="col" onclick="window.location.href='/Menu/TestCases'">
+              <div class="ocp-card card-blue">
+                  <div class="ocp-card-header">
+                      <div class="ocp-card-icon-box">
+                          <i class="bi bi-file-earmark-text-fill"></i>
+                      </div>
+                      <h3 class="ocp-card-title">Testcases (Stories)</h3>
+                  </div>
+                  <ul class="ocp-card-list">
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 text-primary"></i><span>Create Test Headers</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-primary"></i><span th:text="${session.role == 'TESTER'} ? 'View Test Headers' : 'View/Edit Test Headers'">View/Edit Test Headers</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-primary"></i><span>Print/Download Headers</span></li>
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 text-primary"></i><span>Create Test Case Steps</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-primary"></i><span th:text="${session.role == 'TESTER'} ? 'View Test Steps' : 'View/Edit Test Steps'">View/Edit Test Steps</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-primary"></i><span>Print/Download Steps</span></li>
+                  </ul>
+              </div>
+          </div>
 
+          <!-- Col 4: TEST CASE STEPS -->
+          <div class="col" onclick="window.location.href='/Menu/TestCases'">
+              <div class="ocp-card card-cyan">
+                  <div class="ocp-card-header">
+                      <div class="ocp-card-icon-box">
+                          <i class="bi bi-list-check"></i>
+                      </div>
+                      <h3 class="ocp-card-title">Test Case Steps</h3>
+                  </div>
+                  <ul class="ocp-card-list">
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 text-info"></i><span>Create Test Headers</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-info"></i><span th:text="${session.role == 'TESTER'} ? 'View Test Headers' : 'View/Edit Test Headers'">View/Edit Test Headers</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-info"></i><span>Print/Download Headers</span></li>
+                      <li th:if="${session.role != 'TESTER'}"><i class="bi bi-chevron-right me-2 text-info"></i><span>Create Test Case Steps</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-info"></i><span th:text="${session.role == 'TESTER'} ? 'View Test Steps' : 'View/Edit Test Steps'">View/Edit Test Steps</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-info"></i><span>Print/Download Steps</span></li>
+                  </ul>
+              </div>
+          </div>
 
-<!-- ✅ Dashboard Container -->
-<div class="container dashboard-container">
-
-    <!-- ✅ Role-Based Heading -->
-    <div th:switch="${#strings.toUpperCase(session.role)}">
-<h4 th:case="'ADMIN'" class="text-center mb-4">
-    <a th:href="@{/users}" class="text-decoration-none text-dark">
-        QA Administrator Dashboard
-    </a>
-</h4>
-        <h4 th:case="'BUSINESS_MANAGER'" class="text-center mb-4">QA Business Manager Dashboard</h4>
-        <h4 th:case="'TESTER'" class="text-center mb-4">QA Tester Dashboard</h4>
-    </div>
-
-    <!-- ✅ Dashboard Actions -->
-    <div class="row gy-4 justify-content-center">
-
-        <!-- Add Business Scenario (hidden for Tester) -->
-        <div class="col-md-4 text-center"
-             th:if="${session.role == null or #strings.equalsIgnoreCase(session.role, 'TESTER') == false}">
-            <a th:href="@{/api/scenario/addheader}" class="btn btn-outline-primary w-100">
-                Add Business Scenario
-            </a>
-        </div>
-
-        <!-- View Business Scenario -->
-        <div class="col-md-4 text-center">
-            <a th:href="@{/api/scenario/all-scenarios}" class="btn btn-outline-success w-100">
-                View Business Scenario
-            </a>
-        </div>
-
-        <!-- View Scenario Activities -->
-        <div class="col-md-4 text-center">
-            <a th:href="@{/api/transactions/scenarioss}" class="btn btn-outline-success w-100">
-                View Scenario Activities
-            </a>
-        </div>
-
-        <!-- View Testcase Header -->
-        <div class="col-md-4 text-center">
-            <a th:href="@{/api/transactions/testcaseheaders}" class="btn btn-outline-success w-100">
-                View Testcase Header
-            </a>
-        </div>
-
-        <!-- View Testcase Steps -->
-        <div class="col-md-4 text-center">
-            <a th:href="@{/getall}" class="btn btn-outline-success w-100">
-                View Testcase Steps
-            </a>
-        </div>
-
-        <!-- Reports Dropdown -->
-        <div class="col-md-4 text-center">
-            <div class="dropdown w-100">
-                <button class="btn btn-outline w-100" style="border-color:#400080; color:#400080;"
-                        type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    Reports
-                </button>
-                <ul class="dropdown-menu w-100 text-center" aria-labelledby="reportsDropdown">
-                    <li><a class="dropdown-item" th:href="@{/api/transactions/businessScenarioTransactions}">
-                        All Business Scenarios and Activities
-                    </a></li>
-                    <li><a class="dropdown-item" th:href="@{/api/reporttwoscenarios}">
-                        Selected Business Scenarios and Activities
-                    </a></li>
-                    <li><a class="dropdown-item" th:href="@{/api/detaiedtranspage}">
-                        All Testcases and Transactions
-                    </a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ✅ Coming Soon Modal -->
-<div class="modal fade" id="comingSoonModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title">🚧 Coming Soon</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <!-- Col 5: QA BUGS / ISSUES -->
+          <div class="col" onclick="window.location.href='/Menu/QATickets'">
+              <div class="ocp-card card-green">
+                  <div class="ocp-card-header">
+                      <div class="ocp-card-icon-box">
+                          <i class="bi bi-bug-fill"></i>
+                      </div>
+                      <h3 class="ocp-card-title">QA Bugs / Issues</h3>
+                  </div>
+                  <ul class="ocp-card-list">
+                      <li><i class="bi bi-chevron-right me-2 text-success"></i><span>Raise QA  Ticket</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-success"></i><span>QA Ticket Created by Me</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-success"></i><span>QA Ticket Assigned to Me</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-success"></i><span>All QA Tickets</span></li>
+                      <li><i class="bi bi-chevron-right me-2 text-success"></i><span>Download QA Ticket in Excel</span></li>
+                  </ul>
+              </div>
+          </div>
       </div>
-      <div class="modal-body">
-        <p>We’re working on this feature. Stay tuned! 🚀</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
+
   </div>
-</div>
 
-<!-- ✅ Footer -->
-<div class="footer-note">
-    &copy; 2025 PERFECTQA — Quality Assured Excellence 🚀
-</div>
+  <!-- Footer -->
+  <footer class="footer-note text-center mt-auto p-4 small" style="color: white !important;">
+    <div class="container">
+      <div class="d-flex justify-content-center align-items-center gap-3">
+        <img th:src="${session != null and session.companyCode != null ? '/company/logo/' + session.companyCode : '/company/logo'}" alt="Logo" style="height: 25px; opacity: 0.8; object-fit: contain;" onerror="this.onerror=null; this.src='/img/IWPL_LOGO.jpg';">
+        <span th:text="${'&copy; 2026 ' + (session != null and session.companyName != null ? session.companyName : 'IWPL Inc.') + ' &bull; Quality Assured Excellence'}">&copy; 2026 IWPL Inc. &bull; Quality Assured Excellence</span>
+      </div>
+    </div>
+  </footer>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<div th:if="${logoutMessage}" class="alert alert-success text-center mt-3">
-    <span th:text="${logoutMessage}"></span>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        checkTaskReminders();
+        setInterval(checkTaskReminders, 60000);
+    });
 
+    function checkTaskReminders() {
+        const lastReminder = sessionStorage.getItem('lastTaskReminderTime');
+        const now = Date.now();
+        const tenMinutes = 10 * 60 * 1000;
+        
+        if (!lastReminder || (now - parseInt(lastReminder) > tenMinutes)) {
+            fetch('/api/tickets/tasks/reminders')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.tasks && data.tasks.length > 0) {
+                        sessionStorage.setItem('lastTaskReminderTime', now.toString());
+                        
+                        let taskListHtml = '<div style="text-align: left; max-height: 250px; overflow-y: auto; margin-top: 15px;">';
+                        data.tasks.forEach(t => {
+                            taskListHtml += `<div style="margin-bottom: 10px; padding: 12px; background: rgba(0,0,0,0.05); border-left: 4px solid #f59e0b; border-radius: 6px; position: relative;">
+                                <strong style="color: #1e293b;">Ticket: ${t.ticketNo}</strong><br>
+                                <span style="font-size: 0.9rem; color: #64748b;">Task: ${t.taskType}</span><br>
+                                <a href="/api/tickets/view/${t.ticketId}" class="btn btn-sm btn-primary" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #3b82f6; border: none;">View</a>
+                            </div>`;
+                        });
+                        taskListHtml += '</div>';
+                        
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: 'Pending Tasks Reminder',
+                                html: '<p style="color: #64748b;">You have active tasks that require your attention. Please update their status to maintain project velocity.</p>' + taskListHtml,
+                                icon: 'info',
+                                width: '600px',
+                                background: '#f8fafc',
+                                confirmButtonText: 'Acknowledge',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    }
+                })
+                .catch(err => console.error('Error checking task reminders:', err));
+        }
+    }
+  </script>
 </body>
 </html>

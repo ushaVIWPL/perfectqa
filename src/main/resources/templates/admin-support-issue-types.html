@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Support Issue Types</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<!-- ========================================================
+     ALL STYLES SCOPED TO .sit-page — safe for dynamic inject
+     ======================================================== -->
+<style>
+  /* ── wrapper ─────────────────────────────────────────────── */
+  .sit-page {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: #f8fafc;
+  }
+
+  /* ── stats strip ─────────────────────────────────────────── */
+  .sit-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .sit-stat-pill {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 150px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .sit-stat-pill:hover {
+    border-color: rgba(59,130,246,0.35);
+    transform: translateY(-2px);
+  }
+
+  .sit-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .sit-stat-val {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .sit-stat-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ── main card ───────────────────────────────────────────── */
+  .sit-card {
+    background: rgba(30, 41, 59, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .sit-card-head {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .sit-card-title {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0 0 2px;
+    color: #f8fafc;
+  }
+
+  .sit-card-sub {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  /* ── search ─────────────────────────────────────────────── */
+  .sit-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 190px;
+    max-width: 280px;
+  }
+
+  .sit-search-wrap i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  .sit-search {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #f8fafc;
+    font-size: 0.84rem;
+    padding: 8px 12px 8px 32px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s;
+  }
+
+  .sit-search:focus {
+    border-color: rgba(59,130,246,0.5);
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+
+  .sit-search::placeholder { color: #64748b; }
+
+  /* ── add button ─────────────────────────────────────────── */
+  .sit-btn-add {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+
+  .sit-btn-add:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(59,130,246,0.35);
+  }
+
+  /* ── table ──────────────────────────────────────────────── */
+  .sit-table-wrap { overflow-x: auto; }
+
+  .sit-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #f8fafc;
+    font-size: 0.88rem;
+  }
+
+  .sit-table thead th {
+    background: rgba(255,255,255,0.025);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    color: #64748b;
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    font-weight: 700;
+    padding: 12px 20px;
+    text-align: left;
+  }
+
+  .sit-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+  }
+
+  .sit-table tbody tr:hover { background: rgba(59,130,246,0.05); }
+
+  .sit-table tbody td { padding: 14px 20px; vertical-align: middle; }
+
+  /* ── badges ─────────────────────────────────────────────── */
+  .sit-id-badge {
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+    border: 1px solid rgba(139,92,246,0.28);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── action buttons ─────────────────────────────────────── */
+  .sit-btn-action {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .sit-btn-action:hover { background: rgba(255,255,255,0.09); color: #fff; }
+  .sit-btn-action.edit:hover  { border-color: rgba(59,130,246,0.45); color: #60a5fa; }
+  .sit-btn-action.del:hover   { border-color: rgba(239,68,68,0.45);  color: #f87171; }
+
+  /* ── empty state ─────────────────────────────────────────── */
+  .sit-empty {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .sit-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #60a5fa;
+    margin-bottom: 14px;
+  }
+
+  /* ── row animation ─────────────────────────────────────── */
+  @keyframes sitRowIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .sit-row-anim { animation: sitRowIn 0.28s ease forwards; }
+
+  /* ── modal backdrop ──────────────────────────────────────── */
+  .sit-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9995;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+
+  .sit-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── modal box ───────────────────────────────────────────── */
+  .sit-modal-box {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 22px;
+    padding: 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 32px 64px rgba(0,0,0,0.6);
+    transform: translateY(18px) scale(0.96);
+    transition: transform 0.25s ease;
+  }
+
+  .sit-backdrop.open .sit-modal-box {
+    transform: translateY(0) scale(1);
+  }
+
+  .sit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .sit-modal-title {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 4px;
+  }
+
+  .sit-modal-sub {
+    font-size: 0.79rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .sit-modal-close {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .sit-modal-close:hover { color: #f8fafc; }
+
+  .sit-form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    margin-bottom: 7px;
+  }
+
+  .sit-form-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 11px;
+    color: #f8fafc;
+    font-size: 0.92rem;
+    padding: 11px 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+
+  .sit-form-input:focus {
+    border-color: #3b82f6;
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+  }
+
+  .sit-form-input::placeholder { color: #475569; }
+
+  .sit-form-error {
+    color: #f87171;
+    font-size: 0.79rem;
+    margin-top: 6px;
+    display: none;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sit-modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+    justify-content: flex-end;
+  }
+
+  .sit-btn-cancel {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 0.86rem;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sit-btn-cancel:hover { background: rgba(255,255,255,0.09); color: #f8fafc; }
+
+  .sit-btn-save {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 9px 22px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sit-btn-save:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+  .sit-btn-save:disabled { opacity: 0.45; cursor: not-allowed; }
+</style>
+
+<!-- ======================== PAGE CONTENT ======================== -->
+<div class="sit-page">
+
+  <!-- Stats Strip -->
+  <div class="sit-stats">
+    <div class="sit-stat-pill">
+      <div class="sit-stat-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">
+        <i class="bi bi-tags-fill"></i>
+      </div>
+      <div>
+        <div class="sit-stat-val" id="sitStatTotal" style="color:#60a5fa;">—</div>
+        <div class="sit-stat-lbl">Total Types</div>
+      </div>
+    </div>
+    <div class="sit-stat-pill">
+      <div class="sit-stat-icon" style="background:rgba(16,185,129,0.15);color:#34d399;">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+      <div>
+        <div class="sit-stat-val" id="sitStatActive" style="color:#34d399;">—</div>
+        <div class="sit-stat-lbl">Active</div>
+      </div>
+    </div>
+    <div class="sit-stat-pill">
+      <div class="sit-stat-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">
+        <i class="bi bi-clock-history"></i>
+      </div>
+      <div>
+        <div class="sit-stat-val" id="sitStatLast" style="color:#a78bfa;font-size:0.88rem;padding-top:5px;">—</div>
+        <div class="sit-stat-lbl">Last Added</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="sit-card">
+    <div class="sit-card-head">
+      <div>
+        <h5 class="sit-card-title">Support Issue Type Reference Table</h5>
+        <p class="sit-card-sub">Manage support issue categories available for tickets</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="sit-search-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text" id="sitSearchInput" class="sit-search" placeholder="Search issue types…" oninput="sitFilter()" />
+        </div>
+        <button class="sit-btn-add" onclick="sitOpenAdd()">
+          <i class="bi bi-plus-lg"></i> Add Issue Type
+        </button>
+      </div>
+    </div>
+
+    <!-- Table container -->
+    <div id="sitTableWrap">
+      <div style="text-align:center;padding:50px 20px;">
+        <div class="spinner-border text-primary" style="width:2rem;height:2rem;"></div>
+        <div style="margin-top:10px;color:#64748b;font-size:0.83rem;">Loading support issue types…</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /.sit-page -->
+
+<!-- ======================== MODAL ======================== -->
+<div class="sit-backdrop" id="sitBackdrop">
+  <div class="sit-modal-box">
+    <div class="sit-modal-header">
+      <div>
+        <h5 class="sit-modal-title" id="sitModalTitle">Add Support Issue Type</h5>
+        <p class="sit-modal-sub" id="sitModalSub">Create a new support issue category</p>
+      </div>
+      <button class="sit-modal-close" onclick="sitCloseModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <label class="sit-form-label" for="sitNameInput">Support Issue Type Name</label>
+    <input type="text" id="sitNameInput" class="sit-form-input"
+           placeholder="e.g. Hardware Issue, VPN Setup, Account Locked…"
+           maxlength="120"
+           onkeydown="if(event.key==='Enter') sitSubmit()" />
+
+    <div id="sitFormError" class="sit-form-error">
+      <i class="bi bi-exclamation-circle"></i>
+      <span id="sitFormErrorMsg"></span>
+    </div>
+
+    <div class="sit-modal-footer">
+      <button class="sit-btn-cancel" onclick="sitCloseModal()">Cancel</button>
+      <button class="sit-btn-save" id="sitSaveBtn" onclick="sitSubmit()">
+        <i class="bi bi-check-lg"></i>
+        <span id="sitSaveBtnTxt">Create</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== SCRIPT ======================== -->
+<script>
+(function() {
+  var _sitTypes  = [];
+  var _sitEditId = null;
+
+  /* ── Init ──────────────────────────────────────── */
+  function sitLoad() {
+    fetch('/admin/support-issue-types/api/list')
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        _sitTypes = data || [];
+        sitRender(_sitTypes);
+        sitStats();
+      })
+      .catch(function(err) {
+        document.getElementById('sitTableWrap').innerHTML =
+          '<div style="text-align:center;padding:50px 20px;">' +
+          '<div style="width:50px;height:50px;border-radius:14px;background:rgba(239,68,68,0.12);' +
+          'border:1px solid rgba(239,68,68,0.25);display:inline-flex;align-items:center;' +
+          'justify-content:center;font-size:1.4rem;color:#f87171;margin-bottom:12px;">' +
+          '<i class="bi bi-exclamation-triangle"></i></div>' +
+          '<div style="color:#f87171;font-weight:600;font-size:0.95rem;">Failed to load support issue types</div>' +
+          '<div style="color:#64748b;font-size:0.8rem;margin-top:4px;">' + err.message + '</div>' +
+          '<button class="sit-btn-add" style="margin-top:16px;" onclick="sitLoad()">' +
+          '<i class="bi bi-arrow-clockwise"></i> Retry</button></div>';
+      });
+  }
+  window.sitLoad = sitLoad;
+
+  /* ── Render Table ──────────────────────────────── */
+  function sitRender(list) {
+    var wrap = document.getElementById('sitTableWrap');
+    if (!wrap) return;
+
+    if (!list || list.length === 0) {
+      wrap.innerHTML =
+        '<div class="sit-empty">' +
+        '<div class="sit-empty-icon"><i class="bi bi-tags"></i></div>' +
+        '<div style="font-weight:600;font-size:1rem;color:#f8fafc;">No support issue types yet</div>' +
+        '<div style="color:#64748b;font-size:0.82rem;margin-top:4px;">Click "Add Issue Type" to get started</div>' +
+        '</div>';
+      return;
+    }
+
+    var rows = '';
+    list.forEach(function(t, i) {
+      rows +=
+        '<tr id="sit-row-' + t.id + '" class="sit-row-anim" style="animation-delay:' + Math.min(i * 0.04, 0.5) + 's">' +
+        '<td><span class="sit-id-badge">#' + t.id + '</span></td>' +
+        '<td style="font-weight:500;">' + esc(t.name) + '</td>' +
+        '<td style="text-align:right;">' +
+          '<div style="display:inline-flex;gap:6px;">' +
+            '<button class="sit-btn-action edit" onclick="sitOpenEdit(' + t.id + ',\'' + escJs(t.name) + '\')" title="Edit">' +
+              '<i class="bi bi-pencil"></i>' +
+            '</button>' +
+            '<button class="sit-btn-action del" onclick="sitDel(' + t.id + ',\'' + escJs(t.name) + '\')" title="Delete">' +
+              '<i class="bi bi-trash3"></i>' +
+            '</button>' +
+          '</div>' +
+        '</td>' +
+        '</tr>';
+    });
+
+    wrap.innerHTML =
+      '<div class="sit-table-wrap">' +
+      '<table class="sit-table">' +
+      '<thead><tr>' +
+        '<th style="width:80px;"># ID</th>' +
+        '<th>Support Issue Type Name</th>' +
+        '<th style="width:120px;text-align:right;">Actions</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '</table></div>';
+  }
+  window.sitRender = sitRender;
+
+  /* ── Stats ─────────────────────────────────────── */
+  function sitStats() {
+    var el1 = document.getElementById('sitStatTotal');
+    var el2 = document.getElementById('sitStatActive');
+    var el3 = document.getElementById('sitStatLast');
+    if (el1) el1.textContent = _sitTypes.length;
+    if (el2) el2.textContent = _sitTypes.length;
+    if (el3 && _sitTypes.length > 0) {
+      var n = _sitTypes[_sitTypes.length - 1].name;
+      el3.textContent = n.length > 14 ? n.substring(0,13) + '…' : n;
+    } else if (el3) {
+      el3.textContent = '—';
+    }
+  }
+  window.sitStats = sitStats;
+
+  /* ── Search ─────────────────────────────────────── */
+  window.sitFilter = function() {
+    var q = (document.getElementById('sitSearchInput') || {}).value || '';
+    q = q.toLowerCase().trim();
+    sitRender(q ? _sitTypes.filter(function(t){ return t.name.toLowerCase().indexOf(q) >= 0; }) : _sitTypes);
+  };
+
+  /* ── Modal helpers ──────────────────────────────── */
+  window.sitOpenAdd = function() {
+    _sitEditId = null;
+    document.getElementById('sitModalTitle').textContent = 'Add Support Issue Type';
+    document.getElementById('sitModalSub').textContent   = 'Create a new support issue category';
+    document.getElementById('sitSaveBtnTxt').textContent = 'Create';
+    document.getElementById('sitNameInput').value = '';
+    sitClearErr();
+    document.getElementById('sitBackdrop').classList.add('open');
+    setTimeout(function(){ document.getElementById('sitNameInput').focus(); }, 180);
+  };
+
+  window.sitOpenEdit = function(id, name) {
+    _sitEditId = id;
+    document.getElementById('sitModalTitle').textContent = 'Edit Support Issue Type';
+    document.getElementById('sitModalSub').textContent   = 'Updating support issue type #' + id;
+    document.getElementById('sitSaveBtnTxt').textContent = 'Save Changes';
+    document.getElementById('sitNameInput').value = name;
+    sitClearErr();
+    document.getElementById('sitBackdrop').classList.add('open');
+    setTimeout(function(){ document.getElementById('sitNameInput').focus(); }, 180);
+  };
+
+  window.sitCloseModal = function() {
+    document.getElementById('sitBackdrop').classList.remove('open');
+  };
+
+  /* close on backdrop click */
+  document.getElementById('sitBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) window.sitCloseModal();
+  });
+
+  function sitShowErr(msg) {
+    var el = document.getElementById('sitFormError');
+    document.getElementById('sitFormErrorMsg').textContent = msg;
+    el.style.display = 'flex';
+  }
+  function sitClearErr() {
+    document.getElementById('sitFormError').style.display = 'none';
+  }
+
+  /* ── Submit ─────────────────────────────────────── */
+  window.sitSubmit = function() {
+    var name = (document.getElementById('sitNameInput').value || '').trim();
+    if (!name) { sitShowErr('Support issue type name is required.'); return; }
+
+    var btn = document.getElementById('sitSaveBtn');
+    btn.disabled = true;
+
+    if (_sitEditId === null) {
+      /* CREATE */
+      fetch('/admin/support-issue-types/api/create', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: name })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (!d.success) { sitShowErr(d.message || 'Error creating support issue type.'); return; }
+        window.sitCloseModal();
+        _sitTypes.push({ id: d.id, name: d.name });
+        sitRender(_sitTypes); sitStats();
+        sitToast('Support issue type "' + name + '" created!', 'success');
+      })
+      .catch(function(){ btn.disabled = false; sitShowErr('Network error. Please try again.'); });
+
+    } else {
+      /* UPDATE */
+      fetch('/admin/support-issue-types/api/update/' + _sitEditId, {
+        method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: name })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (!d.success) { sitShowErr(d.message || 'Error updating support issue type.'); return; }
+        window.sitCloseModal();
+        var idx = _sitTypes.findIndex(function(t){ return t.id === _sitEditId; });
+        if (idx !== -1) _sitTypes[idx].name = name;
+        sitRender(_sitTypes); sitStats();
+        sitToast('Support issue type updated!', 'success');
+      })
+      .catch(function(){ btn.disabled = false; sitShowErr('Network error. Please try again.'); });
+    }
+  };
+
+  /* ── Delete ─────────────────────────────────────── */
+  window.sitDel = function(id, name) {
+    Swal.fire({
+      title: 'Delete Support Issue Type?',
+      html:  'Remove <b>"' + esc(name) + '"</b>?<br><span style="font-size:0.8rem;color:#94a3b8;">This action cannot be undone.</span>',
+      icon:  'warning',
+      background: '#1e293b',
+      color: '#f8fafc',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-trash3"></i> Delete',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor:  'rgba(255,255,255,0.06)'
+    }).then(function(r) {
+      if (!r.isConfirmed) return;
+      fetch('/admin/support-issue-types/api/delete/' + id, { method:'DELETE' })
+        .then(function(res){ return res.json(); })
+        .then(function(d) {
+          if (!d.success) { sitToast(d.message || 'Delete failed', 'error'); return; }
+          _sitTypes = _sitTypes.filter(function(t){ return t.id !== id; });
+          var row = document.getElementById('sit-row-' + id);
+          if (row) {
+            row.style.transition = 'opacity 0.28s, transform 0.28s';
+            row.style.opacity    = '0';
+            row.style.transform  = 'translateX(-16px)';
+            setTimeout(function(){ sitRender(_sitTypes); sitStats(); }, 300);
+          } else { sitRender(_sitTypes); sitStats(); }
+          sitToast('Support issue type deleted.', 'success');
+        })
+        .catch(function(){ sitToast('Network error.', 'error'); });
+    });
+  };
+
+  /* ── Toast ──────────────────────────────────────── */
+  function sitToast(msg, icon) {
+    Swal.mixin({
+      toast: true, position: 'top-end',
+      showConfirmButton: false, timer: 3000, timerProgressBar: true,
+      background: '#1e293b', color: '#f8fafc',
+      iconColor: icon === 'success' ? '#10b981' : '#ef4444'
+    }).fire({ icon: icon, title: msg });
+  }
+
+  /* ── Utils ──────────────────────────────────────── */
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escJs(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  }
+
+  /* ── Boot ───────────────────────────────────────── */
+  sitLoad();
+
+})(); // IIFE — no global variable pollution
+</script>
+</body>
+</html>

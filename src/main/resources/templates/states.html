@@ -1,74 +1,580 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>States List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <title>States & Subdivisions | IWPL Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="p-4">
+<body>
 
-<h2 class="mb-4">States List</h2>
+<style>
+  .state-page {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+  }
+  .state-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .state-stat-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 180px;
+    backdrop-filter: blur(12px);
+  }
+  .state-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+  }
+  .state-stat-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .state-stat-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .state-card {
+    background: rgba(30, 41, 59, 0.55);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .state-card-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .state-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .state-card-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 2px 0 0 0;
+  }
+  .search-input-box {
+    position: relative;
+    min-width: 220px;
+  }
+  .search-input-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+  }
+  .search-input-box input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    padding: 8px 12px 8px 36px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+  .search-input-box input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  }
+  .btn-add-state {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 18px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-add-state:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    color: white;
+  }
+  .custom-table {
+    width: 100%;
+    color: #f8fafc;
+    border-collapse: collapse;
+    margin: 0;
+  }
+  .custom-table thead th {
+    background: rgba(15, 23, 42, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 14px 20px;
+    font-weight: 700;
+  }
+  .custom-table tbody td {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+  .custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .badge-code {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+  .action-btn.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+  /* Dark Modal */
+  .modal-content-dark {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    color: white;
+  }
+  .modal-header-dark {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px;
+  }
+  .modal-footer-dark {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 24px;
+  }
+  .form-label-dark {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-control-dark, .form-select-dark {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 10px 14px;
+  }
+  .form-control-dark:focus, .form-select-dark:focus {
+    background: rgba(30, 41, 59, 1);
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    color: white;
+  }
+  .form-control-dark:disabled, 
+  .form-control-dark[readonly],
+  .form-control-dark:disabled:read-only {
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+  }
+  .form-select-dark option {
+    background-color: #1e293b;
+    color: #ffffff;
+  }
+</style>
 
-<table class="table table-bordered table-hover text-center align-middle">
-    <thead class="table-light">
-    <tr>
-        <th>Country</th>
-        <th>Country Code</th>
-        <th>State Name</th>
-        <th>State Code</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="state : ${states}">
-        <td th:text="${state.country}"></td>
-        <td th:text="${state.countryCode}"></td>
-        <td th:text="${state.stateSubdivisionName}"></td>
-        <td th:text="${state.stateSubdivisionCode}"></td>
-        <td>
-            <button type="button" class="btn btn-primary"
-                    data-bs-toggle="modal"
-                    th:data-bs-target="'#editModal-' + ${state.stateSubdivisionCode}">
-                Edit
-            </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<!-- Modals for each state -->
-<div th:each="state : ${states}" th:id="'editModal-' + ${state.stateSubdivisionCode}" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form th:action="@{/states/update/{code}(code=${state.stateSubdivisionCode})}" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit State: <span th:text="${state.stateSubdivisionName}"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="stateSubdivisionCode" th:value="${state.stateSubdivisionCode}"/>
-                    <div class="mb-2">
-                        <label>Country</label>
-                        <input type="text" class="form-control" name="country" th:value="${state.country}"/>
-                    </div>
-                    <div class="mb-2">
-                        <label>Country Code</label>
-                        <input type="text" class="form-control" name="countryCode" th:value="${state.countryCode}"/>
-                    </div>
-                    <div class="mb-2">
-                        <label>State Name</label>
-                        <input type="text" class="form-control" name="stateSubdivisionName" th:value="${state.stateSubdivisionName}"/>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
+<div class="state-page">
+  <!-- Stats Header -->
+  <div class="state-stats">
+    <div class="state-stat-card">
+      <div class="state-stat-icon"><i class="bi bi-map"></i></div>
+      <div>
+        <div class="state-stat-val" th:text="${states != null ? states.size() : 0}">0</div>
+        <div class="state-stat-lbl">States / Subdivisions</div>
+      </div>
     </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="state-card">
+    <div class="state-card-head">
+      <div>
+        <h3 class="state-card-title"><i class="bi bi-map me-2 text-success"></i>State Master Directory</h3>
+        <p class="state-card-sub">Manage states, provinces, and regional subdivision records.</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="search-input-box">
+          <i class="bi bi-search"></i>
+          <input type="text" id="stateSearchInput" placeholder="Search states or countries..." onkeyup="filterStateTable()">
+        </div>
+        <button class="btn-add-state" onclick="openAddStateModal()">
+          <i class="bi bi-plus-lg"></i> Add State
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="custom-table" id="stateTable">
+        <thead>
+          <tr>
+            <th>State Code</th>
+            <th>State Name</th>
+            <th>Country</th>
+            <th>Country Code</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="s : ${states}">
+            <td><span class="badge-code" th:text="${s.stateSubdivisionCode}"></span></td>
+            <td class="fw-semibold text-white" th:text="${s.stateSubdivisionName}"></td>
+            <td th:text="${s.country != null ? s.country : '-'}"></td>
+            <td th:text="${s.countryCode != null ? s.countryCode : '-'}"></td>
+            <td class="text-end">
+              <button class="action-btn me-1 btn-edit-state" title="Edit State" th:data-code="${s.stateSubdivisionCode}">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="action-btn btn-delete btn-delete-state" title="Delete State" th:data-code="${s.stateSubdivisionCode}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr th:if="${states == null or #lists.isEmpty(states)}">
+            <td colspan="5" class="text-center py-4 text-muted">No states found. Click "Add State" to create one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
+
+<!-- Add State Modal -->
+<div class="modal fade" id="addStateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-plus-circle me-2 text-success"></i>Add New State</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label-dark">State Subdivision Code</label>
+          <input type="text" class="form-control form-control-dark" id="addStateCode" placeholder="e.g. US-CA, IN-MH">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">State Name</label>
+          <input type="text" class="form-control form-control-dark" id="addStateName" placeholder="e.g. California, Maharashtra">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Select Country</label>
+          <select class="form-select form-select-dark" id="addStateCountrySelect" onchange="onAddStateCountryChange()">
+            <option value="">-- Select Country --</option>
+            <option th:each="c : ${countries}" 
+                    th:value="${c.countryCode}" 
+                    th:data-country-name="${c.countryName}"
+                    th:text="${c.countryName + ' (' + c.countryCode + ')'}">
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name (Custom if not in list)</label>
+          <input type="text" class="form-control form-control-dark" id="addCountryNameInput" placeholder="e.g. United States">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success rounded-pill px-4" onclick="saveAddState()">Save State</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit State Modal -->
+<div class="modal fade" id="editStateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-pencil-square me-2 text-success"></i>Edit State</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="editStateCode">
+        <div class="mb-3">
+          <label class="form-label-dark">State Code</label>
+          <input type="text" class="form-control form-control-dark" id="displayStateCode" readonly>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">State Name</label>
+          <input type="text" class="form-control form-control-dark" id="editStateName" placeholder="Enter state name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Select Country</label>
+          <select class="form-select form-select-dark" id="editStateCountrySelect" onchange="onEditStateCountryChange()">
+            <option value="">-- Select Country --</option>
+            <option th:each="c : ${countries}" 
+                    th:value="${c.countryCode}" 
+                    th:data-country-name="${c.countryName}"
+                    th:text="${c.countryName + ' (' + c.countryCode + ')'}">
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name</label>
+          <input type="text" class="form-control form-control-dark" id="editCountryNameInput" placeholder="Enter country name">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success rounded-pill px-4" onclick="saveEditState()">Update State</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.btn-edit-state');
+    if (editBtn) {
+      var code = editBtn.getAttribute('data-code');
+      if (code) openEditStateModal(code);
+    }
+    var delBtn = e.target.closest('.btn-delete-state');
+    if (delBtn) {
+      var code = delBtn.getAttribute('data-code');
+      if (code) deleteState(code);
+    }
+  });
+
+  function filterStateTable() {
+    var input = document.getElementById('stateSearchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('#stateTable tbody tr');
+    rows.forEach(function(row) {
+      var text = row.innerText.toLowerCase();
+      row.style.display = text.indexOf(input) > -1 ? '' : 'none';
+    });
+  }
+
+  function onAddStateCountryChange() {
+    var sel = document.getElementById('addStateCountrySelect');
+    var opt = sel.options[sel.selectedIndex];
+    if (opt && opt.getAttribute('data-country-name')) {
+      document.getElementById('addCountryNameInput').value = opt.getAttribute('data-country-name');
+    }
+  }
+
+  function onEditStateCountryChange() {
+    var sel = document.getElementById('editStateCountrySelect');
+    var opt = sel.options[sel.selectedIndex];
+    if (opt && opt.getAttribute('data-country-name')) {
+      document.getElementById('editCountryNameInput').value = opt.getAttribute('data-country-name');
+    }
+  }
+
+  function openAddStateModal() {
+    document.getElementById('addStateCode').value = '';
+    document.getElementById('addStateName').value = '';
+    document.getElementById('addStateCountrySelect').value = '';
+    document.getElementById('addCountryNameInput').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('addStateModal'));
+    modal.show();
+  }
+
+  function saveAddState() {
+    var code = document.getElementById('addStateCode').value.trim();
+    var name = document.getElementById('addStateName').value.trim();
+    var countryCode = document.getElementById('addStateCountrySelect').value;
+    var countryName = document.getElementById('addCountryNameInput').value.trim();
+
+    if (!code || !name) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'State Code and Name are required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      stateSubdivisionCode: code,
+      stateSubdivisionName: name,
+      countryCode: countryCode,
+      country: countryName
+    };
+
+    fetch('/admin/states/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.json();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('addStateModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Success!', text: 'State added successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/states');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to add state.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function openEditStateModal(code) {
+    fetch('/admin/states/get/' + encodeURIComponent(code))
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.json();
+    })
+    .then(function(data) {
+      document.getElementById('editStateCode').value = data.stateSubdivisionCode || '';
+      document.getElementById('displayStateCode').value = data.stateSubdivisionCode || '';
+      document.getElementById('editStateName').value = data.stateSubdivisionName || '';
+      document.getElementById('editStateCountrySelect').value = data.countryCode || '';
+      document.getElementById('editCountryNameInput').value = data.country || '';
+      var modal = new bootstrap.Modal(document.getElementById('editStateModal'));
+      modal.show();
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not load state details.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function saveEditState() {
+    var code = document.getElementById('editStateCode').value;
+    var name = document.getElementById('editStateName').value.trim();
+    var countryCode = document.getElementById('editStateCountrySelect').value;
+    var countryName = document.getElementById('editCountryNameInput').value.trim();
+
+    if (!name) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'State Name is required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      stateSubdivisionCode: code,
+      stateSubdivisionName: name,
+      countryCode: countryCode,
+      country: countryName
+    };
+
+    fetch('/admin/states/update/' + encodeURIComponent(code), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.text();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('editStateModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Updated!', text: 'State updated successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/states');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to update state.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function deleteState(code) {
+    Swal.fire({
+      title: 'Delete State?',
+      text: 'Are you sure you want to delete state: ' + code + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Delete',
+      background: '#0f172a',
+      color: '#fff'
+    }).then(function(result) {
+      if (result.isConfirmed) {
+        fetch('/admin/states/delete/' + encodeURIComponent(code), {
+          method: 'POST'
+        })
+        .then(function(res) {
+          if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+          return res.text();
+        })
+        .then(function() {
+          Swal.fire({ icon: 'success', title: 'Deleted!', text: 'State deleted successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+          if (typeof loadContent === 'function') {
+            loadContent('/admin/states');
+          } else {
+            location.reload();
+          }
+        })
+        .catch(function(err) {
+          Swal.fire({ icon: 'error', title: 'Cannot Delete', text: err.message || 'Failed to delete state.', background: '#0f172a', color: '#fff' });
+        });
+      }
+    });
+  }
+</script>
 
 </body>
 </html>

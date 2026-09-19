@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QA Admin Dashboard | IWPL Inc.</title>
+
+  <!-- Google Fonts - Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+  <style>
+    :root {
+      /* Palette */
+      --primary-bg: #0f172a;
+      --sidebar-bg: rgba(15, 23, 42, 0.95);
+      --card-bg: rgba(30, 41, 59, 0.5);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent-primary: #3b82f6;
+      --accent-secondary: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #0ea5e9;
+      
+      --sidebar-width: 280px;
+      --nav-height: 70px;
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--primary-bg);
+      background-image: 
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1, h2, h3, h4, .sidebar-header h4 { font-family: 'Outfit', sans-serif; }
+
+    .dashboard-layout {
+      display: flex;
+      height: calc(100vh - var(--nav-height));
+    }
+
+    /* Sidebar - Fixed & Premium */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border);
+      height: calc(100vh - var(--nav-height));
+      position: fixed;
+      left: 0;
+      top: var(--nav-height);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transition: var(--transition);
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .logo-box {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .sidebar-header h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 20px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-label {
+      padding: 0 16px;
+      margin: 20px 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      opacity: 0.6;
+    }
+
+    .sidebar-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      margin: 2px 0;
+      border-radius: 12px;
+      transition: var(--transition);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-nav a i {
+      margin-right: 12px;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .sidebar-nav a.active {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-primary);
+      position: relative;
+    }
+
+    .sidebar-nav a.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      height: 50%;
+      width: 3px;
+      background: var(--accent-primary);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Main Content Area */
+    main.main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 40px;
+      height: calc(100vh - var(--nav-height));
+      overflow-y: auto;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+
+    .card-header-box {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      border-radius: 12px;
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .card-body-box { padding: 24px; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      padding: 24px;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover { 
+      transform: translateY(-5px); 
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2); 
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Tables */
+    .table { color: var(--text-main); margin-bottom: 0; }
+    .table thead th {
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      padding: 12px 20px;
+    }
+    .table tbody td { border-bottom: 1px solid rgba(255, 255, 255, 0.03); padding: 14px 20px; vertical-align: middle; }
+
+    select.form-control option, select.form-select option, select option {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+    @media (max-width: 991px) {
+      .sidebar { left: -100%; }
+      .sidebar.active { left: 0; }
+      main.main-content { margin-left: 0; padding: 20px; }
+    }
+    
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    .status-online { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeIn 0.5s ease forwards; }
+
+    /* Enterprise Banner Styling */
+    .enterprise-banner-card {
+      position: relative;
+      background: transparent;
+      border-radius: 16px;
+      padding: 0;
+      margin-bottom: 24px;
+      border: none;
+      box-shadow: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .enterprise-banner-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .enterprise-banner-img {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      display: block;
+    }
+  </style>
+
+  <!-- Global Navbar -->
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box"><i class="bi bi-shield-check"></i></div>
+        <h4>QA ADMINISTRATOR</h4>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-label">Main Console</div>
+        <a href="javascript:void(0)" onclick="loadDashboard()" class="active"><i class="bi bi-graph-up"></i> Statistics</a>
+        <a href="javascript:void(0)" onclick="loadUsers()"><i class="bi bi-people"></i> User Directory</a>
+        <!-- <a href="javascript:void(0)" onclick="loadActiveTasks()"><i class="bi bi-list-check"></i> Active Tasks</a> -->
+        
+        
+        <div class="nav-label">Master Records</div>
+        <a href="javascript:void(0)" onclick="loadContent('/company/admin/all')"><i class="bi bi-building"></i> Companies</a>
+        <a href="javascript:void(0)" onclick="loadContent('/project/admin/all')"><i class="bi bi-folder2-open"></i> Projects</a>
+        <a href="javascript:void(0)" onclick="loadContent('/application/list')"><i class="bi bi-window-stack"></i> Applications</a>
+        <a href="javascript:void(0)" onclick="loadContent('/aaddModule')"><i class="bi bi-box-seam"></i> Modules</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/task-types')" id="navTaskTypes"><i class="bi bi-tags"></i> Task Types</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/support-issue-types')" id="navSupportIssueTypes"><i class="bi bi-headset"></i> Support Issue Types</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/countries')"><i class="bi bi-globe"></i> Countries</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/states')"><i class="bi bi-map"></i> States</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/cities')"><i class="bi bi-geo-alt"></i> Cities</a>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/languages')"><i class="bi bi-translate"></i> Languages</a>
+
+        <div class="nav-label">Configuration</div>
+        <a href="javascript:void(0)" onclick="loadContent('/admin/country')"><i class="bi bi-globe"></i> Regional Data</a>
+        <a href="javascript:void(0)" onclick="loadContent('/support/admin/requests')">
+          <i class="bi bi-headset"></i> Support Desk
+          <span th:if="${pendingCount != null and pendingCount > 0}" class="badge rounded-pill bg-danger ms-auto" th:text="${pendingCount}">0</span>
+        </a>
+        <a href="javascript:void(0)" onclick="showComingSoon('Settings')"><i class="bi bi-gear"></i> System Settings</a>
+        
+        <hr class="mx-3 opacity-10">
+        <form th:action="@{/logout}" method="post" id="logoutForm" style="display: none;"></form>
+        <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit();" class="text-danger">
+          <i class="bi bi-box-arrow-left"></i> Sign Out
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Admin Dashboard Header Banner -->
+      <div class="enterprise-banner-card animate-in mb-4">
+        <img th:src="@{/img/banner/bannerr.jpg}" 
+             src="/img/banner/bannerr.jpg" 
+             alt="IWPL Enterprise Task Management" 
+             class="enterprise-banner-img" />
+      </div>
+
+      <div class="d-flex justify-content-between align-items-end mb-4 animate-in">
+        <div>
+          <h2 class="fw-bold mb-1">System Overview</h2>
+          <p class="text-white small mb-0" style="opacity: 0.9;">Real-time platform metrics and administrative tools</p>
+        </div>
+        <button class="btn btn-outline-primary rounded-pill px-4 btn-sm" onclick="loadDashboard()">
+          <i class="bi bi-arrow-clockwise me-2"></i> Refresh Workspace
+        </button>
+      </div>
+
+      <div id="dynamicContent" class="animate-in" style="animation-delay: 0.1s">
+        <!-- Loaded via JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Capture session data for JS -->
+  <script th:inline="javascript">
+    const sessionData = {
+      username: /*[[${session.username}]]*/ 'Admin',
+      role: /*[[${session.role}]]*/ 'ADMIN',
+      userId: /*[[${session.userId}]]*/ ''
+    };
+  </script>
+
+  <script>
+    function initAdminPanel() {
+      console.log("Initializing Admin Panel...");
+      if (typeof loadDashboard === 'function') {
+        loadDashboard();
+      }
+    }
+
+    // Standard load
+    document.addEventListener('DOMContentLoaded', initAdminPanel);
+    
+    // HTMX load
+    document.body.addEventListener('htmx:load', (evt) => {
+        if (document.getElementById('dynamicContent')) {
+            initAdminPanel();
+        }
+    });
+
+    function loadContent(url) {
+      const content = document.getElementById("dynamicContent");
+      if (!content) return;
+      content.style.opacity = '0.5';
+      
+      // Cleanup: Remove any open modals and their backdrops before swapping
+      document.querySelectorAll('.modal.show').forEach(m => {
+          const instance = bootstrap.Modal.getInstance(m);
+          if (instance) instance.hide();
+      });
+      document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+
+      fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          
+          // 1. Extract Styles
+          const styles = doc.querySelectorAll('style, link[rel="stylesheet"]:not([href*="bootstrap"])');
+          styles.forEach(s => {
+             document.head.appendChild(s.cloneNode(true));
+          });
+
+          // 2. Remove elements that shouldn't be nested
+          const selectorsToRemove = [
+            '.main-navbar-wrapper', 
+            'nav', 
+            'header', 
+            '.sidebar', 
+            'footer',
+            'script[src*="bootstrap"]',
+            'link[href*="bootstrap"]'
+          ];
+          
+          selectorsToRemove.forEach(selector => {
+            const elements = doc.querySelectorAll(selector);
+            elements.forEach(el => el.remove());
+          });
+
+          // 3. Find the most relevant container
+          const mainContent = doc.body;
+          
+          // Before injecting, extract all modals and move them to document.body
+          const modals = mainContent.querySelectorAll('.modal');
+          modals.forEach(m => {
+            const existing = document.getElementById(m.id);
+            if (existing) existing.remove();
+            document.body.appendChild(m.cloneNode(true));
+            m.remove(); 
+          });
+
+          content.innerHTML = mainContent.innerHTML;
+          content.style.opacity = '1';
+          
+          // 4. Process any scripts in the new content
+          document.querySelectorAll('.dynamic-script').forEach(s => s.remove());
+
+          const scripts = content.querySelectorAll('script');
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.className = 'dynamic-script'; 
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            
+            if (oldScript.src) {
+              newScript.src = oldScript.src;
+            } else {
+              newScript.text = oldScript.text;
+            }
+            
+            oldScript.remove();
+            document.body.appendChild(newScript);
+          });
+
+          updateActiveLink(url);
+        })
+        .catch(() => {
+          Swal.fire('Error', 'Failed to bridge content', 'error');
+          content.style.opacity = '1';
+        });
+    }
+
+    function updateActiveLink(url) {
+      document.querySelectorAll('.sidebar-nav a').forEach(a => {
+        a.classList.remove('active');
+        if (a.getAttribute('onclick')?.includes(url) || a.getAttribute('href')?.includes(url)) a.classList.add('active');
+      });
+    }
+
+    function loadDashboard() {
+      const target = document.getElementById("dynamicContent");
+      if (!target) return;
+      target.innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="label">Total Users</div>
+            <div class="value text-primary" id="statUsers">...</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Active Operators</div>
+            <div class="value text-success" id="statActive">...</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Companies</div>
+            <div class="value text-info" id="statCompanies">...</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Projects</div>
+            <div class="value text-warning" id="statProjects">...</div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-xl-8">
+            <div class="glass-card">
+              <div class="card-header-box">
+                <h5 class="mb-0">Recent Registrations</h5>
+                <button class="btn btn-link btn-sm text-decoration-none" onclick="loadUsers()">View Directory</button>
+              </div>
+              <div class="card-body-box p-0" id="activityFeed">
+                <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="glass-card">
+              <div class="card-header-box"><h5>Quick Commands</h5></div>
+              <div class="card-body-box">
+                <div class="d-grid gap-2">
+                  <button class="btn btn-dark text-white text-start border-secondary p-3 rounded-4" onclick="loadContent('/register')">
+                    <i class="bi bi-person-plus me-3 text-primary"></i> Onboard New User
+                  </button>
+                  <button class="btn btn-dark text-white text-start border-secondary p-3 rounded-4" onclick="loadContent('/company/admin/all')">
+                    <i class="bi bi-building-add me-3 text-success"></i> Add Company
+                  </button>
+                  <button class="btn btn-dark text-white text-start border-secondary p-3 rounded-4" onclick="loadContent('/project/admin/all')">
+                    <i class="bi bi-folder-plus me-3 text-info"></i> Initialize Project
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card">
+              <div class="card-header-box"><h5>System Status</h5></div>
+              <div class="card-body-box py-3">
+                <div class="small mb-2"><div class="status-indicator status-online"></div> API Gateway: Online</div>
+                <div class="small mb-2"><div class="status-indicator status-online"></div> Core Engine: Peak Performance</div>
+                <div class="small"><div class="status-indicator status-online"></div> Storage: Optimized</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      fetchMetrics();
+      updateActiveLink('loadDashboard');
+    }
+
+    function fetchMetrics() {
+      fetch("/api/all-users").then(r => r.json()).then(data => {
+        const elU = document.getElementById("statUsers");
+        const elA = document.getElementById("statActive");
+        if(elU) elU.innerText = data.length;
+        if(elA) elA.innerText = data.filter(u => u.status == 1).length;
+        renderActivity(data.slice(-5).reverse());
+      });
+      fetch("/company/api/companies").then(r => r.json()).then(data => {
+          const el = document.getElementById("statCompanies");
+          if(el) el.innerText = data.length;
+      });
+      fetch("/project/api/all").then(r => r.json()).then(data => {
+          const el = document.getElementById("statProjects");
+          if(el) el.innerText = data.length;
+      });
+    }
+
+    function renderActivity(users) {
+      const target = document.getElementById("activityFeed");
+      if (!target) return;
+      
+      if (!users || users.length === 0) {
+        target.innerHTML = '<div class="text-center py-5 text-muted small">No recent activity.</div>';
+        return;
+      }
+
+      let html = '<div class="list-group list-group-flush bg-transparent">';
+      users.forEach(u => {
+        html += `
+          <div class="list-group-item bg-transparent border-0 px-4 py-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-person"></i>
+              </div>
+              <div>
+                <div class="fw-bold small text-white">${u.userId}</div>
+                <div class="text-white-50 smaller">${u.userRole}</div>
+              </div>
+            </div>
+            <div class="small text-white-50">${u.companyCode || 'Global'}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      target.innerHTML = html;
+    }
+
+    function loadUsers() {
+      const target = document.getElementById("dynamicContent");
+      target.innerHTML = `
+        <div class="glass-card">
+          <div class="card-header-box">
+            <div>
+              <h5 class="mb-0">User Directory</h5>
+              <p class="text-muted small mb-0">Manage platform access and credentials</p>
+            </div>
+            <div class="d-flex gap-2">
+              <select id="compFilter" class="form-select form-select-sm w-auto bg-dark text-white border-secondary" onchange="runUserFilter()">
+                <option value="ALL">All Companies</option>
+              </select>
+              <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="loadContent('/register')">
+                <i class="bi bi-person-plus me-1"></i> Add New User
+              </button>
+            </div>
+          </div>
+          <div class="card-body-box p-0" id="userList">
+             <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+          </div>
+        </div>
+      `;
+      fetch("/company/api/companies").then(r => r.json()).then(list => {
+        const sel = document.getElementById("compFilter");
+        if(sel) list.forEach(c => { const o = document.createElement("option"); o.value = c.companyCode; o.text = c.companyName; sel.add(o); });
+      });
+      runUserFilter();
+      updateActiveLink('loadUsers');
+    }
+
+    function runUserFilter() {
+      const filter = document.getElementById("compFilter")?.value || 'ALL';
+      const url = filter === "ALL" ? "/api/all-users" : `/api/users/by-company?companyCode=${encodeURIComponent(filter)}`;
+      fetch(url).then(r => r.json()).then(users => {
+        const target = document.getElementById("userList");
+        if (!target) return;
+        if (!users.length) { target.innerHTML = '<div class="p-5 text-center text-muted">No users matching filter</div>'; return; }
+        let html = '<div class="table-responsive"><table class="table table-dark table-hover align-middle">';
+        html += '<thead><tr><th>Identity</th><th>Company</th><th>Access</th><th>Lifecycle</th></tr></thead><tbody>';
+        users.forEach(u => {
+          html += `<tr>
+            <td><div class="fw-bold">${u.firstName || ''} ${u.lastName || ''}</div><div class="text-white small">${u.email}</div></td>
+            <td><span class="text-white small">${u.companyName || u.companyCode || ''}</span></td>
+            <td><span class="badge bg-secondary bg-opacity-10">${u.userRole}</span></td>
+            <td>
+               <div class="btn-group">
+                 <a href="/edit-user/${u.userId}" class="btn btn-sm btn-outline-light border-0"><i class="bi bi-pencil"></i></a>
+                 <button class="btn btn-sm btn-outline-danger border-0" onclick="delUser('${u.userId}', '${u.firstName}')"><i class="bi bi-trash"></i></button>
+               </div>
+            </td>
+          </tr>`;
+        });
+        target.innerHTML = html + '</tbody></table></div>';
+      });
+    }
+
+    function delUser(id, name) {
+      Swal.fire({ title: 'Delete Account?', text: `Confirm removal of ${name}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' })
+        .then(res => { if (res.isConfirmed) fetch('/api/users/delete/' + encodeURIComponent(id), { method: 'POST' }).then(() => runUserFilter()); });
+    }
+
+    function loadActiveTasks() {
+      const target = document.getElementById("dynamicContent");
+      target.innerHTML = `
+        <div class="glass-card">
+          <div class="card-header-box">
+            <div>
+              <h5 class="mb-0">Task Type Reference</h5>
+              <p class="text-muted small mb-0">Manage task categories used across all tickets and workflows</p>
+            </div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="loadContent('/admin/task-types')">
+              <i class="bi bi-pencil-square me-1"></i> Manage All
+            </button>
+          </div>
+          <div class="card-body-box p-0" id="taskListContainer">
+             <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+          </div>
+        </div>
+      `;
+      
+      fetch("/admin/task-types/api/list")
+        .then(r => r.json())
+        .then(data => {
+            const container = document.getElementById("taskListContainer");
+            if (!container) return;
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="p-5 text-center text-muted">No task types defined yet.</div>';
+                return;
+            }
+            
+            let html = '<div class="table-responsive"><table class="table table-dark table-hover align-middle">';
+            html += '<thead><tr><th style="width:80px;">#&nbsp;ID</th><th>Task Type Name</th><th class="text-end">Actions</th></tr></thead>';
+            html += '<tbody>';
+            
+            data.forEach(task => {
+                html += `<tr>
+                    <td><span class="badge bg-secondary bg-opacity-25">#${task.id}</span></td>
+                    <td class="fw-bold text-white">${task.name}</td>
+                    <td class="text-end">
+                        <a href="javascript:void(0)" onclick="loadContent('/admin/task-types')" class="btn btn-sm px-3 rounded-pill" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            console.error("Error loading task types:", err);
+            const container = document.getElementById("taskListContainer");
+            if (container) container.innerHTML = '<div class="p-5 text-center text-danger">Error loading task types.</div>';
+        });
+      updateActiveLink('loadActiveTasks');
+    }
+
+    function showComingSoon(m) { Swal.fire({ icon: 'info', title: 'Admin Config', text: `${m} is controlled via global property files.` }); }
+
+    // Kick off initialization
+    if (document.getElementById('dynamicContent')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mod = urlParams.get('module') || window.location.hash.replace('#', '');
+        if (mod === 'departments') {
+            setTimeout(() => { loadContent('/department/list'); updateActiveLink('/department/list'); }, 150);
+        } else {
+            loadDashboard();
+        }
+    }
+  </script>
+</body>
+</html>

@@ -42,6 +42,5 @@ public class ScenariotransactionDTO {
     private String tcResponsible;
     private String tcTransactionKey;
     private String transWorkStream2;  // optional duplicate if needed
-
     // You can add other fields if more columns exist in your SQL
 }

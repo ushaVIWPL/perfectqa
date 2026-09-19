@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Module | PerfectQA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<style>
+    :root {
+      --primary-bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent-primary: #3b82f6;
+      --accent-secondary: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background: var(--primary-bg);
+      background: radial-gradient(circle at top right, #1e1b4b 0%, #020617 100%);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Premium Topbar */
+    .topbar-premium {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 20px 30px;
+        margin-bottom: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .page-title-premium {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    .btn-nav-premium {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+    .btn-nav-premium:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-5px);
+        color: white;
+    }
+
+    .form-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .section-header {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-primary);
+      padding: 15px 25px;
+      border-radius: 12px;
+      margin: 30px 0 20px 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .section-header:first-of-type { margin-top: 0; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .form-control, .form-select {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: white;
+      padding: 12px 16px;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      color: white;
+    }
+
+    .form-select option { background: #0f172a; color: white; }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 15px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        justify-content: center;
+        width: 100%;
+        transition: var(--transition);
+    }
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.75rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="topbar-premium">
+      <div class="d-flex align-items-center gap-3">
+          <div>
+              <h1 class="page-title-premium">Edit Module</h1>
+              <p class="text-muted small mb-0">Modify tester assignments and project milestones for <strong th:text="${module.moduleKey}"></strong></p>
+          </div>
+      </div>
+      <div class="d-flex gap-2">
+          <a th:href="@{/aaddModule}" class="btn-nav-premium">
+              <i class="bi bi-arrow-left"></i>
+              <span>Back to Modules</span>
+          </a>
+      </div>
+  </div>
+
+  <div class="form-container">
+    <form th:action="@{/saveupdateModule}" th:object="${module}" method="post" onsubmit="return validateDatesOnSubmit()">
+      <input type="hidden" name="appCode" th:value="${module.application != null ? module.application.appCode : ''}">
+      <input type="hidden" th:field="*{moduleKey}">
+
+      <!-- Testers Section -->
+      <div class="section-header">
+        <i class="bi bi-people-fill"></i>
+        Tester Assignments
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lead Tester</label>
+          <input type="text" class="form-control" th:field="*{leadTester}" placeholder="Enter Lead Tester name">
+        </div>
+        <div class="form-group">
+          <label>Tester 1</label>
+          <input type="text" class="form-control" th:field="*{tester1}" placeholder="Enter Tester 1">
+        </div>
+        <div class="form-group">
+          <label>Tester 2</label>
+          <input type="text" class="form-control" th:field="*{tester2}" placeholder="Enter Tester 2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" th:each="i : ${#numbers.sequence(3,8)}">
+          <label th:text="'Tester ' + ${i}"></label>
+          <input type="text" class="form-control" th:field="*{tester__${i}__}" th:placeholder="'Enter Tester ' + ${i}">
+        </div>
+      </div>
+
+      <!-- Leads Section -->
+      <div class="section-header">
+        <i class="bi bi-person-badge-fill"></i>
+        Module Leads & Roles
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Excel Lead</label>
+          <input type="text" class="form-control" th:field="*{moduleExcelLead}">
+        </div>
+        <div class="form-group">
+          <label>Business Lead</label>
+          <input type="text" class="form-control" th:field="*{moduleBusinessLead}">
+        </div>
+        <div class="form-group">
+          <label>Business Advisor</label>
+          <input type="text" class="form-control" th:field="*{moduleBusinessAdvisor}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Architect</label>
+          <input type="text" class="form-control" th:field="*{moduleArchitect}">
+        </div>
+        <div class="form-group">
+          <label>Technical Lead</label>
+          <input type="text" class="form-control" th:field="*{moduleTechnicalLead}">
+        </div>
+        <div class="form-group">
+          <label>Developer</label>
+          <input type="text" class="form-control" th:field="*{moduleDev}">
+        </div>
+      </div>
+
+      <!-- Timeline & Status -->
+      <div class="section-header">
+        <i class="bi bi-calendar-range"></i>
+        Timeline & Status
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Date (Actual)</label>
+          <input type="date" class="form-control" th:field="*{moduleStartDateActual}" id="moduleStartDateActual" onchange="validateDates()">
+          <div class="error-message" id="startDateError"></div>
+        </div>
+        <div class="form-group">
+          <label>End Date (Estimated)</label>
+          <input type="date" class="form-control" th:field="*{moduleEndDateEst}" id="moduleEndDateEst" onchange="validateDates()">
+          <div class="error-message" id="endDateEstError"></div>
+        </div>
+        <div class="form-group">
+          <label>End Date (Actual)</label>
+          <input type="date" class="form-control" th:field="*{moduleEndDateActual}" id="moduleEndDateActual" onchange="validateDates()">
+          <div class="error-message" id="endDateActualError"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Module Status</label>
+          <select class="form-select" th:field="*{moduleStatus}">
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Delayed">Delayed</option>
+          </select>
+        </div>
+        <div class="form-group">
+            <label>Application Alignment</label>
+            <input type="text" class="form-control" th:value="${module.application != null ? module.application.appName : 'None'}" readonly>
+        </div>
+      </div>
+
+      <div class="row mt-5 g-3">
+        <div class="col-md-8">
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-circle-fill me-2"></i> Update Module Details
+            </button>
+        </div>
+        <div class="col-md-4">
+            <a th:href="@{/aaddModule}" class="btn-cancel">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function validateDates() {
+  const startDate = document.getElementById('moduleStartDateActual').value;
+  const endDateEst = document.getElementById('moduleEndDateEst').value;
+  const endDateActual = document.getElementById('moduleEndDateActual').value;
+  let isValid = true;
+  
+  document.getElementById('startDateError').style.display = 'none';
+  document.getElementById('endDateEstError').style.display = 'none';
+  document.getElementById('endDateActualError').style.display = 'none';
+  
+  if (startDate && endDateEst && new Date(endDateEst) <= new Date(startDate)) {
+      const err = document.getElementById('endDateEstError');
+      err.textContent = 'End Date (Est) must be after Start Date';
+      err.style.display = 'block';
+      isValid = false;
+  }
+  
+  if (startDate && endDateActual && new Date(endDateActual) <= new Date(startDate)) {
+      const err = document.getElementById('endDateActualError');
+      err.textContent = 'End Date (Actual) must be after Start Date';
+      err.style.display = 'block';
+      isValid = false;
+  }
+  return isValid;
+}
+
+function validateDatesOnSubmit() {
+  if (!validateDates()) {
+    alert('Please correct the date errors before submitting.');
+    return false;
+  }
+  return true;
+}
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QA Ticket Details | PerfectQA</title>
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .ticket-header {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .ticket-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .ticket-no {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f3460;
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .issue-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #e94560;
+            background: #ffe4e9;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+
+        .ticket-summary {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-open { background: #cce5ff; color: #004085; }
+        .status-assigned { background: #d4edda; color: #155724; }
+        .status-in_progress { background: #fff3cd; color: #856404; }
+        .status-on_hold { background: #e2e3e5; color: #383d41; }
+        .status-resolved { background: #d1ecf1; color: #0c5460; }
+        .status-reopened { background: #f8d7da; color: #721c24; }
+        .status-closed { background: #d6d8db; color: #1b1e21; }
+
+        .priority-critical { background: #7b1fa2; color: white; }
+        .priority-high { background: #dc3545; color: white; }
+        .priority-medium { background: #ffc107; color: #333; }
+        .priority-low { background: #28a745; color: white; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f3460;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 160px;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .description-box {
+            background: #f8f9fa;
+            color: #000000 !important;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #0f3460, #16213e); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107, #ffb300); color: #333; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
+        .btn-info { background: linear-gradient(135deg, #17a2b8, #138496); color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .action-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-section h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .action-section form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .assignee-card {
+            background: linear-gradient(135deg, #e8f4f8, #d1ecf1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .assignee-card.level-2 {
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border-left-color: #ffc107;
+        }
+
+        .assignee-card.level-3 {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left-color: #28a745;
+        }
+
+        .assignee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .assignee-title {
+            font-weight: 700;
+            color: #0f3460;
+            font-size: 1rem;
+        }
+
+        .assignee-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-1 { background: #17a2b8; color: white; }
+        .badge-2 { background: #ffc107; color: #333; }
+        .badge-3 { background: #28a745; color: white; }
+
+        /* Comments Tab Modern Styling */
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .comment-wrapper {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .comment-wrapper.self {
+            flex-direction: row-reverse;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560, #ff6b8b);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(233, 69, 96, 0.15);
+        }
+
+        .comment-wrapper.self .comment-avatar {
+            background: linear-gradient(135deg, #0f3460, #1e4d8c);
+            box-shadow: 0 2px 8px rgba(15, 52, 96, 0.15);
+        }
+
+        .comment-bubble {
+            max-width: 80%;
+            min-width: 200px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            box-sizing: border-box;
+        }
+
+        .comment-wrapper.other .comment-bubble {
+            background: #f1f5f9;
+            color: #1e293b;
+            border-top-left-radius: 2px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comment-wrapper.self .comment-bubble {
+            background: #0f3460;
+            color: #f8fafc;
+            border-top-right-radius: 2px;
+        }
+
+        .comment-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .comment-wrapper.other .comment-author {
+            font-weight: 700;
+            color: #0f3460;
+        }
+
+        .comment-wrapper.self .comment-author {
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .comment-wrapper.other .comment-time {
+            color: #64748b;
+        }
+
+        .comment-wrapper.self .comment-time {
+            color: #94a3b8;
+        }
+
+        .comment-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .comment-attachment {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .comment-wrapper.self .comment-attachment {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .comment-attachment a {
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .comment-wrapper.other .comment-attachment a {
+            color: #0f3460;
+        }
+
+        .comment-wrapper.self .comment-attachment a {
+            color: #ffffff;
+        }
+
+        .comment-attachment a:hover {
+            text-decoration: underline;
+        }
+
+        /* Comment Input Styling */
+        .comment-input-area {
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1e293b;
+            resize: vertical;
+        }
+
+        .comment-input-area:focus {
+            outline: none;
+            border-color: #0f3460;
+            box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+        }
+
+        .comment-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .file-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper:hover .file-upload-btn {
+            background: #e2e8f0;
+            color: #0f3460;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-name-display {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-left: 8px;
+            display: inline-block;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .history-list {
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .history-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .history-item {
+            padding: 12px 15px;
+            border-left: 3px solid #e94560;
+            margin-bottom: 10px;
+            background: #fafafa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .history-action {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-by {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .attachments {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .attachment-item {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .attachment-item a {
+            color: #0f3460;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .attachment-item a:hover {
+            text-decoration: underline;
+        }
+
+        .success-msg {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .error-msg {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        .closure-section {
+            background: linear-gradient(135deg, #d6d8db, #c1c4c7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .reopen-section {
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .tabs-scroll-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+            width: 100%;
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+        }
+        .tabs::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+        }
+
+        .tabs-scroll-arrow {
+            background: none;
+            border: none;
+            color: #ffffff !important;
+            cursor: pointer;
+            padding: 8px 10px;
+            font-size: 1.2rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .tabs-scroll-arrow:hover {
+            transform: scale(1.2);
+            color: #ffffff !important;
+        }
+        .tabs-scroll-arrow.hidden {
+            display: none !important;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .tab.active {
+            color: #e94560;
+            border-bottom-color: #e94560;
+        }
+
+        .tab:hover {
+            color: #e94560;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+
+
+<!-- Navbar Fragment -->
+
+<!-- Notification Scripts Fragment -->
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div class="main-content-wrapper">
+    <div class="container mt-4">
+    <div th:if="${success}" class="success-msg" th:text="${success}"></div>
+    <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+    <div class="header">
+        <h2>🐞 QA Ticket Details</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a th:if="${canEdit}" th:href="|/api/tickets/edit/${ticket.id}|" th:data-status="${ticket.status}" th:data-id="${ticket.id}" onclick="return checkEditClosedTicket(event, this.href, this.getAttribute('data-status'), this.getAttribute('data-id'));" class="btn btn-warning">✏️ Edit</a>
+            <button th:if="${canEdit and ticket.status != 'CLOSED'}" 
+                    th:onclick="'closeTicket(' + ${ticket.id} + ')'"
+                    class="btn btn-info" type="button">✅ Close Ticket</button>
+            <button th:if="${isAdmin or ticket.status == 'RESOLVED' or ticket.status == 'CLOSED'}" 
+                    th:onclick="'deleteTicket(' + ${ticket.id} + ')'"
+                    class="btn btn-danger" type="button">🗑️ Delete</button>
+        </div>
+    </div>
+
+    <!-- Ticket Header -->
+    <div class="ticket-header">
+        <div class="ticket-title">
+            <div>
+                <span class="ticket-no" th:text="${ticket.ticketNo}">TKT-00001</span>
+                <span class="issue-code" th:if="${ticket.issueCode != null}" th:text="${ticket.issueCode}">ISS-000001</span>
+                <div class="ticket-summary" th:text="${ticket.issueDescription ?: ticket.summary}">Issue Summary</div>
+            </div>
+            <div class="badges">
+                <span class="badge" 
+                      th:classappend="'status-' + ${ticket.status?.toLowerCase()}"
+                      th:text="${ticket.status}">OPEN</span>
+                <span class="badge" 
+                      th:classappend="'priority-' + ${ticket.priority?.toLowerCase()}"
+                      th:text="${ticket.priority}">HIGH</span>
+                <span class="badge" style="background: #6c757d; color: white;" th:text="${ticket.issueType}">BUG</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Left Column -->
+        <div>
+            <!-- Tabs -->
+            <div class="card">
+                <div class="tabs-scroll-container">
+                    <button type="button" class="tabs-scroll-arrow tabs-scroll-arrow-left hidden" id="tabsArrowLeft" onclick="scrollTabs(-1)" title="Scroll Left">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <div class="tabs">
+                        <button class="tab active" onclick="showTab('details')">📋 Details</button>
+                        <button class="tab" onclick="showTab('tasks')">✅ Tasks</button>
+                        <button class="tab" onclick="showTab('assignees')">👥 Assignees</button>
+                        <button th:if="${canEdit}" class="tab" onclick="showTab('actions')">⚡ Actions</button>
+                        <button class="tab" onclick="showTab('comments')">💬 Comments</button>
+                    </div>
+                    <button type="button" class="tabs-scroll-arrow tabs-scroll-arrow-right hidden" id="tabsArrowRight" onclick="scrollTabs(1)" title="Scroll Right">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <div id="details-tab" class="tab-content active">
+                    <div class="card-title">📝 Issue Description</div>
+                    <div class="description-box" th:text="${ticket.issueLongDescription ?: ticket.description ?: 'No description provided'}">No description provided</div>
+                    
+                    <div th:if="${ticket.errorCode != null and !ticket.errorCode.isEmpty()}" style="margin-bottom: 15px;">
+                        <strong style="color: #dc3545;">Error Code:</strong>
+                        <span style="font-family: monospace; background: #f8d7da; padding: 4px 10px; border-radius: 4px;" th:text="${ticket.errorCode}"></span>
+                    </div>
+
+                    <div th:if="${ticket.additionalComments != null and !ticket.additionalComments.isEmpty()}">
+                        <strong style="color: #666;">Additional Comments:</strong>
+                        <div class="description-box" th:text="${ticket.additionalComments}"></div>
+                    </div>
+
+                    <!-- Closure Info -->
+                    <div th:if="${ticket.ticketClosedDate != null}" class="closure-section">
+                        <div class="section-title">🔒 First Closure</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Closed Date:</span>
+                            <span class="detail-value" th:text="${ticket.ticketClosedDate}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Closed By:</span>
+                            <span class="detail-value" th:text="${ticket.ticketClosedName ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.closingNotes != null}" class="detail-row">
+                            <span class="detail-label">Closing Notes:</span>
+                            <span class="detail-value" th:text="${ticket.closingNotes}">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Reopen Info -->
+                    <div th:if="${ticket.ticketReopenDate != null}" class="reopen-section">
+                        <div class="section-title">🔄 Reopened</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Reopen Date:</span>
+                            <span class="detail-value" th:text="${ticket.ticketReopenDate}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Reopened By:</span>
+                            <span class="detail-value" th:text="${ticket.ticketReopenUserName ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.reopenReason != null}" class="detail-row">
+                            <span class="detail-label">Reopen Reason:</span>
+                            <span class="detail-value" th:text="${ticket.reopenReason}">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Second Closure Info -->
+                    <div th:if="${ticket.closedDate2 != null}" class="closure-section">
+                        <div class="section-title">🔒 Second Closure</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Closed Date:</span>
+                            <span class="detail-value" th:text="${ticket.closedDate2}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Closed By:</span>
+                            <span class="detail-value" th:text="${ticket.closedBy2Name ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.closedDetails2 != null}" class="detail-row">
+                            <span class="detail-label">Details:</span>
+                            <span class="detail-value" th:text="${ticket.closedDetails2}">-</span>
+                        </div>
+                        <div th:if="${ticket.closed2Comments != null}" class="detail-row">
+                            <span class="detail-label">Comments:</span>
+                            <span class="detail-value" th:text="${ticket.closed2Comments}">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Tab -->
+                <div id="tasks-tab" class="tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0;">Task List</h4>
+                        <button th:if="${canEdit}" class="btn btn-primary" onclick="showTaskForm()">➕ Add Task</button>
+                    </div>
+
+                    <!-- Add/Edit Task Form -->
+                    <div id="taskFormContainer" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #e94560;">
+                        <h5 id="taskFormTitle" style="margin-top: 0;">Add New Task</h5>
+                        <form id="taskForm" th:action="@{/api/tickets/tasks/save}" method="post">
+                            <input type="hidden" name="ticketId" th:value="${ticket.id}">
+                            <input type="hidden" name="id" id="taskId">
+                            
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div class="form-group">
+                                    <label>Task Type</label>
+                                    <select name="taskType" id="taskType" required>
+                                        <option value="">Select Task Type</option>
+                                        <option th:each="type : ${taskTypes}" 
+                                                th:value="${type.name}" 
+                                                th:text="${type.name}">
+                                            Task Type
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Performed By</label>
+                                    <div th:if="${session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER' or #strings.equalsIgnoreCase(role, 'ADMIN') or #strings.equalsIgnoreCase(role, 'BUSINESS_MANAGER')}">
+                                        <select name="performedBy" id="taskPerformedBy" required th:if="${companyUsers != null and !companyUsers.isEmpty()}">
+                                            <option value="">Select User</option>
+                                            <option th:each="user : ${companyUsers}" 
+                                                    th:value="${user.userId}"
+                                                    th:text="|${user.firstName != null ? user.firstName : ''} ${user.lastName != null ? user.lastName : ''} (${user.userId})|">
+                                                User Name
+                                            </option>
+                                        </select>
+                                        <input type="text" name="performedBy" id="taskPerformedByInput" required
+                                               th:if="${companyUsers == null or companyUsers.isEmpty()}">
+                                    </div>
+                                    <div th:if="${not (session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER' or #strings.equalsIgnoreCase(role, 'ADMIN') or #strings.equalsIgnoreCase(role, 'BUSINESS_MANAGER'))}">
+                                        <input type="text" th:value="${session.userId}" readonly 
+                                               style="background: rgba(255,255,255,0.05); color: #888; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.1);">
+                                        <input type="hidden" name="performedBy" th:value="${session.userId}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                     <label>Requestor Task (Person / Client requesting this task)</label>
+                                     <input type="text" name="requestorTask" id="taskRequestorTask" placeholder="e.g. Requested by Client / John Doe">
+                                 </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select name="status" id="taskStatus">
+                                        <option value="OPEN">Open</option>
+                                        <option value="IN_PROGRESS">In Progress</option>
+                                        <option value="CLOSED">Closed</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" name="startDate" id="taskStartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>Completed Date</label>
+                                    <input type="date" name="completedDate" id="taskCompletedDate">
+                                </div>
+                                <div class="form-group">
+                                    <label>Billable Hours</label>
+                                    <input type="number" step="0.5" name="billableHours" id="taskBillableHours" required placeholder="e.g. 2.5">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label>Description of Work Done</label>
+                                <textarea name="descriptionOfWorkDone" id="taskDescription" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label>Comments</label>
+                                <textarea name="comments" id="taskComments" rows="2"></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" class="btn btn-success">Save Task</button>
+                                <button type="button" class="btn btn-warning" onclick="hideTaskForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tasks List -->
+                 <div th:if="${tasks != null and !tasks.isEmpty()}" style="color: black;">
+    <div th:each="task : ${tasks}" class="card" 
+         style="padding: 15px; margin-bottom: 15px; border-left: 4px solid #17a2b8; color: black;">
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; color: black;">
+            <div>
+                <span class="badge" 
+                      th:classappend="${task.status == 'CLOSED' ? 'status-closed' : 'status-open'}" 
+                      th:text="${task.status}"
+                      style="color: black;">OPEN</span>
+
+                <strong th:text="${task.taskType}" 
+                        style="margin-left: 10px; font-size: 1.1rem; color: black;">Type</strong>
+            </div>
+
+            <div>
+                <button class="btn btn-warning edit-task-btn"
+                        style="padding: 5px 10px; font-size: 12px; color: black;"
+                        th:if="${session.userId != null and task.performedBy != null and #strings.toLowerCase(task.performedBy) == #strings.toLowerCase(session.userId) and task.status != 'CLOSED'}"
+                        th:data-id="${task.id}"
+                        th:data-type="${task.taskType}"
+                        th:data-performedby="${task.performedBy}"
+                        th:data-requestortask="${task.requestorTask}"
+                        th:data-status="${task.status}"
+                        th:data-startdate="${task.startDate}"
+                        th:data-completeddate="${task.completedDate}"
+                        th:data-billablehours="${task.billableHours}"
+                        th:data-description="${task.descriptionOfWorkDone}"
+                        th:data-comments="${task.comments}">
+                    ✏️ Edit
+                </button>
+
+                <a th:if="${canEdit}" th:href="@{'/api/tickets/tasks/delete/' + ${task.id}}" 
+                   class="btn btn-danger"
+                   style="padding: 5px 10px; font-size: 12px; color: black;"
+                   onclick="return confirm('Delete this task?');">
+                    🗑️ Delete
+                </a>
+            </div>
+        </div>
+
+        <div class="grid" 
+             style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; font-size: 0.9rem; color: black;">
+
+            <div><strong>Performed By:</strong> 
+                <span th:text="${task.performedBy}" style="color: black;">-</span>
+            </div>
+
+            <div><strong>Requestor Task:</strong> 
+                <span th:text="${task.requestorTask ?: '-'}" style="color: black;">-</span>
+            </div>
+
+            <div><strong>Start Date:</strong> 
+                <span th:text="${task.startDate ?: '-'}" style="color: black;">-</span>
+            </div>
+
+            <div><strong>Completed Date:</strong> 
+                <span th:text="${task.completedDate ?: '-'}" style="color: black;">-</span>
+            </div>
+
+            <div><strong>Billable Hours:</strong> 
+                <span th:text="${task.billableHours ?: '-'}" style="color: black;">-</span>
+            </div>
+        </div>
+
+        <div style="font-size: 0.9rem; margin-bottom: 8px; color: black;">
+            <strong>Work Done:</strong>
+
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 4px; white-space: pre-wrap; color: black;"
+                 th:text="${task.descriptionOfWorkDone}">
+            </div>
+        </div>
+
+        <div th:if="${task.comments != null and !task.comments.isEmpty()}" 
+             style="font-size: 0.9rem; color: black;">
+
+            <strong>Comments:</strong>
+
+            <span style="white-space: pre-wrap; color: black;" 
+                  th:text="${task.comments}">
+            </span>
+        </div>
+
+        <div th:if="${task.lastModifiedBy != null}" 
+             style="font-size: 0.8rem; color: black; margin-top: 12px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 8px; font-style: italic;">
+
+            <span>
+                ✏️ Last edited by 
+                <strong th:text="${task.lastModifiedBy}" style="color: black;">-</strong>
+                on 
+                <strong th:text="${#temporals.format(task.lastModifiedAt, 'MMM dd, yyyy HH:mm')}" style="color: black;">
+                    Jan 01, 2024
+                </strong>
+            </span>
+        </div>
+    </div>
+</div>
+                    <div th:if="${tasks == null or tasks.isEmpty()}" class="empty-state">
+                        No tasks created for this ticket yet.
+                    </div>
+                </div>
+
+                <!-- Assignees Tab -->
+                <div id="assignees-tab" class="tab-content">
+                    <div class="assignee-card">
+                        <div class="assignee-header">
+                            <span class="assignee-title">👤 Assignee 1 (Primary)</span>
+                            <span class="assignee-badge badge-1">Level 1</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">User Code:</span>
+                            <span class="detail-value" th:text="${ticket.assigneeName ?: ticket.assigneeUserCode ?: ticket.assignedTo ?: 'Unassigned'}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expected Date:</span>
+                            <span class="detail-value" th:text="${ticket.assigneeExpectedDate1 ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee1Notes != null}" class="detail-row">
+                            <span class="detail-label">Notes:</span>
+                            <span class="detail-value" th:text="${ticket.assignee1Notes}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee1Resolution != null}" class="detail-row">
+                            <span class="detail-label">Resolution:</span>
+                            <span class="detail-value" th:text="${ticket.assignee1Resolution}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee1ResolvedDate != null}" class="detail-row">
+                            <span class="detail-label">Resolved Date:</span>
+                            <span class="detail-value" th:text="${ticket.assignee1ResolvedDate}">-</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${ticket.assignee2UserCode != null}" class="assignee-card level-2">
+                        <div class="assignee-header">
+                            <span class="assignee-title">👤 Assignee 2 (Secondary)</span>
+                            <span class="assignee-badge badge-2">Level 2</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">User Code:</span>
+                            <span class="detail-value" th:text="${ticket.assignee2UserCode}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expected Date:</span>
+                            <span class="detail-value" th:text="${ticket.assignee2ExpectedDate ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee2Notes != null}" class="detail-row">
+                            <span class="detail-label">Notes:</span>
+                            <span class="detail-value" th:text="${ticket.assignee2Notes}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee2Resolution != null}" class="detail-row">
+                            <span class="detail-label">Resolution:</span>
+                            <span class="detail-value" th:text="${ticket.assignee2Resolution}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee2ResolvedDate != null}" class="detail-row">
+                            <span class="detail-label">Resolved Date:</span>
+                            <span class="detail-value" th:text="${ticket.assignee2ResolvedDate}">-</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${ticket.assignee3UserCode != null}" class="assignee-card level-3">
+                        <div class="assignee-header">
+                            <span class="assignee-title">👤 Assignee 3 (Tertiary)</span>
+                            <span class="assignee-badge badge-3">Level 3</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">User Code:</span>
+                            <span class="detail-value" th:text="${ticket.assignee3UserCode}">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expected Date:</span>
+                            <span class="detail-value" th:text="${ticket.assignee3ExpectedDate ?: '-'}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee3Notes != null}" class="detail-row">
+                            <span class="detail-label">Notes:</span>
+                            <span class="detail-value" th:text="${ticket.assignee3Notes}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee3Resolution != null}" class="detail-row">
+                            <span class="detail-label">Resolution:</span>
+                            <span class="detail-value" th:text="${ticket.assignee3Resolution}">-</span>
+                        </div>
+                        <div th:if="${ticket.assignee3ResolvedDate != null}" class="detail-row">
+                            <span class="detail-label">Resolved Date:</span>
+                            <span class="detail-value" th:text="${ticket.assignee3ResolvedDate}">-</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${ticket.assigneeUserCode == null and ticket.assignedTo == null}" class="empty-state">
+                        No assignees yet
+                    </div>
+                </div>
+
+                <!-- Actions Tab -->
+                <div th:if="${canEdit}" id="actions-tab" class="tab-content">
+                    <div class="action-section">
+                        <h4>Change Status</h4>
+                        <form id="statusForm" th:data-ticket-id="${ticket.id}" method="post">
+                            <div class="form-group">
+                                <label>New Status</label>
+                                <select name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="OPEN">Open</option>
+                                    <option value="ASSIGNED">Assigned</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="ON_HOLD">On Hold</option>
+                                    <option value="RESOLVED">Resolved</option>
+                                    <option value="REOPENED">Reopened</option>
+                                    <option th:if="${canEdit}" value="CLOSED">Closed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Notes <span style="color:red">*</span></label>
+                                <input type="text" name="notes" placeholder="Add notes for this change" required>
+                            </div>
+                            <button type="submit" class="btn btn-info">Update Status</button>
+                        </form>
+                    </div>
+
+                    <div class="action-section">
+                        <h4>Assign Ticket (Primary Assignee)</h4>
+                        <form id="assignForm" th:data-ticket-id="${ticket.id}" method="post">
+                            <div class="form-group">
+                                <label>Assign To</label>
+                                <select name="assignedTo" required th:if="${companyUsers != null and !companyUsers.isEmpty()}">
+                                    <option value="">Select User</option>
+                                    <option th:each="user : ${companyUsers}" 
+                                            th:value="${user.userId}"
+                                            th:selected="${ticket.assigneeUserCode != null and ticket.assigneeUserCode == user.userId}"
+                                            th:text="|${user.firstName != null ? user.firstName : ''} ${user.lastName != null ? user.lastName : ''} (${user.userId})|">
+                                        User Name
+                                    </option>
+                                </select>
+                                <input type="text" name="assignedTo" th:value="${ticket.assigneeUserCode}" 
+                                       placeholder="Enter username" required
+                                       th:if="${companyUsers == null or companyUsers.isEmpty()}">
+                            </div>
+                            <button type="submit" class="btn btn-success">Assign</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Comments Tab -->
+                <div id="comments-tab" class="tab-content">
+                    <form th:if="${canEdit}" id="commentForm" th:data-ticket-id="${ticket.id}" th:data-current-user="${session.userId}" method="post" enctype="multipart/form-data" 
+                          style="margin-bottom: 25px;">
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <textarea name="comment" class="comment-input-area" rows="3" placeholder="Add a comment..." required 
+                                      style="width: 100%;"></textarea>
+                        </div>
+                        <div class="comment-form-actions">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <div class="file-upload-wrapper">
+                                    <button type="button" class="file-upload-btn">
+                                        <span>📎 Attachment</span>
+                                    </button>
+                                    <input type="file" name="commentAttachment" id="commentAttachment" onchange="handleCommentFileChange()">
+                                </div>
+                                <span id="comment-file-name" class="file-name-display">No file chosen</span>
+                                <small style="color: #64748b; font-size: 0.8rem; margin-left: 10px;">Max size: 10MB</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 0;">Add Comment</button>
+                        </div>
+                    </form>
+
+                    <div th:if="${comments != null and !comments.isEmpty()}" class="comments-list">
+                        <div th:each="comment : ${comments}" 
+                             class="comment-wrapper" 
+                             th:classappend="${session.userId != null and comment.commentedBy != null and #strings.toLowerCase(comment.commentedBy) == #strings.toLowerCase(session.userId)} ? 'self' : 'other'">
+                            
+                            <div class="comment-avatar" 
+                                 th:text="${comment.commentedBy != null and !comment.commentedBy.isEmpty() ? #strings.toUpperCase(#strings.substring(comment.commentedBy, 0, 1)) : 'U'}">
+                                U
+                            </div>
+                            
+                            <div class="comment-bubble">
+                                <div class="comment-header-row">
+                                    <span class="comment-author" th:text="${comment.commentedBy}">User</span>
+                                    <span class="comment-time" th:text="${#temporals.format(comment.commentedAt, 'MMM dd, yyyy HH:mm')}">Jan 01, 2024</span>
+                                </div>
+                                <div class="comment-text" th:text="${comment.comment}">Comment text</div>
+                                <div th:if="${comment.attachmentPath != null}" class="comment-attachment">
+                                    <a th:href="@{'/uploads/tickets/comments/' + ${comment.attachmentPath}}" target="_blank">
+                                        📎 Attachment
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${comments == null or comments.isEmpty()}" class="empty-state">
+                        No comments yet
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <!-- Project Details -->
+            <div class="card">
+                <div class="card-title">📁 Project Information</div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Application:</span>
+                    <span class="detail-value" th:text="${ticket.applicationCode ?: '-'}">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Module:</span>
+                    <span class="detail-value" th:text="${ticket.moduleCode ?: ticket.module ?: '-'}">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Test Case Code:</span>
+                    <span class="detail-value" th:text="${ticket.testCaseCode ?: '-'}">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Transaction Code:</span>
+                    <span class="detail-value" th:text="${ticket.testCaseTransactionCode ?: ticket.transactionMainKey ?: '-'}">-</span>
+                </div>
+            </div>
+
+            <!-- Ticket Meta -->
+            <div class="card">
+                <div class="card-title">📋 Ticket Information</div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Reported By:</span>
+                    <span class="detail-value" th:text="${ticket.userCode ?: ticket.createdBy ?: '-'}">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created Date:</span>
+                    <span class="detail-value" th:text="${ticket.datetime ?: ticket.createdDate}">-</span>
+                </div>
+                <div th:if="${ticket.committedDate != null}" class="detail-row">
+                    <span class="detail-label">Committed Date:</span>
+                    <span class="detail-value" th:text="${ticket.committedDate}">-</span>
+                </div>
+                <div th:if="${ticket.assignedDate != null}" class="detail-row">
+                    <span class="detail-label">Assigned Date:</span>
+                    <span class="detail-value" th:text="${ticket.assignedDate}">-</span>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="card">
+                <div class="card-title">📎 Attachments</div>
+                <input type="file" id="replaceAttachmentInput" style="display: none;" onchange="handleReplaceAttachmentUpload(this)">
+                <div class="attachments" id="ticket-attachments-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div th:if="${ticket.attachmentList != null and !ticket.attachmentList.isEmpty()}" th:each="path : ${ticket.attachmentList}" class="attachment-item" th:data-file-name="${path}">
+                        <div class="attachment-name" style="display: flex; align-items: center; gap: 8px; min-width: 0; word-break: break-all;">
+                            📄 <a th:href="@{'/uploads/tickets/' + ${path}}" target="_blank" th:text="${path}">file.png</a>
+                        </div>
+                        <div th:if="${canEdit}" class="attachment-actions" style="display: flex; gap: 5px; flex-shrink: 0; align-items: center;">
+                            <button type="button" class="btn btn-sm btn-outline-warning" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Replace attachment" th:data-path="${path}" onclick="triggerReplaceAttachment(this, this.getAttribute('data-path'))">✏️ Edit</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Delete attachment" th:data-path="${path}" onclick="deleteAttachment(this, this.getAttribute('data-path'))">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${ticket.attachmentList == null or ticket.attachmentList.isEmpty()}" class="empty-state" id="no-attachments-msg">
+                    No attachments
+                </div>
+                <div th:if="${canEdit}" class="mt-3 pt-2" style="border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                    <form id="ajaxAttachmentForm" th:data-ticket-id="${ticket.id}" enctype="multipart/form-data">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="file-upload-wrapper" style="margin: 0;">
+                                <button type="button" class="file-upload-btn">
+                                    <span>➕ Add Attachment</span>
+                                </button>
+                                <input type="file" id="ajaxAttachmentInput" name="attachmentFiles" multiple onchange="handleAjaxAttachmentUpload(this)">
+                            </div>
+                            <span id="ajax-attachment-spinner" class="spinner-border spinner-border-sm text-primary" role="status" style="display: none;"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <div class="card-title">📜 History</div>
+                <div th:if="${history != null and !history.isEmpty()}" class="history-list">
+                    <div th:each="item : ${history}" class="history-item">
+                        <div class="history-action" th:text="${item.description}">Action description</div>
+                        <div class="history-by">
+                            by <span th:text="${item.changedBy}">User</span>
+                        </div>
+                        <div class="history-time" th:text="${#temporals.format(item.changedAt, 'MMM dd, yyyy HH:mm')}">
+                            Jan 01, 2024
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${history == null or history.isEmpty()}" class="empty-state">
+                    No history yet
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const content = document.getElementById(tabName + '-tab');
+    if (content) {
+        content.classList.add('active');
+    }
+    
+    document.querySelectorAll('.tab').forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabName)) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+async function safeFetch(url, options) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+    }
+    const contentType = response.headers.get('Content-Type') || '';
+    if (contentType.includes('application/json')) {
+        return await response.json();
+    }
+    return { success: true, redirected: true, message: 'Done' };
+}
+
+(function() {
+    function showBootstrapToast(title, message, isError = false) {
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '1055';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toastId = 'toast-' + Date.now();
+        const bgClass = isError ? 'bg-danger text-white' : 'bg-success text-white';
+        
+        const toastHtml = `
+          <div id="${toastId}" class="toast align-items-center ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+              <div class="toast-body">
+                <strong>${title}</strong><br>
+                ${message}
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+          </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        const toastEl = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+        
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            toastEl.remove();
+        });
+    }
+
+    function initTicketView() {
+        if (window.location.hash) {
+            const tab = window.location.hash.substring(1);
+            if (document.getElementById(tab + '-tab')) {
+                showTab(tab);
+            }
+        }
+        
+        const statusForm = document.getElementById('statusForm');
+        if (statusForm && !statusForm.dataset.initialized) {
+            statusForm.dataset.initialized = 'true';
+            statusForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const ticketId = this.dataset.ticketId;
+                
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+                }
+                
+                safeFetch('/api/tickets/ajax/status/' + ticketId, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(data => {
+                    if (data.success) {
+                        const newStatus = formData.get('status');
+                        if (newStatus) {
+                            const statusBadge = document.querySelector('.badge[class*="status-"]');
+                            if (statusBadge) {
+                                statusBadge.className = 'badge status-' + newStatus.toLowerCase();
+                                statusBadge.textContent = newStatus;
+                            }
+                        }
+                        showBootstrapToast('Success!', data.message || 'Status updated');
+                    } else {
+                        showBootstrapToast('Error', data.message, true);
+                    }
+                })
+                .catch(error => {
+                    showBootstrapToast('Error', 'Failed to update status', true);
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                });
+            });
+        }
+        
+        const assignForm = document.getElementById('assignForm');
+        if (assignForm && !assignForm.dataset.initialized) {
+            assignForm.dataset.initialized = 'true';
+            assignForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const ticketId = this.dataset.ticketId;
+                
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+                }
+                
+                safeFetch('/api/tickets/ajax/assign/' + ticketId, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(data => {
+                    if (data.success) {
+                        const assignSelect = document.querySelector('select[name="assignedTo"]');
+                        const assignInput = document.querySelector('input[name="assignedTo"]');
+                        let assignedDisplay = '';
+                        if (assignSelect && assignSelect.value) {
+                            assignedDisplay = assignSelect.options[assignSelect.selectedIndex].text;
+                        } else if (assignInput && assignInput.value) {
+                            assignedDisplay = assignInput.value;
+                        }
+                        
+                        const assigneeValue = document.querySelector('#assignees-tab .detail-value');
+                        if (assigneeValue && assignedDisplay) {
+                            assigneeValue.textContent = assignedDisplay;
+                        } else {
+                            // Update the first assignee card if it exists
+                            const firstAssigneeCardValue = document.querySelector('.assignee-card .detail-value');
+                            if (firstAssigneeCardValue && assignedDisplay) {
+                                firstAssigneeCardValue.textContent = assignedDisplay;
+                            }
+                        }
+                        showBootstrapToast('Success!', data.message || 'Ticket assigned');
+                    } else {
+                        showBootstrapToast('Error', data.message, true);
+                    }
+                })
+                .catch(error => {
+                    showBootstrapToast('Error', 'Failed to assign ticket', true);
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                });
+            });
+        }
+        
+        const commentForm = document.getElementById('commentForm');
+        if (commentForm && !commentForm.dataset.initialized) {
+            commentForm.dataset.initialized = 'true';
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (typeof validateCommentFile === 'function' && !validateCommentFile()) {
+                    return false;
+                }
+                const formData = new FormData(this);
+                const ticketId = this.dataset.ticketId;
+                const commentText = formData.get('comment');
+                
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+                }
+                
+                safeFetch('/api/tickets/ajax/comment/' + ticketId, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(data => {
+                    if (data.success) {
+                        appendCommentToDOM(commentText, data);
+                        document.getElementById('commentForm').reset();
+                        const fileDisplay = document.getElementById('comment-file-name');
+                        if (fileDisplay) fileDisplay.textContent = 'No file chosen';
+                        
+                        showBootstrapToast('Comment Added!', data.message || 'Comment posted successfully');
+                    } else {
+                        showBootstrapToast('Error', data.message, true);
+                    }
+                })
+                .catch(error => {
+                    showBootstrapToast('Error', 'Failed to add comment', true);
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                });
+            });
+        }
+    }
+
+    function appendCommentToDOM(commentText, serverData) {
+        const form        = document.getElementById('commentForm');
+        const currentUser = (form && form.dataset.currentUser)
+                            ? form.dataset.currentUser : 'You';
+ 
+        const now    = new Date();
+        const months = ['Jan','Feb','Mar','Apr','May','Jun',
+                        'Jul','Aug','Sep','Oct','Nov','Dec'];
+        const timeStr = months[now.getMonth()] + ' ' +
+                        String(now.getDate()).padStart(2,'0') + ', ' +
+                        now.getFullYear() + ' ' +
+                        String(now.getHours()).padStart(2,'0') + ':' +
+                        String(now.getMinutes()).padStart(2,'0');
+ 
+        const initial = currentUser.charAt(0).toUpperCase();
+ 
+        let attachmentHtml = '';
+        if (serverData && serverData.attachmentPath) {
+            attachmentHtml = `
+                <div class="comment-attachment">
+                    <a href="/uploads/tickets/comments/${serverData.attachmentPath}" target="_blank">
+                        📎 Attachment
+                    </a>
+                </div>`;
+        }
+ 
+        const wrapperHtml = `
+            <div class="comment-wrapper self">
+                <div class="comment-avatar">${initial}</div>
+                <div class="comment-bubble">
+                    <div class="comment-header-row">
+                        <span class="comment-author">${escapeHtml(currentUser)}</span>
+                        <span class="comment-time">${timeStr}</span>
+                    </div>
+                    <div class="comment-text">${escapeHtml(commentText)}</div>
+                    ${attachmentHtml}
+                </div>
+            </div>`;
+ 
+        let list = document.querySelector('#comments-tab .comments-list');
+        if (!list) {
+            list = document.createElement('div');
+            list.className = 'comments-list';
+            document.getElementById('comments-tab').appendChild(list);
+        }
+ 
+        list.insertAdjacentHTML('beforeend', wrapperHtml);
+        if (list.lastElementChild) {
+            list.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+ 
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+    
+    // Run immediately and also on DOMContentLoaded just in case
+    initTicketView();
+    document.addEventListener('DOMContentLoaded', initTicketView);
+})();
+
+function closeTicket(ticketId) {
+    Swal.fire({
+        title: 'Close Ticket?',
+        text: 'Are you sure you want to close this ticket?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#17a2b8',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, close it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            safeFetch('/api/tickets/ajax/close/' + ticketId, {
+                method: 'POST'
+            })
+            .then(data => {
+                if (data.success) {
+                    // Instant DOM update
+                    const statusBadge = document.querySelector('.badge[class*="status-"]');
+                    if (statusBadge) {
+                        statusBadge.className = 'badge status-closed';
+                        statusBadge.textContent = 'CLOSED';
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Closed!',
+                        text: 'Ticket has been closed.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Something went wrong', 'error');
+            });
+        }
+    });
+}
+
+function deleteTicket(ticketId) {
+    Swal.fire({
+        title: 'Delete Ticket?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/tickets/ajax/delete/' + ticketId, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Ticket has been deleted.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/api/tickets/list';
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Something went wrong', 'error');
+            });
+        }
+    });
+}
+
+var MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function validateCommentFile() {
+    const input = document.getElementById('commentAttachment');
+    
+    if (!input || !input.files || input.files.length === 0) {
+        return true;
+    }
+    
+    const file = input.files[0];
+    if (file.size > MAX_FILE_SIZE) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        Swal.fire({
+            icon: 'error',
+            title: 'File Too Large',
+            html: 'The selected file "' + file.name + '" is too large (' + fileSizeMB + ' MB).<br>Please upload a file within the allowed size limit of 10MB.',
+            confirmButtonColor: '#667eea'
+        });
+        input.value = '';
+        return false;
+    }
+    
+    return true;
+}
+
+function handleCommentFileChange() {
+    const input = document.getElementById('commentAttachment');
+    const display = document.getElementById('comment-file-name');
+    if (!validateCommentFile()) {
+        if (display) display.textContent = 'No file chosen';
+        return;
+    }
+    if (input && input.files && input.files.length > 0) {
+        if (display) display.textContent = input.files[0].name;
+    } else {
+        if (display) display.textContent = 'No file chosen';
+    }
+}
+
+function handleAjaxAttachmentUpload(input) {
+    if (!input || !input.files || input.files.length === 0) return;
+    
+    var MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    for (let i = 0; i < input.files.length; i++) {
+        if (input.files[i].size > MAX_FILE_SIZE) {
+            const fileSizeMB = (input.files[i].size / (1024 * 1024)).toFixed(2);
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                html: 'The selected file "' + input.files[i].name + '" is too large (' + fileSizeMB + ' MB).<br>Please upload files within the 10MB limit.',
+                confirmButtonColor: '#e94560'
+            });
+            input.value = '';
+            return;
+        }
+    }
+    
+    const form = document.getElementById('ajaxAttachmentForm');
+    const ticketId = form.dataset.ticketId;
+    const formData = new FormData();
+    for (let i = 0; i < input.files.length; i++) {
+        formData.append('attachmentFiles', input.files[i]);
+    }
+    
+    const spinner = document.getElementById('ajax-attachment-spinner');
+    if (spinner) spinner.style.display = 'inline-block';
+    
+    const uploadBtn = form.querySelector('.file-upload-btn');
+    if (uploadBtn) uploadBtn.style.opacity = '0.5';
+    
+    safeFetch('/api/tickets/ajax/upload-attachments/' + ticketId, {
+        method: 'POST',
+        body: formData
+    })
+    .then(data => {
+        if (data.success && data.fileNames) {
+            const list = document.getElementById('ticket-attachments-list');
+            const noMsg = document.getElementById('no-attachments-msg');
+            if (noMsg) noMsg.remove();
+            
+            data.fileNames.forEach(fileName => {
+                const item = document.createElement('div');
+                item.className = 'attachment-item';
+                item.setAttribute('data-file-name', fileName);
+                item.innerHTML = `
+                    <div class="attachment-name" style="display: flex; align-items: center; gap: 8px; min-width: 0; word-break: break-all;">
+                        📄 <a href="/uploads/tickets/${fileName}" target="_blank">${fileName}</a>
+                    </div>
+                    <div class="attachment-actions" style="display: flex; gap: 5px; flex-shrink: 0; align-items: center;">
+                        <button type="button" class="btn btn-sm btn-outline-warning" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Replace attachment" onclick="triggerReplaceAttachment(this, '${fileName}')">✏️ Edit</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Delete attachment" onclick="deleteAttachment(this, '${fileName}')">🗑️ Delete</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            
+            if (typeof showBootstrapToast === 'function') {
+                showBootstrapToast('Uploaded!', 'Attachments uploaded successfully');
+            }
+        } else {
+            if (typeof showBootstrapToast === 'function') {
+                showBootstrapToast('Error', data.message || 'Failed to upload attachments', true);
+            }
+        }
+    })
+    .catch(error => {
+        if (typeof showBootstrapToast === 'function') {
+            showBootstrapToast('Error', 'Failed to upload attachments', true);
+        }
+    })
+    .finally(() => {
+        if (spinner) spinner.style.display = 'none';
+        if (uploadBtn) uploadBtn.style.opacity = '1';
+        input.value = '';
+    });
+}
+
+let currentReplacingFileName = null;
+let currentReplacingItemElem = null;
+
+function triggerReplaceAttachment(btn, fileName) {
+    currentReplacingFileName = fileName;
+    currentReplacingItemElem = btn.closest('.attachment-item');
+    const input = document.getElementById('replaceAttachmentInput');
+    if (input) {
+        input.value = '';
+        input.click();
+    }
+}
+
+function handleReplaceAttachmentUpload(input) {
+    if (!input || !input.files || input.files.length === 0 || !currentReplacingFileName) return;
+    const file = input.files[0];
+    var MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+        if (typeof showBootstrapToast === 'function') {
+            showBootstrapToast('File Too Large', 'The replacement file exceeds 10MB limit', true);
+        }
+        input.value = '';
+        return;
+    }
+
+    const form = document.getElementById('ajaxAttachmentForm');
+    const ticketId = form ? form.dataset.ticketId : null;
+    if (!ticketId) return;
+
+    const formData = new FormData();
+    formData.append('oldFileName', currentReplacingFileName);
+    formData.append('replacementFile', file);
+
+    const spinner = document.getElementById('ajax-attachment-spinner');
+    if (spinner) spinner.style.display = 'inline-block';
+
+    safeFetch('/api/tickets/ajax/replace-attachment/' + ticketId, {
+        method: 'POST',
+        body: formData
+    })
+    .then(data => {
+        if (data.success && data.newFileName) {
+            if (currentReplacingItemElem) {
+                currentReplacingItemElem.setAttribute('data-file-name', data.newFileName);
+                const nameDiv = currentReplacingItemElem.querySelector('.attachment-name');
+                if (nameDiv) {
+                    nameDiv.innerHTML = `📄 <a href="/uploads/tickets/${data.newFileName}" target="_blank">${data.newFileName}</a>`;
+                }
+                const actionsDiv = currentReplacingItemElem.querySelector('.attachment-actions');
+                if (actionsDiv) {
+                    actionsDiv.innerHTML = `
+                        <button type="button" class="btn btn-sm btn-outline-warning" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Replace attachment" onclick="triggerReplaceAttachment(this, '${data.newFileName}')">✏️ Edit</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px;" title="Delete attachment" onclick="deleteAttachment(this, '${data.newFileName}')">🗑️ Delete</button>
+                    `;
+                }
+            }
+            if (typeof showBootstrapToast === 'function') {
+                showBootstrapToast('Replaced!', 'Attachment replaced successfully');
+            }
+        } else {
+            if (typeof showBootstrapToast === 'function') {
+                showBootstrapToast('Error', data.message || 'Failed to replace attachment', true);
+            }
+        }
+    })
+    .catch(error => {
+        if (typeof showBootstrapToast === 'function') {
+            showBootstrapToast('Error', 'Failed to replace attachment: ' + error.message, true);
+        }
+    })
+    .finally(() => {
+        if (spinner) spinner.style.display = 'none';
+        input.value = '';
+        currentReplacingFileName = null;
+        currentReplacingItemElem = null;
+    });
+}
+
+function deleteAttachment(btn, fileName) {
+    const itemElem = btn.closest('.attachment-item');
+    const form = document.getElementById('ajaxAttachmentForm');
+    const ticketId = form ? form.dataset.ticketId : null;
+    if (!ticketId) return;
+
+    if (confirm('Are you sure you want to delete attachment "' + fileName + '"?')) {
+        const formData = new FormData();
+        formData.append('fileName', fileName);
+
+        safeFetch('/api/tickets/ajax/delete-attachment/' + ticketId, {
+            method: 'POST',
+            body: formData
+        })
+        .then(data => {
+            if (data.success) {
+                if (itemElem) itemElem.remove();
+                const list = document.getElementById('ticket-attachments-list');
+                if (list && list.children.length === 0) {
+                    const card = list.closest('.card');
+                    if (card && !document.getElementById('no-attachments-msg')) {
+                        list.insertAdjacentHTML('afterend', '<div class="empty-state" id="no-attachments-msg">No attachments</div>');
+                    }
+                }
+                if (typeof showBootstrapToast === 'function') {
+                    showBootstrapToast('Deleted!', 'Attachment deleted successfully');
+                }
+            } else {
+                if (typeof showBootstrapToast === 'function') {
+                    showBootstrapToast('Error', data.message || 'Failed to delete attachment', true);
+                }
+            }
+        })
+        .catch(error => {
+            if (typeof showBootstrapToast === 'function') {
+                showBootstrapToast('Error', 'Failed to delete attachment: ' + error.message, true);
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const commentForm = document.querySelector('form[action*="comment"]');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            if (!validateCommentFile()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+
+function showTaskForm() {
+    document.getElementById('taskFormTitle').innerText = 'Add New Task';
+    document.getElementById('taskForm').reset();
+    document.getElementById('taskId').value = '';
+    document.getElementById('taskFormContainer').style.display = 'block';
+}
+
+function hideTaskForm() {
+    document.getElementById('taskFormContainer').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtns = document.querySelectorAll('.edit-task-btn');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('taskFormTitle').innerText = 'Edit Task';
+            document.getElementById('taskId').value = this.dataset.id || '';
+            document.getElementById('taskType').value = this.dataset.type || '';
+            
+            if (document.getElementById('taskPerformedBy')) {
+                document.getElementById('taskPerformedBy').value = this.dataset.performedby || '';
+            }
+            if (document.getElementById('taskPerformedByInput')) {
+                document.getElementById('taskPerformedByInput').value = this.dataset.performedby || '';
+            }
+            
+            const reqTask = this.dataset.requestortask;
+            document.getElementById('taskRequestorTask').value = (reqTask && reqTask !== 'null') ? reqTask : '';
+            
+            document.getElementById('taskStatus').value = this.dataset.status || 'OPEN';
+            
+            const startDate = this.dataset.startdate;
+            document.getElementById('taskStartDate').value = (startDate && startDate !== 'null') ? startDate : '';
+            
+            const completedDate = this.dataset.completeddate;
+            document.getElementById('taskCompletedDate').value = (completedDate && completedDate !== 'null') ? completedDate : '';
+            
+            const billableHours = this.dataset.billablehours;
+            document.getElementById('taskBillableHours').value = (billableHours && billableHours !== 'null') ? billableHours : '';
+            
+            const desc = this.dataset.description;
+            document.getElementById('taskDescription').value = (desc && desc !== 'null') ? desc : '';
+            
+            const comments = this.dataset.comments;
+            document.getElementById('taskComments').value = (comments && comments !== 'null') ? comments : '';
+            
+
+            document.getElementById('taskFormContainer').style.display = 'block';
+            
+            showTab('tasks');
+            document.getElementById('taskFormContainer').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Tab scroll arrows initialization
+    const tabsEl = document.querySelector('.tabs');
+    if (tabsEl) {
+        tabsEl.addEventListener('scroll', updateTabsArrows);
+        window.addEventListener('resize', updateTabsArrows);
+        setTimeout(updateTabsArrows, 100);
+    }
+});
+
+function scrollTabs(direction) {
+    const tabs = document.querySelector('.tabs');
+    if (tabs) {
+        tabs.scrollBy({ left: direction * 150, behavior: 'smooth' });
+    }
+}
+
+function updateTabsArrows() {
+    const tabs = document.querySelector('.tabs');
+    const arrowLeft = document.getElementById('tabsArrowLeft');
+    const arrowRight = document.getElementById('tabsArrowRight');
+    if (tabs && arrowLeft && arrowRight) {
+        const atStart = tabs.scrollLeft <= 5;
+        const hasOverflow = tabs.scrollWidth > tabs.clientWidth;
+        const atEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 5;
+        
+        if (hasOverflow) {
+            arrowLeft.style.display = 'inline-flex';
+            arrowRight.style.display = 'inline-flex';
+            arrowLeft.classList.toggle('hidden', atStart);
+            arrowRight.classList.toggle('hidden', atEnd);
+        } else {
+            arrowLeft.style.display = 'none';
+            arrowRight.style.display = 'none';
+        }
+    }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('download') === 'true') {
+            const element = document.querySelector('.main-content-wrapper');
+            
+            const headerBtns = document.querySelector('.header div');
+            if (headerBtns) headerBtns.style.display = 'none';
+            
+            const tabsContainer = document.querySelector('.tabs-scroll-container');
+            if (tabsContainer) tabsContainer.style.display = 'none';
+            
+            const tabsNav = document.querySelector('.tabs');
+            if (tabsNav) tabsNav.style.display = 'none';
+            
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'block';
+                tab.style.marginTop = '20px';
+                tab.style.borderTop = '2px solid #e94560';
+                tab.style.paddingTop = '15px';
+            });
+
+            document.body.style.background = 'white';
+            
+            const navbars = document.querySelectorAll('.main-navbar-wrapper, nav, header, footer');
+            navbars.forEach(el => {
+                if(el) el.style.display = 'none';
+            });
+
+            let ticketNo = 'ticket';
+            const ticketEl = document.querySelector('.ticket-no');
+            if(ticketEl) ticketNo = ticketEl.innerText.trim();
+
+            const opt = {
+              margin:       10,
+              filename:     ticketNo + '.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                setTimeout(() => window.close(), 1500);
+            });
+        }
+    });
+</script>
+    <footer class="text-center mt-auto p-4 small" style="color: white !important;">
+        &copy; 2026 PERFECTQA &bull; Quality Assured with Precision &bull; <i class="bi bi-rocket-takeoff text-primary"></i>
+    </footer>
+    </div>
+    </div>
+</body>
+</html>

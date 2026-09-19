@@ -91,4 +91,61 @@ public class StateRefService {
     public List<LanguageRef> getAllLanguages() {
         return repository.findAll();
     }
+    
+    public LanguageRef saveLanguage(LanguageRef languageRef) {
+        return repository.save(languageRef);
+    }
+
+    public LanguageRef getLanguageByCode(String code) {
+        return repository.findById(code)
+                .orElseThrow(() -> new IllegalArgumentException("Language not found: " + code));
+    }
+
+    public LanguageRef updateLanguage(String code, LanguageRef updated) {
+        LanguageRef existing = getLanguageByCode(code);
+        existing.setLanguage(updated.getLanguage());
+        return repository.save(existing);
+    }
+
+    public void deleteLanguage(String code) {
+        repository.deleteById(code);
+    }
+    
+    // Country methods
+    public CountryRef getCountryByCode(String countryCode) {
+        return countryrepo.findById(countryCode)
+                .orElseThrow(() -> new IllegalArgumentException("Country not found: " + countryCode));
+    }
+    
+    public CountryRef saveCountry(CountryRef country) {
+        return countryrepo.save(country);
+    }
+    
+    public CountryRef updateCountry(String countryCode, CountryRef updatedCountry) {
+        CountryRef existing = countryrepo.findById(countryCode)
+                .orElseThrow(() -> new IllegalArgumentException("Country not found: " + countryCode));
+        
+        existing.setCountryName(updatedCountry.getCountryName());
+        existing.setNumericCode(updatedCountry.getNumericCode());
+        
+        return countryrepo.save(existing);
+    }
+
+    public void deleteCountry(String countryCode) {
+        countryrepo.deleteById(countryCode);
+    }
+
+    // State methods
+    public StateRef saveState(StateRef state) {
+        return repo.save(state);
+    }
+
+    public void deleteState(String stateCode) {
+        repo.deleteById(stateCode);
+    }
+
+    // City methods
+    public void deleteCity(String city) {
+        cityrepo.deleteById(city);
+    }
 }

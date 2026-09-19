@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Transactions Report | PerfectQA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-amber: #fbbf24;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-page-content {
+            padding: 40px 20px;
+        }
+
+        .report-container {
+            max-width: 1700px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title-area h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title-area p {
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-premium {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: white;
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #dc2626, #f87171);
+            color: white;
+        }
+
+        .btn-violet {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .company-badge {
+            background: rgba(167, 139, 250, 0.1);
+            color: #a78bfa;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-family: monospace;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .info-bar {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* Scenario sections */
+        .scenario-block {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .scenario-block-header {
+            background: rgba(124, 58, 237, 0.08);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 18px 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-purple);
+        }
+
+        .activity-block {
+            margin: 20px;
+            border-left: 3px solid rgba(96, 165, 250, 0.3);
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+
+        .activity-block-header {
+            padding: 12px 18px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-blue);
+            background: rgba(96, 165, 250, 0.05);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .header-block {
+            margin-left: 15px;
+            margin-bottom: 20px;
+            border-left: 2px solid rgba(167, 139, 250, 0.2);
+            padding-left: 15px;
+        }
+
+        .header-block-title {
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #c4b5fd;
+            background: rgba(167, 139, 250, 0.05);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .count-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: auto;
+            color: #94a3b8;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent-purple);
+            font-weight: 700;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 12px 14px;
+            color: #cbd5e1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .main-key {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 0.75rem;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .badge-pass {
+            background: rgba(52, 211, 153, 0.1);
+            color: #34d399;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .badge-fail {
+            background: rgba(248, 113, 113, 0.1);
+            color: #f87171;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+        }
+
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .screenshot-img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin: 2px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .screenshot-img:hover {
+            transform: scale(1.15);
+            border-color: var(--accent-blue);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                color: #333 !important;
+            }
+
+            .main-page-content {
+                padding: 0 !important;
+            }
+
+            .report-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .btn-premium,
+            .dashboard-header .header-actions,
+            .navbar,
+            .main-navbar-wrapper,
+            .no-print {
+                display: none !important;
+            }
+
+            .dashboard-header {
+                background: white !important;
+                border: none !important;
+                padding: 10px 0 !important;
+                margin-bottom: 20px !important;
+                backdrop-filter: none !important;
+                display: block !important;
+                text-align: center !important;
+            }
+
+            .dashboard-header h2 {
+                color: #000 !important;
+                background: none !important;
+                -webkit-text-fill-color: initial !important;
+                font-size: 1.8rem !important;
+                margin-bottom: 5px !important;
+            }
+
+            .info-bar {
+                background: white !important;
+                border: 1px solid #eee !important;
+                padding: 15px !important;
+                margin-bottom: 20px !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                text-align: center !important;
+                border-radius: 12px !important;
+            }
+
+            .info-bar .text-muted {
+                color: #666 !important;
+            }
+
+            .company-badge {
+                background: #f8f9fa !important;
+                color: #000 !important;
+                border: 1px solid #ddd !important;
+                padding: 5px 15px !important;
+                font-size: 1.1rem !important;
+            }
+
+            .scenario-block {
+                background: white !important;
+                border: 1px solid #eee !important;
+                border-radius: 0 !important;
+                page-break-inside: avoid;
+            }
+
+            .scenario-block-header {
+                background: #f8f9fa !important;
+                color: #000 !important;
+                border-bottom: 2px solid #333 !important;
+            }
+
+            .activity-block {
+                border-left: 2px solid #ddd !important;
+                margin: 15px !important;
+                padding-left: 15px !important;
+            }
+
+            .activity-block-header {
+                background: #f1f5f9 !important;
+                color: #000 !important;
+                border: 1px solid #eee !important;
+            }
+
+            .header-block {
+                border-left: 1px solid #eee !important;
+                margin: 10px 0 10px 10px !important;
+            }
+
+            .header-block-title {
+                background: #fafafa !important;
+                color: #333 !important;
+                border: 1px solid #eee !important;
+            }
+
+            th {
+                background: #f8f9fa !important;
+                color: #000 !important;
+                border-bottom: 2px solid #333 !important;
+                padding: 10px 6px !important;
+                font-size: 0.6rem !important;
+            }
+
+            td {
+                color: #333 !important;
+                border-bottom: 1px solid #eee !important;
+                padding: 8px 6px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .main-key {
+                background: none !important;
+                color: #000 !important;
+                border: none !important;
+                font-weight: bold !important;
+                padding: 0 !important;
+            }
+
+            .badge-pass,
+            .badge-fail,
+            .badge-pending {
+                border: none !important;
+                padding: 0 !important;
+                background: none !important;
+                font-weight: bold !important;
+            }
+
+            .badge-pass {
+                color: #10b981 !important;
+            }
+
+            .badge-fail {
+                color: #ef4444 !important;
+            }
+
+            .badge-pending {
+                color: #f59e0b !important;
+            }
+
+            .screenshot-img {
+                border: 1px solid #ddd !important;
+                border-radius: 4px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 25px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-actions {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+    <div class="main-page-content">
+        <div class="report-container">
+
+            <div class="dashboard-header">
+                <div class="header-title-area">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div>
+                            <h2><i class="bi bi-list-check"></i> Transactions Report</h2>
+                            <p>All transactions organized by Business Scenario, Activities, and Test Case Headers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a th:href="@{/api/report-transactions/excel}" class="btn-premium btn-green" download
+                        hx-boost="false">
+                        <i class="bi bi-file-earmark-excel"></i> Excel
+                    </a>
+
+                    <button onclick="window.print()" class="btn-premium btn-violet">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+            </div>
+
+
+
+            <!-- Empty State -->
+            <div th:if="${reportData == null or reportData.isEmpty()}" class="scenario-block">
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No transactions found for this company.</h4>
+                    <p>Please add transactions to see them in the report.</p>
+                </div>
+            </div>
+
+            <!-- Report Data -->
+            <div th:if="${reportData != null and !reportData.isEmpty()}">
+                <div th:each="scenarioEntry : ${reportData}" class="scenario-block">
+                    <div class="scenario-block-header">
+                        <i class="bi bi-pin-angle-fill"></i> Business Scenario: <span
+                            th:text="${scenarioEntry.key}"></span>
+                    </div>
+
+                    <div th:each="activityEntry : ${scenarioEntry.value}" class="activity-block">
+                        <div class="activity-block-header">
+                            <i class="bi bi-arrow-right-circle-fill"></i> Activity Key: <span
+                                th:text="${#strings.contains(activityEntry.key, '-') ? #strings.substringAfter(activityEntry.key, '-') : activityEntry.key}"></span>
+                        </div>
+
+                        <div th:each="headerEntry : ${activityEntry.value}" class="header-block">
+                            <div class="header-block-title">
+                                <i class="bi bi-file-text-fill"></i> Test Case Header (Combined Key): <span
+                                    th:text="${#strings.contains(headerEntry.key, '-') ? #strings.substringAfter(headerEntry.key, '-') : headerEntry.key}"></span>
+                                <span class="count-badge"
+                                    th:text="${#lists.size(headerEntry.value)} + ' transactions'"></span>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Main Key</th>
+                                            <th>Step</th>
+                                            <th>Action</th>
+                                            <th>Expected</th>
+                                            <th>Actual</th>
+                                            <th>Status</th>
+                                            <th>Defects</th>
+                                            <th>Comments</th>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>URL</th>
+                                            <th>Screenshots</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="transaction : ${headerEntry.value}">
+                                            <td><span class="main-key"
+                                                    th:text="${#strings.contains(transaction.mainKey, '-') ? #strings.substringAfter(transaction.mainKey, '-') : transaction.mainKey}"></span>
+                                            </td>
+                                            <td th:text="${transaction.stepNo}"></td>
+                                            <td th:text="${transaction.action}"></td>
+                                            <td th:text="${transaction.expectedResults}"></td>
+                                            <td th:text="${transaction.actualResults}"></td>
+                                            <td>
+                                                <span th:if="${transaction.passFail == 'PASS'}" class="badge-pass">✓
+                                                    PASS</span>
+                                                <span th:if="${transaction.passFail == 'FAIL'}" class="badge-fail">✗
+                                                    FAIL</span>
+                                                <span
+                                                    th:if="${transaction.passFail != 'PASS' and transaction.passFail != 'FAIL' and transaction.passFail != null}"
+                                                    class="badge-pending" th:text="${transaction.passFail}"></span>
+                                                <span th:if="${transaction.passFail == null}"
+                                                    class="badge-pending">PENDING</span>
+                                            </td>
+                                            <td th:text="${transaction.defects}"></td>
+                                            <td th:text="${transaction.comments}"></td>
+                                            <td th:text="${transaction.testedDate}"></td>
+                                            <td th:text="${transaction.type}"></td>
+                                            <td th:text="${transaction.url}"></td>
+                                            <td>
+                                                <div
+                                                    th:if="${transaction.screenshotPaths != null and !transaction.screenshotPaths.isEmpty()}">
+                                                    <div th:each="imagePath : ${transaction.imagePathsList}"
+                                                        style="display:inline-block;">
+                                                        <img th:src="@{'/uploads/screenshots/' + ${imagePath}}"
+                                                            class="screenshot-img"
+                                                            th:onerror="this.style.display='none'"
+                                                            th:title="${imagePath}" />
+                                                    </div>
+                                                </div>
+                                                <span
+                                                    th:if="${transaction.screenshotPaths == null or transaction.screenshotPaths.isEmpty()}"
+                                                    class="text-muted" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-image"></i> None
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:fragment="notificationScripts">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            // Load notifications on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadNotifications();
+                // Refresh notifications every 30 seconds
+                setInterval(loadNotifications, 30000);
+            });
+
+            function loadNotifications() {
+                // Get unread count
+                fetch('/api/notifications/unread-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.getElementById('navNotificationBadge');
+                        if (badge) {
+                            if (data.count > 0) {
+                                badge.textContent = data.count > 99 ? '99+' : data.count;
+                                badge.style.display = 'inline';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(err => console.log('Error loading notification count:', err));
+
+                // Get unread notifications
+                fetch('/api/notifications/unread')
+                    .then(response => response.json())
+                    .then(notifications => {
+                        const notificationList = document.getElementById('navNotificationList');
+                        if (!notificationList) return;
+                        
+                        if (notifications.length === 0) {
+                            notificationList.innerHTML = `
+                                <li class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    No new notifications
+                                </li>
+                            `;
+                            return;
+                        }
+
+                        notificationList.innerHTML = notifications.slice(0, 5).map(n => `
+                            <li>
+                                <a class="dropdown-item py-2 px-3 ${n.isRead ? '' : 'bg-light'}" 
+                                   href="/api/notifications/view/${n.id}" style="white-space: normal; border-bottom: 1px solid #f0f0f0;">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-primary">
+                                            <i class="bi ${getNotificationIcon(n.notificationType)}"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold small text-dark">${n.title}</div>
+                                            <div class="text-muted small text-truncate" style="max-width: 200px;">${n.message || ''}</div>
+                                            <div class="text-muted" style="font-size: 10px;">
+                                                <i class="bi bi-clock me-1"></i>${formatTimeAgo(n.createdAt)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        `).join('');
+                    })
+                    .catch(err => console.log('Error loading notifications:', err));
+            }
+
+            function getNotificationIcon(type) {
+                switch(type) {
+                    case 'TICKET_ASSIGNED': return 'bi-ticket-detailed';
+                    case 'TICKET_STATUS_CHANGED': return 'bi-arrow-repeat';
+                    case 'TICKET_COMMENT': return 'bi-chat-dots';
+                    default: return 'bi-bell';
+                }
+            }
+
+            function formatTimeAgo(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000); // seconds
+                
+                if (diff < 60) return 'Just now';
+                if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+                if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+                if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+                return date.toLocaleDateString();
+            }
+
+            function markAllNotificationsRead() {
+                fetch('/api/notifications/mark-all-read', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadNotifications();
+                        }
+                    })
+                    .catch(err => console.log('Error marking notifications as read:', err));
+            }
+
+            function logoutUser() {
+                Swal.fire({
+                    title: 'Logout?',
+                    text: "Are you sure you want to logout?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0d6efd',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, logout'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/logout';
+                    }
+                });
+            }
+
+            function showComingSoon(featureName) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Coming Soon!',
+                        text: featureName + ' is currently under development and will be available in the next release. 🚀',
+                        icon: 'info',
+                        background: '#1e293b',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                } else {
+                    alert(featureName + ' is Coming Soon!');
+                }
+            }
+
+            function checkEditClosedTicket(event, editUrl, status, ticketId) {
+                if (status === 'CLOSED') {
+                    event.preventDefault();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Ticket is Closed',
+                            text: 'Do you want to reopen this ticket to edit it?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3b82f6',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Yes, reopen it',
+                            background: '#1e293b',
+                            color: '#f8fafc'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const formData = new FormData();
+                                formData.append('status', 'OPEN');
+                                formData.append('notes', 'Reopened for editing');
+                                fetch('/api/tickets/ajax/status/' + ticketId, {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire({
+                                            title: 'Reopened!',
+                                            text: 'The ticket has been reopened.',
+                                            icon: 'success',
+                                            background: '#1e293b',
+                                            color: '#f8fafc'
+                                        }).then(() => {
+                                            window.location.href = editUrl;
+                                        });
+                                    } else {
+                                        Swal.fire('Error', data.message || 'Failed to reopen ticket', 'error');
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        if (confirm('This ticket is closed. Do you want to reopen it to edit?')) {
+                             window.location.href = editUrl;
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            }
+        </script>
+    </div>
+</head>
+</html>

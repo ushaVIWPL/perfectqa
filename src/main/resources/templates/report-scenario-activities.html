@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Scenario Activities Report | PerfectQA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-purple: #a78bfa;
+        --accent-blue: #60a5fa;
+        --accent-green: #34d399;
+        --accent-red: #f87171;
+    }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #f8fafc; margin: 0; padding: 0; }
+    .main-page-content { padding: 40px 20px; }
+    .report-container { max-width: 1500px; margin: 0 auto; }
+    .dashboard-header { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px 40px; margin-bottom: 30px; backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .header-title-area h2 { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; margin: 0; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-title-area p { color: #94a3b8; margin: 5px 0 0 0; }
+    .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-premium { padding: 10px 20px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.85rem; }
+    .btn-green { background: linear-gradient(135deg, #059669, #34d399); color: white; }
+    .btn-red { background: linear-gradient(135deg, #dc2626, #f87171); color: white; }
+    .btn-violet { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; }
+    .btn-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; }
+    .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; text-align: center; backdrop-filter: blur(10px); }
+    .stat-card .number { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card .label { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
+    .company-badge { background: rgba(167, 139, 250, 0.1); color: #a78bfa; padding: 6px 14px; border-radius: 10px; font-weight: 700; font-family: monospace; border: 1px solid rgba(167, 139, 250, 0.2); }
+
+    .scenario-block { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 25px; overflow: hidden; backdrop-filter: blur(10px); }
+    .scenario-block-header { background: rgba(124, 58, 237, 0.08); border-bottom: 1px solid var(--glass-border); padding: 18px 25px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; color: var(--accent-purple); flex-wrap: wrap; gap: 10px; }
+    .count-badge { background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; color: #94a3b8; }
+
+    .scenario-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .info-item { display: flex; flex-direction: column; gap: 4px; }
+    .info-item .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 600; }
+    .info-item .info-value { color: #cbd5e1; font-size: 0.9rem; }
+
+    .table-responsive { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: rgba(255, 255, 255, 0.03); padding: 14px 16px; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent-purple); font-weight: 700; border-bottom: 1px solid var(--glass-border); }
+    td { padding: 14px 16px; color: #cbd5e1; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.85rem; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+    .activity-key-badge { background: rgba(96, 165, 250, 0.1); color: #60a5fa; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-family: monospace; font-size: 0.8rem; border: 1px solid rgba(96, 165, 250, 0.2); white-space: nowrap; display: inline-block; }
+
+    /* ──────────────────── STANDARDIZED PRINT STYLES ──────────────────── */
+    @media print {
+        @page { margin: 1cm; size: landscape; }
+        body { background: white !important; color: black !important; margin: 0; padding: 0; }
+        .no-print, .navbar, .btn-premium, .header-actions, .dashboard-header p, .topbar { display: none !important; }
+        
+        .main-page-content { padding: 0 !important; }
+        .report-container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        
+        .dashboard-header { 
+            background: white !important; 
+            border: none !important; 
+            padding: 0 0 10px 0 !important; 
+            margin-bottom: 10px !important;
+            backdrop-filter: none !important;
+            display: block !important;
+            text-align: center !important;
+            box-shadow: none !important;
+        }
+        .dashboard-header h2 { 
+            color: black !important; 
+            background: none !important; 
+            -webkit-text-fill-color: initial !important;
+            font-size: 24pt !important;
+            margin-bottom: 5px !important;
+            font-weight: bold !important;
+        }
+
+        .stat-row { 
+            display: flex !important;
+            justify-content: center !important;
+            gap: 40px !important;
+            margin-bottom: 20px !important;
+        }
+        .stat-card { 
+            background: white !important; 
+            border: none !important; 
+            padding: 5px !important;
+            backdrop-filter: none !important;
+            flex: none !important;
+            box-shadow: none !important;
+        }
+        .stat-card .number { 
+            font-size: 22pt !important; 
+            background: none !important; 
+            -webkit-text-fill-color: initial !important;
+            color: black !important;
+            font-weight: bold !important;
+        }
+        .stat-card .label { color: #555 !important; font-size: 10pt !important; text-transform: uppercase; }
+        
+        .company-badge {
+            background: none !important;
+            color: black !important;
+            border: none !important;
+            padding: 0 !important;
+            font-size: 18pt !important;
+            font-weight: bold !important;
+        }
+
+        .scenario-block { background: white !important; border: 1px solid #ddd !important; border-radius: 0 !important; margin-bottom: 15px !important; page-break-inside: avoid; }
+        .scenario-block-header { background: #f2f2f2 !important; color: black !important; border-bottom: 2px solid black !important; }
+        .info-value { color: black !important; font-weight: bold !important; }
+        
+        table { width: 100% !important; border-collapse: collapse !important; }
+        th { 
+            background: #f8f8f8 !important; 
+            color: black !important; 
+            border-bottom: 1px solid black !important; 
+            padding: 8pt 5pt !important;
+            font-size: 8pt !important;
+        }
+        td { 
+            color: black !important; 
+            border-bottom: 1px solid #eee !important; 
+            padding: 6pt 5pt !important;
+            font-size: 8pt !important;
+        }
+        .activity-key-badge { background: none !important; color: black !important; border: none !important; font-weight: bold !important; padding: 0 !important; }
+    }
+
+    @media (max-width: 768px) { .dashboard-header { padding: 25px; flex-direction: column; text-align: center; } .header-actions { justify-content: center; width: 100%; } .scenario-info-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+<div class="main-page-content">
+    <div class="report-container">
+
+        <div class="dashboard-header">
+            <div class="header-title-area">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div>
+                        <h2><i class="bi bi-clipboard2-data"></i> Scenario Activities Report</h2>
+                        <p>All scenario activities organized by Business Scenario</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/Menu/BusinessScenarios}" class="btn-premium btn-glass"><i class="bi bi-arrow-left"></i> Back</a>
+                <a th:href="@{/api/scenario-activities/excel}" class="btn-premium btn-green" download hx-boost="false"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+                <button onclick="window.print()" class="btn-premium btn-violet"><i class="bi bi-printer"></i> Print</button>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="number" th:text="${totalScenarios}">0</div>
+                <div class="label">Business Scenarios</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${totalActivities}">0</div>
+                <div class="label">Total Activities</div>
+            </div>
+        </div>
+
+        <div th:if="${reportData == null or reportData.isEmpty()}" class="scenario-block">
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h4>No scenario activities found</h4>
+                <p>Please add scenario activities to see them in the report.</p>
+            </div>
+        </div>
+
+        <div th:if="${reportData != null and !reportData.isEmpty()}">
+            <div th:each="scenarioEntry : ${reportData}" class="scenario-block">
+                <div class="scenario-block-header">
+                    <span><i class="bi bi-pin-angle-fill"></i> Business Scenario: <span th:text="${scenarioEntry.key}"></span></span>
+                    <span class="count-badge" th:text="${#lists.size(scenarioEntry.value)} + ' activities'"></span>
+                </div>
+
+                <div th:if="${!scenarioEntry.value.isEmpty()}" class="scenario-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Activity</span>
+                        <span class="info-value" th:text="${scenarioEntry.value[0].businessScenario?.activity}"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Work Stream</span>
+                        <span class="info-value" th:text="${scenarioEntry.value[0].businessScenario?.workStream}"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Responsible</span>
+                        <span class="info-value" th:text="${scenarioEntry.value[0].businessScenario?.responsible}"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">T-Code</span>
+                        <span class="info-value" th:text="${scenarioEntry.value[0].businessScenario?.tcode}"></span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Activity Key</th>
+                                <th>Transaction Suffix</th>
+                                <th>Activity</th>
+                                <th>Description</th>
+                                <th>Expected Outcome</th>
+                                <th>Responsible</th>
+                                <th>Work Stream</th>
+                                <th>T-Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="activity : ${scenarioEntry.value}">
+                                <td><span class="activity-key-badge" th:text="${#strings.contains(activity.transactionKey, '-') ? #strings.substringAfter(activity.transactionKey, '-') : activity.transactionKey}"></span></td>
+                                <td th:text="${activity.id?.transactionSuffix}"></td>
+                                <td th:text="${activity.activity}"></td>
+                                <td th:text="${activity.scenarioDescription}"></td>
+                                <td th:text="${activity.expectedOutcome}"></td>
+                                <td th:text="${activity.responsible}"></td>
+                                <td th:text="${activity.workStream}"></td>
+                                <td th:text="${activity.tcode}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

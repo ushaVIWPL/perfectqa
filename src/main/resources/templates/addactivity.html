@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+<style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --accent-purple: #764ba2;
+            --accent-blue: #667eea;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: #333333;
+        }
+
+        .main-page-content {
+            padding: 40px 20px;
+        }
+
+        .container-fluid {
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .page-header h2 {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 5px 0 0;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .required-field::after { content: " *"; color: #fc8181; }
+
+        .form-control, .form-select {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #f8fafc;
+            transition: all 0.3s;
+        }
+
+        .form-control::placeholder, .form-select::placeholder {
+            color: #64748b;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+            color: #f8fafc;
+            outline: none;
+        }
+
+        .form-control[readonly] { background: rgba(0, 0, 0, 0.2); color: #94a3b8; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.05); }
+        textarea.form-control { min-height: 120px; resize: vertical; }
+
+        .form-group { margin-bottom: 25px; }
+
+        /* Buttons */
+        .btn-premium {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-violet {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+        .btn-green {
+            background: #2ec4b6;
+            color: white;
+        }
+        .btn-green:hover {
+            background: #20a396;
+            color: white;
+        }
+        .btn-amber {
+            background: #ff9f1c;
+            color: white;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-submit {
+            padding: 16px 40px;
+            font-size: 16px;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .error-msg {
+            color: #dc3545;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .text-muted {
+            font-size: 0.85em;
+            color: #94a3b8 !important;
+        }
+
+        @media (max-width: 768px) {
+            .nav-header { flex-direction: column; gap: 15px; align-items: stretch; }
+            .form-card { padding: 25px; }
+            .btn-submit { width: 100%; }
+        }
+    </style>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="main-page-content">
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 th:if="${editMode == null or !editMode}"><i class="bi bi-plus-circle"></i> Add Scenario Activity / EPIC</h2>
+                <h2 th:if="${editMode != null and editMode}"><i class="bi bi-pencil-square"></i> Edit Scenario Activity / EPIC</h2>
+                <p>Define scenario details, outcomes, and ownership</p>
+            </div>
+            <div>
+                <a th:href="@{/activities}" class="btn-premium btn-green" style="text-decoration: none;">
+                    <i class="bi bi-list-ul"></i> View Scenario Activities
+                </a>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="alert alert-danger mb-4" style="background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; border-radius: 12px; padding: 15px 20px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}"></span>
+        </div>
+
+        <!-- Form -->
+        <div class="form-card">
+            <form th:action="@{/saveactivity}" th:object="${activity}" method="post">
+                <input type="hidden" th:field="*{id.businessScenarioId.companyCode}" />
+
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i> Scenario Context & Activity Details
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 form-group">
+                        <label class="form-label required-field"><i class="bi bi-briefcase"></i> Business Scenario</label>
+                        <input type="text" class="form-control" th:field="*{id.businessScenarioId.businessScenario}" id="businessScenario" readonly/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label class="form-label required-field"><i class="bi bi-hash"></i> Transaction Suffix</label>
+                        <input type="text" class="form-control" th:field="*{id.transactionSuffix}" id="transactionSuffix" th:readonly="${editMode != null and editMode}" placeholder="e.g., 01, 02, 03" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                        <small class="text-muted mt-2 d-block" th:if="${editMode == null or !editMode}">Numbers only. Auto-gen if empty.</small>
+                        <div class="error-msg text-danger" id="transactionSuffixError" style="font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label class="form-label required-field"><i class="bi bi-list-task"></i> Activity</label>
+                        <input type="text" class="form-control" th:field="*{activity}" placeholder="Enter activity description" maxlength="255"/>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label class="form-label"><i class="bi bi-code-square"></i> T-Code</label>
+                        <input type="text" class="form-control" th:field="*{tcode}" placeholder="Enter transaction code" maxlength="50"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required-field"><i class="bi bi-file-text"></i> Description</label>
+                    <textarea class="form-control" th:field="*{scenarioDescription}" placeholder="Enter detailed scenario description" maxlength="5000" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required-field"><i class="bi bi-bullseye"></i> Expected Outcome</label>
+                    <textarea class="form-control" th:field="*{expectedOutcome}" placeholder="Describe the expected outcome" maxlength="5000"></textarea>
+                </div>
+
+                <div class="section-title mt-4">
+                    <i class="bi bi-person-check"></i> Ownership & Stream
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label required-field"><i class="bi bi-layers"></i> Work Stream</label>
+                        <input type="text" class="form-control" th:field="*{workStream}" placeholder="Enter work stream" maxlength="255" required />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label class="form-label"><i class="bi bi-person-badge"></i> Responsible</label>
+                        <input type="text" class="form-control" th:field="*{responsible}" placeholder="Enter responsible person/team" maxlength="255"/>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn-premium btn-violet btn-submit">
+                        <i class="bi bi-floppy"></i> <span th:text="${editMode != null and editMode} ? 'Update Activity' : 'Save Activity'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+document.addEventListener('DOMContentLoaded', function() {
+    const transactionSuffix = document.getElementById('transactionSuffix');
+    const transactionSuffixError = document.getElementById('transactionSuffixError');
+    const businessScenario = document.getElementById('businessScenario');
+
+    if (transactionSuffix && !transactionSuffix.readOnly && businessScenario) {
+        transactionSuffix.addEventListener('input', function() {
+            const val = this.value.trim();
+            const scenarioVal = businessScenario.value.trim();
+            if (!val || !scenarioVal) {
+                transactionSuffixError.textContent = '';
+                return;
+            }
+
+            // Perform AJAX check
+            fetch(`/api/activities/exists?businessScenario=${encodeURIComponent(scenarioVal)}&transactionSuffix=${encodeURIComponent(val)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (transactionSuffix.value.trim() === val) {
+                        if (data.exists) {
+                            transactionSuffixError.textContent = 'Duplicate Transaction Suffix! Already exists for this Business Scenario.';
+                        } else {
+                            transactionSuffixError.textContent = '';
+                        }
+                    }
+                })
+                .catch(err => console.error('Error checking duplicate:', err));
+        });
+    }
+
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (transactionSuffixError && transactionSuffixError.textContent.trim() !== '') {
+                e.preventDefault();
+                transactionSuffix.focus();
+                return;
+            }
+
+            e.preventDefault();
+            const formData = new FormData(this);
+            const isEdit = /*[[${editMode != null and editMode}]]*/ false;
+            
+            Swal.fire({ title: isEdit ? 'Updating...' : 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            fetch(this.action, { method: 'POST', body: formData })
+            .then(response => {
+                if (response.redirected) {
+                    Swal.fire({ icon: 'success', title: 'Success!', text: 'Saved successfully!', timer: 1500, showConfirmButton: false })
+                    .then(() => window.location.href = response.url);
+                    return null;
+                }
+                return response.text();
+            })
+            .then(html => {
+                if (html === null) return;
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const errorElement = doc.querySelector('.alert-danger');
+                if (errorElement) {
+                    Swal.fire({ icon: 'error', title: 'Error', html: errorElement.textContent.trim(), confirmButtonColor: '#667eea' });
+                } else {
+                    Swal.fire({ icon: 'success', title: 'Success!', text: 'Saved successfully!', timer: 1500, showConfirmButton: false })
+                    .then(() => window.location.href = '/activities');
+                }
+            })
+            .catch(error => {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.', confirmButtonColor: '#667eea' });
+            });
+        });
+    }
+});
+/*]]>*/
+</script>
+
+</body>
+</html>

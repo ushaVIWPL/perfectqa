@@ -99,7 +99,7 @@
 
                 <td th:text="${row.transactionId}"></td>
                 <td th:text="${row.testCaseNo}"></td>
-                <td th:text="${row.mainKey}"></td>
+                <td th:text="${#strings.contains(row.mainKey, '-') ? #strings.substringAfter(row.mainKey, '-') : row.mainKey}"></td>
 <!--                <td th:text="${row.serialNo}"></td>
 -->                <td th:text="${row.type}"></td>
                 <td th:text="${row.action}"></td>

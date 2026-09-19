@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Tickets Opened by Me</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content-wrapper {
+            padding: 24px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ──────────────────── TOP BAR ──────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        .page-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #10b981, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-pill {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            color: #10b981;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+
+        .btn-back   { background: rgba(255,255,255,0.1); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.15); }
+        .btn-view   { background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 14px; font-size: 12px; }
+
+        /* ──────────────────── STAT CARDS ──────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 18px 16px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .stat-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
+        .stat-card.active-filter { border-color: #10b981; background: rgba(16,185,129,0.1); }
+
+        .stat-card .num {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-card .lbl {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .num-total     { color: #a78bfa; }
+        .num-open      { color: #60a5fa; }
+        .num-assigned  { color: #10b981; }
+        .num-progress  { color: #fbbf24; }
+        .num-resolved  { color: #2dd4bf; }
+        .num-closed    { color: #94a3b8; }
+
+        /* ──────────────────── FILTER BAR ──────────────────── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar label { font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+
+        .filter-bar select {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+        .filter-bar select option { background: #1e1b4b; }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 13px;
+            outline: none;
+        }
+        .search-box::placeholder { color: #64748b; }
+
+        /* ──────────────────── TICKET TABLE ──────────────────── */
+        .table-wrapper {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(59,130,246,0.3));
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #93c5fd;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.05); }
+
+        td {
+            padding: 14px 16px;
+            font-size: 13.5px;
+            color: #cbd5e1;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .ticket-no {
+            font-family: monospace;
+            font-weight: 700;
+            color: #60a5fa;
+            font-size: 13.5px;
+            background: rgba(96,165,250,0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-open       { background: rgba(96,165,250,0.2);  color: #93c5fd; border: 1px solid rgba(96,165,250,0.3); }
+        .badge-assigned   { background: rgba(16,185,129,0.2);  color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-in_progress { background: rgba(251,191,36,0.2); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
+        .badge-resolved   { background: rgba(45,212,191,0.2);  color: #99f6e4; border: 1px solid rgba(45,212,191,0.3); }
+        .badge-closed     { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+
+        .prio { font-weight: 700; font-size: 12px; }
+        .prio-high   { color: #f87171; }
+        .prio-medium { color: #fbbf24; }
+        .prio-low    { color: #10b981; }
+
+        .summary-cell {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+        }
+        .empty-state .icon { font-size: 3.5rem; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; color: #e2e8f0; }
+        .empty-state p  { color: #64748b; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="main-content-wrapper">
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1 class="page-title">🐞 QA Tickets Opened by Me</h1>
+            <div class="user-pill">
+                <span>👤 <span th:text="${username}">User</span></span>
+            </div>
+        </div>
+        <div>
+            <a href="/Menu/QATickets" class="btn btn-back">
+                <i class="bi bi-arrow-left"></i> QA Tickets Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+        <a th:href="@{/api/tickets/my-opened-tickets/qa}" style="text-decoration:none">
+            <div class="stat-card" th:classappend="${selectedStatus == null or selectedStatus == ''} ? 'active-filter' : ''">
+                <div class="num num-total" th:text="${totalCount}">0</div>
+                <div class="lbl">Total</div>
+            </div>
+        </a>
+        <a th:href="@{/api/tickets/my-opened-tickets/qa(status='OPEN')}" style="text-decoration:none">
+            <div class="stat-card" th:classappend="${selectedStatus == 'OPEN'} ? 'active-filter' : ''">
+                <div class="num num-open" th:text="${openCount}">0</div>
+                <div class="lbl">Open</div>
+            </div>
+        </a>
+        <a th:href="@{/api/tickets/my-opened-tickets/qa(status='IN_PROGRESS')}" style="text-decoration:none">
+            <div class="stat-card" th:classappend="${selectedStatus == 'IN_PROGRESS'} ? 'active-filter' : ''">
+                <div class="num num-progress" th:text="${inProgressCount}">0</div>
+                <div class="lbl">In Progress</div>
+            </div>
+        </a>
+        <a th:href="@{/api/tickets/my-opened-tickets/qa(status='RESOLVED')}" style="text-decoration:none">
+            <div class="stat-card" th:classappend="${selectedStatus == 'RESOLVED'} ? 'active-filter' : ''">
+                <div class="num num-resolved" th:text="${resolvedCount}">0</div>
+                <div class="lbl">Resolved</div>
+            </div>
+        </a>
+        <a th:href="@{/api/tickets/my-opened-tickets/qa(status='CLOSED')}" style="text-decoration:none">
+            <div class="stat-card" th:classappend="${selectedStatus == 'CLOSED'} ? 'active-filter' : ''">
+                <div class="num num-closed" th:text="${closedCount}">0</div>
+                <div class="lbl">Closed</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <input id="searchBox" type="text" class="search-box" placeholder="Search ticket no, description, status…" oninput="filterTable()">
+        <label>Status:</label>
+        <form method="get" th:action="@{/api/tickets/my-opened-tickets/qa}" style="display:contents">
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="OPEN"        th:selected="${selectedStatus == 'OPEN'}">Open</option>
+                <option value="IN_PROGRESS" th:selected="${selectedStatus == 'IN_PROGRESS'}">In Progress</option>
+                <option value="RESOLVED"    th:selected="${selectedStatus == 'RESOLVED'}">Resolved</option>
+                <option value="CLOSED"      th:selected="${selectedStatus == 'CLOSED'}">Closed</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div th:if="${tickets == null or tickets.isEmpty()}" class="table-wrapper">
+        <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>No tickets found</h3>
+            <p th:if="${selectedStatus != null and selectedStatus != ''}">
+                You haven't opened any <strong th:text="${selectedStatus}"></strong> QA tickets.
+            </p>
+            <p th:if="${selectedStatus == null or selectedStatus == ''}">
+                You have not raised any QA tickets yet.
+            </p>
+        </div>
+    </div>
+
+    <!-- TICKET TABLE -->
+    <div th:if="${tickets != null and !tickets.isEmpty()}" class="table-wrapper">
+        <table id="ticketTable">
+            <thead>
+                <tr>
+                    <th>Ticket No</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Description</th>
+                    <th>Assignee</th>
+                    <th>Created Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ticket : ${tickets}">
+                    <td>
+                        <span class="ticket-no" th:text="${ticket.ticketNo}">TKT-00001</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="'badge-' + ${ticket.status?.toLowerCase()?.replace('_','-')}"
+                              th:text="${ticket.status}">OPEN</span>
+                    </td>
+                    <td>
+                        <span class="prio"
+                              th:classappend="${ticket.priority == 'HIGH' or ticket.priority == 'CRITICAL'} ? 'prio-high' :
+                                              (${ticket.priority == 'MEDIUM'} ? 'prio-medium' : 'prio-low')"
+                              th:text="${ticket.priority == 'HIGH' ? '🔴 High' :
+                                         ticket.priority == 'CRITICAL' ? '🟣 Critical' :
+                                         ticket.priority == 'MEDIUM'  ? '🟡 Medium' : '🟢 Low'}">
+                            Medium
+                        </span>
+                    </td>
+                    <td class="summary-cell"
+                        th:text="${ticket.issueDescription ?: ticket.summary ?: ticket.description ?: '-'}"
+                        th:title="${ticket.issueDescription ?: ticket.summary ?: ticket.description}">
+                        Description
+                    </td>
+                    <td th:with="assigneeName=${ticket.assigneeName ?: ticket.assignedTo ?: ticket.assigneeUserCode ?: 'Unassigned'},
+                                  assigneeRole=${assigneeRoles != null ? assigneeRoles.get(ticket.assigneeUserCode) : null}"
+                         th:text="${assigneeRole != null ? (assigneeName + ' (' + assigneeRole + ')') : assigneeName}">-</td>
+                    <td th:text="${ticket.createdDate ?: '-'}">2024-01-01</td>
+                    <td>
+                        <a th:href="@{|/api/tickets/view/${ticket.id}|}" class="btn btn-view">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const rows = document.querySelectorAll('#ticketTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

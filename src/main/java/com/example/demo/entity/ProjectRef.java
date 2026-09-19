@@ -1,6 +1,12 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class ProjectRef {
@@ -17,14 +23,18 @@ public class ProjectRef {
     private String financialGoal;
     private String efficiencyGoal;
     private String qaGoal;
+    @jakarta.persistence.Column(columnDefinition = "TEXT")
     private String projectDescription;
 
     @ManyToOne
     @JoinColumn(name = "companyCode")
     private CompanyRef company;
 
-    // Getters and Setters
+    // ✅ Corrected OneToMany mapping
+    @OneToMany(mappedBy = "project") // 'project' matches the field name in ApplicationRef
+    private List<ApplicationRef> applications;
 
+    // --- Getters and Setters ---
     public CompanyRef getCompany() {
         return company;
     }
@@ -119,5 +129,13 @@ public class ProjectRef {
 
     public void setProjectDescription(String projectDescription) {
         this.projectDescription = projectDescription;
+    }
+
+    public List<ApplicationRef> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<ApplicationRef> applications) {
+        this.applications = applications;
     }
 }

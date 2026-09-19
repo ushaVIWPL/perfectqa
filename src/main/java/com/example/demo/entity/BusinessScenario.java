@@ -1,41 +1,40 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
 
+import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "businessscenario")
+@Table(name = "business_scenario")
 public class BusinessScenario {
 
-    @Id
-    @Column(name = "business_scenario")
+    @EmbeddedId
+    private BusinessScenarioId id;
 
-    private String businessScenario;  // Primary key
+    @ManyToOne
+    @MapsId("companyCode")
+    @JoinColumn(name = "company_code")
+    private CompanyRef company;
 
-    @Column(length = 5000, nullable = false)
-    private String scenarioDescription;
-
-    @Column(length = 200, nullable = true)
-    private String workStream;
-
-    @Column(length = 200, nullable = true)
     private String activity;
 
-    @Column(length = 200, nullable = true)
-    private String responsible;
-
-    @Column(length = 5000, nullable = true)
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String expectedOutcome;
 
-    @Column(length = 15, nullable = true)
+    private String responsible;
+    private String scenarioDescription;
     private String tcode;
+    private String workStream;
 
-    // Getters and Setters
+    
+    public void setCompany(CompanyRef company) {
+        this.company = company;
+    }
 
+    // Optional getter
+    public CompanyRef getCompany() {
+        return company;
+    }
   
 }

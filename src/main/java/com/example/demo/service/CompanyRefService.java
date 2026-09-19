@@ -32,4 +32,8 @@ public class CompanyRefService {
     public void deleteById(String code) {
         repository.deleteById(code);
     }
+    public CompanyRef findByCompanyCode(String companyCode) {
+        return repository.findByCompanyCode(companyCode);
+    }
+
 }

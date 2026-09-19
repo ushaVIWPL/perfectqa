@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${(session.companyName != null ? session.companyName : 'PerfectQA') + ' | Dashboard'}">Manager Dashboard | IWPL Inc.</title>
+
+  <!-- Google Fonts - Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="has-global-nav">
+  <style>
+    :root {
+      --primary-bg: #0f172a;
+      --sidebar-bg: rgba(15, 23, 42, 0.95);
+      --card-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --accent-primary: #3b82f6;
+      --accent-secondary: #8b5cf6;
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --sidebar-width: 280px;
+      --nav-height: 70px;
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--primary-bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1, h2, h3, h4, h5 { font-family: 'Outfit', sans-serif; }
+
+    .dashboard-layout {
+      display: flex;
+      height: calc(100vh - var(--nav-height));
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--glass-border);
+      height: calc(100vh - var(--nav-height));
+      position: fixed;
+      left: 0;
+      top: var(--nav-height);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transition: var(--transition);
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .sidebar-menu {
+      padding: 20px 16px;
+      flex-grow: 1;
+    }
+
+    .menu-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin: 20px 0 10px 12px;
+      font-weight: 700;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 12px;
+      transition: var(--transition);
+      margin-bottom: 4px;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .menu-link i { font-size: 1.2rem; }
+    .menu-link:hover, .menu-link.active {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-primary);
+    }
+    .menu-link.active { background: rgba(59, 130, 246, 0.15); font-weight: 600; }
+
+    /* Main Content */
+    .main-viewport {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      overflow-y: auto;
+      height: 100%;
+      padding: 32px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--glass-border) transparent;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .welcome-text h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; }
+    .welcome-text p { color: var(--text-muted); font-size: 1.1rem; margin: 0; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover { 
+      transform: translateY(-5px); 
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .icon-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .icon-purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+    .icon-green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .icon-orange { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+    .stat-info h3 { font-size: 1.8rem; font-weight: 700; margin: 0; }
+    .stat-info p { color: var(--text-muted); font-size: 0.85rem; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Quick Actions */
+    .btn-premium {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: var(--transition);
+      width: 100%;
+      justify-content: flex-start;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-premium:hover {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: #ffffff;
+      border-color: transparent;
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      color: var(--text-main);
+    }
+    .modal-header { border-bottom: 1px solid var(--glass-border); padding: 24px 32px; }
+    .modal-body { padding: 32px; }
+    .modal-footer { border-top: 1px solid var(--glass-border); padding: 24px 32px; }
+    .form-control {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      color: white;
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .form-control:focus { background: rgba(255, 255, 255, 0.05); border-color: var(--accent-primary); box-shadow: none; color: white; }
+    select.form-control option, select.form-select option, select option {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    @media (max-width: 1200px) {
+      .sidebar { width: 80px; }
+      .sidebar-header h4, .menu-link span, .menu-label { display: none; }
+      .main-viewport { margin-left: 80px; width: calc(100% - 80px); }
+      .menu-link { justify-content: center; padding: 12px; }
+    }
+
+    @media print {
+      .main-navbar-wrapper, header.main-navbar-wrapper, .sidebar, aside.sidebar, .navbar, .no-print {
+        display: none !important;
+      }
+      body, html {
+        overflow: visible !important;
+        height: auto !important;
+        background: white !important;
+      }
+      .main-viewport {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+    }
+
+    /* Enterprise Banner Styling */
+    .enterprise-banner-card {
+      position: relative;
+      background: transparent;
+      border-radius: 16px;
+      padding: 0;
+      margin-bottom: 24px;
+      border: none;
+      box-shadow: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .enterprise-banner-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .enterprise-banner-img {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      display: block;
+    }
+  </style>
+
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-box">
+          <img th:src="${session.companyCode != null ? '/company/logo/' + session.companyCode : '/company/logo'}" 
+               style="height: 32px; width: 32px; object-fit: contain;" 
+               onerror="this.onerror=null; this.src='/img/IWPL.png';">
+          <i class="bi bi-briefcase text-white" style="display:none"></i>
+        </div>
+        <h4 class="mb-0 fw-bold" th:text="${session.companyName != null ? session.companyName : 'Manager'}">Manager</h4>
+      </div>
+
+      <div class="sidebar-menu">
+        <a href="javascript:void(0)" onclick="loadDashboard()" class="menu-link active">
+          <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+        </a>
+        
+        <div class="menu-label">Team & Users</div>
+        <a href="javascript:void(0)" onclick="loadUsers()" class="menu-link">
+          <i class="bi bi-people"></i> <span>Manage Team</span>
+        </a>
+        <button type="button" class="menu-link border-0 bg-transparent w-100 text-start" data-bs-toggle="modal" data-bs-target="#addUserModal" onclick="if (typeof loadModalDepartments === 'function') loadModalDepartments();">
+          <i class="bi bi-person-plus"></i> <span>Add New User</span>
+        </button>
+
+     <!--   <div class="menu-label">Repository</div>
+        <a href="javascript:void(0)" onclick="loadContent('/list')" class="menu-link">
+          <i class="bi bi-layers"></i> <span>Business Scenarios</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadContent('/activities')" class="menu-link">
+          <i class="bi bi-activity"></i> <span>Scenario Activities</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadContent('/api/transactions/testcaseheaders')" class="menu-link">
+          <i class="bi bi-file-earmark-medical"></i> <span>Test Case Headers</span>
+        </a>
+-->
+        <div class="menu-label">Projects & Apps</div>
+        <a href="javascript:void(0)" onclick="loadProjects()" class="menu-link">
+          <i class="bi bi-folder"></i> <span>Projects</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadApplications()" class="menu-link">
+          <i class="bi bi-app-indicator"></i> <span>Applications</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadModules()" class="menu-link">
+          <i class="bi bi-grid-3x3-gap"></i> <span>Modules</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadDepartments()" class="menu-link">
+          <i class="bi bi-diagram-3"></i> <span>Departments</span>
+        </a>
+
+        <div class="menu-label">Support</div>
+      <!--  <a href="javascript:void(0)" onclick="loadContent('/api/tickets/list')" class="menu-link">
+          <i class="bi bi-ticket-detailed"></i> <span>All Tickets</span>
+        </a>
+        <a href="javascript:void(0)" onclick="loadContent('/api/tickets/my-tickets')" class="menu-link">
+          <i class="bi bi-person-badge"></i> <span>My Tickets</span>
+        </a>-->
+        <a href="javascript:void(0)" onclick="loadContent('/api/report-billable-tasks')" class="menu-link">
+          <i class="bi bi-list-task"></i> <span>Billable Tasks</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-viewport">
+      <!-- Business Manager Dashboard Header Banner -->
+      <div class="enterprise-banner-card animate-in mb-4">
+        <img th:src="@{/img/banner/bannerr.jpg}" 
+             src="/img/banner/bannerr.jpg" 
+             alt="IWPL Enterprise Task Management" 
+             class="enterprise-banner-img" />
+      </div>
+
+      <div id="dynamicContent">
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h1>Hello, <span th:text="${session.username}">Manager</span>!</h1>
+            <p>Welcome to your Business Manager command center.</p>
+          </div>
+          <div class="d-none d-lg-block">
+             <img th:src="${session != null and session.companyCode != null ? '/company/logo/' + session.companyCode : '/company/logo'}" 
+                  style="height: 120px; width: auto; max-width: 200px; object-fit: contain; opacity: 0.3; filter: grayscale(1) brightness(2);"
+                  onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-box icon-blue"><i class="bi bi-people"></i></div>
+            <div class="stat-info">
+              <h3 id="teamCount">0</h3>
+              <p>Team Members</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box icon-purple"><i class="bi bi-ticket"></i></div>
+            <div class="stat-info">
+              <h3 id="openTickets">0</h3>
+              <p>Open Tickets</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box icon-orange"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-info">
+              <h3 id="pendingTasks">0</h3>
+              <p>Pending Tasks</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box icon-green"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-info">
+              <h3 id="completedTests">0</h3>
+              <p>Completed Tests</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="glass-card h-100">
+              <h5 class="mb-4"><i class="bi bi-lightning text-warning me-2"></i> Quick Actions</h5>
+              <a href="javascript:void(0)" onclick="loadContent('/project/add')" class="btn-premium"><i class="bi bi-folder-plus text-primary"></i> Create Project</a>
+              <a href="javascript:void(0)" onclick="loadContent('/application/list')" class="btn-premium"><i class="bi bi-app text-success"></i> New Application</a>
+              <a href="javascript:void(0)" onclick="loadContent('/api/tickets/createticket')" class="btn-premium"><i class="bi bi-plus-circle text-info"></i> Log Support Ticket</a>
+              <a href="javascript:void(0)" onclick="loadUsers()" class="btn-premium"><i class="bi bi-person-gear text-purple"></i> Manage Permissions</a>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="glass-card">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="m-0"><i class="bi bi-folder-fill text-primary me-2"></i> Active Projects</h5>
+                <button onclick="loadProjects()" class="btn btn-sm btn-outline-secondary border-0"><i class="bi bi-arrow-right"></i></button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" style="--bs-table-bg: transparent;">
+                  <thead>
+                    <tr class="text-muted small text-uppercase">
+                      <th>Project</th>
+                      <th>Sponsor</th>
+                      <th>Company</th>
+                    </tr>
+                  </thead>
+                  <tbody id="projectsTableBodyMini">
+                    <tr><td colspan="3" class="text-center py-4 opacity-50">Fetching project data...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="addUserForm" onsubmit="return submitAddUserModal(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Add Team Member</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small text-white">First Name</label>
+                <input type="text" class="form-control" name="firstName" required placeholder="John">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small text-white">Last Name</label>
+                <input type="text" class="form-control" name="lastName" required placeholder="Doe">
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white">Email Address</label>
+                <input type="email" class="form-control" name="email" required placeholder="john.doe@perfectqa.com">
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white">User ID / Username</label>
+                <input type="text" class="form-control" name="userId" required placeholder="johndoe123">
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white">Role</label>
+                <select class="form-control" name="userRole" required>
+                  <option value="QA_TESTER">QA Tester</option>
+                  <option value="BUSINESS_MANAGER">Business Manager</option>
+                  <option value="USER">Standard User</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white">Department</label>
+                <select class="form-control" name="department" id="modalDepartmentSelect">
+                  <option value="">-- Select Department --</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small text-white">Default Password</label>
+                <input type="password" class="form-control" name="password" required value="PerfectQA@123">
+                <div class="form-text small opacity-50">Temporary password for first login.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">Create User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+    function loadDashboard() { location.reload(); }
+
+    // ========== Sidebar Navigation Functions ==========
+    function loadProjects() {
+      loadContent('/project/admin/all');
+      setActiveMenu(event);
+    }
+
+    function loadApplications() {
+      loadContent('/application/list');
+      setActiveMenu(event);
+    }
+
+    function loadModules() {
+      loadContent('/aaddModule');
+      setActiveMenu(event);
+    }
+
+    function loadDepartments() {
+      loadContent('/department/list');
+      setActiveMenu(event);
+    }
+
+    function loadUsers() {
+      loadContent('/business-manager/users');
+      setActiveMenu(event);
+    }
+
+    // Helper to highlight the active sidebar link
+    function setActiveMenu(evt) {
+      document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+      if (evt && evt.currentTarget) {
+        evt.currentTarget.classList.add('active');
+      }
+    }
+
+    // ========== Load content into the main viewport via AJAX ==========
+    function loadContent(url) {
+      const container = document.getElementById("dynamicContent");
+      container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3 text-muted">Loading...</p></div>';
+
+      fetch(url, {
+        credentials: 'include',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(r => {
+          if (r.redirected) {
+            throw new Error("Session expired or access denied. Please refresh.");
+          }
+          if (!r.ok) throw new Error("Server returned " + r.status);
+          return r.text();
+        })
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+
+          // Pull in non-bootstrap stylesheets
+          const styles = doc.querySelectorAll('style, link[rel="stylesheet"]:not([href*="bootstrap"])');
+          styles.forEach(s => document.head.appendChild(s.cloneNode(true)));
+
+          // Remove elements that belong to the outer shell (navbar, sidebar, etc.)
+          ['.main-navbar-wrapper', 'nav', 'header', '.sidebar', 'footer',
+           'script[src*="bootstrap"]', 'link[href*="bootstrap"]'
+          ].forEach(sel => doc.querySelectorAll(sel).forEach(el => el.remove()));
+
+          // Move modals to document body so Bootstrap can show them
+          doc.body.querySelectorAll('.modal').forEach(m => {
+            const existing = document.getElementById(m.id);
+            if (existing) existing.remove();
+            document.body.appendChild(m.cloneNode(true));
+            m.remove();
+          });
+
+          container.innerHTML = doc.body.innerHTML;
+
+          // Re-execute scripts from the loaded page
+          container.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            if (oldScript.src) { newScript.src = oldScript.src; }
+            else { newScript.text = oldScript.text; }
+            oldScript.remove();
+            document.body.appendChild(newScript);
+          });
+
+          // Re-initialize Bootstrap modals in the loaded content
+          setTimeout(() => {
+            document.querySelectorAll('.modal').forEach(m => {
+              new bootstrap.Modal(m);
+            });
+          }, 200);
+        })
+        .catch(e => {
+          console.error(e);
+          Swal.fire("Error", e.message, "error");
+          container.innerHTML = `<div class="text-center py-5">
+            <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+            <h4 class="mt-3">Error Loading Content</h4>
+            <p class="text-muted">${e.message}</p>
+          </div>`;
+        });
+    }
+
+    // ========== Dashboard Stats & Mini Projects Table ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load dashboard statistics
+      fetch('/api/dashboard/manager-stats', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (document.getElementById('teamCount'))     document.getElementById('teamCount').textContent = data.teamCount || 0;
+          if (document.getElementById('openTickets'))    document.getElementById('openTickets').textContent = data.openTickets || 0;
+          if (document.getElementById('pendingTasks'))   document.getElementById('pendingTasks').textContent = data.pendingTasks || 0;
+          if (document.getElementById('completedTests')) document.getElementById('completedTests').textContent = data.completedTests || 0;
+        })
+        .catch(err => console.error('Stats error:', err));
+
+      // Load mini projects table
+      fetch('/project/api/business-manager', { credentials: 'include' })
+        .then(r => r.json())
+        .then(projects => {
+          const tbody = document.getElementById('projectsTableBodyMini');
+          if (!tbody) return;
+          if (!projects || projects.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 opacity-50">No projects found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = projects.slice(0, 5).map(p =>
+            `<tr>
+              <td>${p.projectName || p.projectCode || '-'}</td>
+              <td>${p.execSponsor || '-'}</td>
+              <td>${p.companyName || '-'}</td>
+            </tr>`
+          ).join('');
+        })
+        .catch(err => {
+          console.error('Projects error:', err);
+          const tbody = document.getElementById('projectsTableBodyMini');
+          if (tbody) tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 opacity-50">Error loading projects.</td></tr>';
+        });
+
+      const addUserModalEl = document.getElementById('addUserModal');
+      if (addUserModalEl) {
+        addUserModalEl.addEventListener('show.bs.modal', function () {
+          if (typeof loadModalDepartments === 'function') loadModalDepartments();
+        });
+      }
+    });
+
+    function loadModalDepartments() {
+      const select = document.getElementById('modalDepartmentSelect');
+      if (!select) return;
+      fetch('/department/api/by-company', { credentials: 'include' })
+        .then(r => r.json())
+        .then(list => {
+          select.innerHTML = '<option value="">-- Select Department --</option>';
+          if (list && Array.isArray(list)) {
+            list.forEach(d => {
+              const opt = document.createElement('option');
+              opt.value = d.departmentName;
+              opt.textContent = d.departmentName + (d.departmentCode ? ' (' + d.departmentCode + ')' : '');
+              select.appendChild(opt);
+            });
+          }
+        })
+        .catch(e => console.error('Failed modal department load', e));
+    }
+
+    document.addEventListener('show.bs.modal', function (e) {
+      if (e.target && (e.target.id === 'addUserModal' || e.target.getAttribute('id') === 'addUserModal')) {
+        loadModalDepartments();
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const mod = urlParams.get('module') || window.location.hash.replace('#', '');
+      if (mod === 'departments' && typeof loadDepartments === 'function') {
+        setTimeout(() => { loadDepartments(); }, 150);
+      } else if (mod === 'users' && typeof loadUsers === 'function') {
+        setTimeout(() => { loadUsers(); }, 150);
+      }
+    });
+
+    function submitAddUserModal(evt) {
+      evt.preventDefault();
+      const form = evt.target;
+      const data = {
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        email: form.email.value,
+        userId: form.userId.value,
+        userRole: form.userRole.value,
+        department: form.department ? form.department.value : '',
+        password: form.password.value
+      };
+
+      fetch('/api/users/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          const modalEl = document.getElementById('addUserModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+          form.reset();
+          Swal.fire({
+            icon: 'success',
+            title: 'Added!',
+            text: 'Team member added successfully.',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          if (typeof loadUsers === 'function') loadUsers();
+        } else {
+          Swal.fire('Error', res.message || 'Could not add team member', 'error');
+        }
+      })
+      .catch(e => {
+        console.error(e);
+        Swal.fire('Error', 'Server communication failure', 'error');
+      });
+      return false;
+    }
+  </script>
+</body>
+</html>
+

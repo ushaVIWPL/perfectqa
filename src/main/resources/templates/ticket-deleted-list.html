@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deleted Tickets | PerfectQA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        :root { --glass-bg: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08); --accent-purple: #a78bfa; --accent-blue: #60a5fa; --accent-green: #34d399; --accent-red: #f87171; --accent-amber: #fbbf24; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; }
+        .main-page-content { padding: 40px 20px; flex: 1; display: flex; flex-direction: column; }
+        .main-page-content > div.container-fluid { flex: 1; display: flex; flex-direction: column; }
+        footer { margin-top: auto !important; }
+
+        .dashboard-header { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px 40px; margin-bottom: 30px; backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .header-title-area h2 { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; margin: 0; background: linear-gradient(90deg, #f87171, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-title-area p { color: #94a3b8; margin: 5px 0 0 0; }
+
+        .btn-premium { padding: 12px 24px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        .info-alert { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.15); border-radius: 14px; padding: 15px 20px; margin-bottom: 25px; color: #fbbf24; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .alert-custom { padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .alert-success-custom { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .alert-danger-custom { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        .table-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(255, 255, 255, 0.03); padding: 18px 20px; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-purple); font-weight: 700; border-bottom: 1px solid var(--glass-border); }
+        td { padding: 18px 20px; color: #cbd5e1; border-bottom: 1px solid rgba(255, 255, 255, 0.03); font-size: 0.9rem; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .ticket-id-badge { background: rgba(248, 113, 113, 0.1); color: #f87171; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-family: monospace; border: 1px solid rgba(248, 113, 113, 0.2); }
+        .status-deleted { background: rgba(248, 113, 113, 0.1); color: #f87171; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border: 1px solid rgba(248, 113, 113, 0.2); }
+        .priority-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px currentColor; }
+
+        .btn-action { padding: 6px 14px; border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); background: transparent; cursor: pointer; font-size: 0.8rem; }
+        .btn-restore { color: var(--accent-green); border-color: rgba(52, 211, 153, 0.3); }
+        .btn-restore:hover { background: var(--accent-green); color: white; }
+        .btn-perm-delete { color: var(--accent-red); border-color: rgba(248, 113, 113, 0.3); }
+        .btn-perm-delete:hover { background: var(--accent-red); color: white; }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: #94a3b8; }
+        .empty-state i { font-size: 4rem; display: block; margin-bottom: 20px; opacity: 0.3; }
+
+        @media (max-width: 768px) { .dashboard-header { padding: 25px; text-align: center; } }
+    </style>
+
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+<div class="main-page-content">
+    <div class="container-fluid px-lg-5">
+
+        <div th:if="${success}" class="alert-custom alert-success-custom">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${success}">Success</span>
+        </div>
+        <div th:if="${error}" class="alert-custom alert-danger-custom">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}">Error</span>
+        </div>
+
+        <div class="info-alert">
+            <i class="bi bi-info-circle-fill"></i>
+            Deleted tickets are stored here. You can <strong>restore</strong> them or <strong>permanently delete</strong> them (Admin only).
+        </div>
+
+        <div class="dashboard-header">
+            <div class="header-title-area">
+                <h2><i class="bi bi-trash3"></i> Deleted Tickets</h2>
+                <p>Manage soft-deleted tickets — restore or permanently remove</p>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/api/tickets/list(issueType=${selectedIssueType})}" class="btn-premium btn-glass">
+                    <i class="bi bi-arrow-left"></i> Back to Active Tickets
+                </a>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div th:if="${tickets == null or tickets.isEmpty()}" class="empty-state">
+                <i class="bi bi-trash"></i>
+                <h3>No Deleted Tickets</h3>
+                <p class="text-muted">The trash is empty — no deleted tickets found.</p>
+            </div>
+
+            <div class="table-responsive" th:if="${tickets != null and !tickets.isEmpty()}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Issue Type</th>
+                            <th>Summary</th>
+                            <th>Deleted By</th>
+                            <th>Deleted Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ticket : ${tickets}">
+                            <td><span class="ticket-id-badge" th:text="${ticket.ticketNo}">TKT-001</span></td>
+                            <td><span class="status-deleted">DELETED</span></td>
+                            <td>
+                                <span class="priority-dot" th:style="'color: ' + (ticket.priority == 'HIGH' ? '#f87171' : (ticket.priority == 'MEDIUM' ? '#fbbf24' : '#34d399'))"></span>
+                                <span th:text="${ticket.priority}">Medium</span>
+                            </td>
+                            <td th:text="${ticket.issueType}">Bug</td>
+                            <td class="text-truncate" style="max-width: 250px;" th:text="${ticket.summary}" th:title="${ticket.summary}">Summary</td>
+                            <td th:text="${ticket.deletedBy != null ? ticket.deletedBy : 'Admin'}">Admin</td>
+                            <td class="text-muted small" th:text="${#temporals.format(ticket.deletedDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button th:onclick="'restoreTicket(' + ${ticket.id} + ')'" class="btn-action btn-restore" title="Restore">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Restore
+                                    </button>
+                                    <button th:onclick="'permanentDelete(' + ${ticket.id} + ')'" class="btn-action btn-perm-delete" title="Permanent Delete">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="text-center mt-5 p-4 small" style="color: white !important;">
+            &copy; 2026 PERFECTQA &bull; Quality Assured with Precision &bull; <i class="bi bi-rocket-takeoff text-primary"></i>
+        </footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function restoreTicket(ticketId) {
+    Swal.fire({
+        title: 'Restore Ticket?',
+        text: 'This ticket will be restored to the active tickets list.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, restore it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/tickets/ajax/restore/' + ticketId, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Restored!', text: 'Ticket has been restored.', timer: 2000, showConfirmButton: false }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Something went wrong', 'error'));
+        }
+    });
+}
+
+function permanentDelete(ticketId) {
+    Swal.fire({
+        title: 'Permanent Delete?',
+        html: '<p><strong>This action CANNOT be undone!</strong></p><p>The ticket will be permanently removed.</p>',
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, permanently delete!',
+        focusCancel: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Are you absolutely sure?',
+                text: 'Type "DELETE" to confirm:',
+                input: 'text',
+                inputPlaceholder: 'Type DELETE',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Permanently Delete',
+                inputValidator: (value) => { if (value !== 'DELETE') return 'You need to type DELETE to confirm!'; }
+            }).then((result2) => {
+                if (result2.isConfirmed) {
+                    fetch('/api/tickets/ajax/permanent-delete/' + ticketId, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({ icon: 'success', title: 'Permanently Deleted!', text: 'Ticket removed.', timer: 2000, showConfirmButton: false }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Something went wrong', 'error'));
+                }
+            });
+        }
+    });
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

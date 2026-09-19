@@ -1,0 +1,36 @@
+<div th:fragment="banner" class="enterprise-banner-card animate-in">
+  <style>
+    .enterprise-banner-card {
+      position: relative;
+      background: transparent;
+      border-radius: 16px;
+      padding: 0;
+      margin-bottom: 24px;
+      border: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .enterprise-banner-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .enterprise-banner-img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      display: block;
+    }
+  </style>
+  <img th:src="@{/img/banner/bannerr.jpg}" 
+       src="/img/banner/bannerr.jpg" 
+       alt="IWPL Enterprise Task Management" 
+       class="enterprise-banner-img" />
+</div>

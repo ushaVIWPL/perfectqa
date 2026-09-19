@@ -1,0 +1,1181 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - PerfectQA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        
+        .settings-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Sidebar Navigation */
+        .settings-nav {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            color: #fff;
+        }
+        
+        .nav-item.active {
+            border-left: 3px solid #667eea;
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+        
+        /* Settings Content */
+        .settings-content {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .settings-section {
+            display: none;
+        }
+        
+        .settings-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #667eea;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #c0c0c0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+        
+        .form-control::placeholder {
+            color: #666;
+        }
+        
+        select.form-control {
+            cursor: pointer;
+        }
+        
+        select.form-control option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .toggle-info h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        
+        .toggle-info p {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 56px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.1);
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 65, 108, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Theme Cards */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 600px) {
+            .theme-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .theme-card {
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+        
+        .theme-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .theme-card.selected {
+            border-color: #667eea;
+        }
+        
+        .theme-card.dark {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+        
+        .theme-card.light {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+        
+        .theme-card.purple {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .theme-card.ocean {
+            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+        }
+        
+        .theme-card.sunset {
+            background: linear-gradient(135deg, #ff512f, #f09819);
+        }
+        
+        .theme-card.forest {
+            background: linear-gradient(135deg, #134e5e, #71b280);
+        }
+        
+        .theme-name {
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        /* User Info Card */
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 25px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .user-info p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .user-info .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #667eea;
+            margin-top: 8px;
+        }
+        
+        /* Password Strength */
+        .password-strength {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .strength-weak { width: 33%; background: #ff4757; }
+        .strength-medium { width: 66%; background: #ffa502; }
+        .strength-strong { width: 100%; background: #2ed573; }
+        
+        /* Info Box */
+        .info-box {
+            padding: 16px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .info-box i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        /* Danger Zone */
+        .danger-zone {
+            padding: 25px;
+            background: rgba(255, 65, 108, 0.1);
+            border: 1px solid rgba(255, 65, 108, 0.3);
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .danger-zone h4 {
+            color: #ff416c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .danger-zone p {
+            color: #999;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Success/Error Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            color: #2ed573;
+        }
+        
+        .alert-error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+        }
+        
+        /* Row layout */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 30px 0;
+        }
+    </style>
+
+
+<!-- Navbar Fragment -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Notification Scripts Fragment -->
+<div th:replace="~{fragments/notificationScripts :: notificationScripts}"></div>
+
+<div class="main-page-content">
+<div class="settings-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">⚙️ Settings</h1>
+        <a th:href="@{/Menu}" class="back-btn">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="settings-grid">
+        <!-- Sidebar Navigation -->
+        <nav class="settings-nav">
+            <a href="#" class="nav-item active" data-section="profile">
+                <i class="bi bi-person"></i>
+                <span>Profile</span>
+            </a>
+            <a href="#" class="nav-item" data-section="security">
+                <i class="bi bi-shield-lock"></i>
+                <span>Security</span>
+            </a>
+            <a href="#" class="nav-item" data-section="notifications">
+                <i class="bi bi-bell"></i>
+                <span>Notifications</span>
+            </a>
+          <!--  <a href="#" class="nav-item" data-section="appearance">
+                <i class="bi bi-palette"></i>
+                <span>Appearance</span>
+            </a>-->
+            <a href="#" class="nav-item" data-section="preferences">
+                <i class="bi bi-sliders"></i>
+                <span>Preferences</span>
+            </a>
+            <a href="#" class="nav-item" data-section="account">
+                <i class="bi bi-gear"></i>
+                <span>Account</span>
+            </a>
+        </nav>
+        
+        <!-- Content Area -->
+        <div class="settings-content">
+            
+            <!-- Profile Section -->
+            <section id="profile" class="settings-section active">
+                <h2 class="section-title"><i class="bi bi-person"></i> Profile Settings</h2>
+                
+                <!-- User Card -->
+                <div class="user-card">
+                    <div class="user-avatar" th:text="${session.username != null ? session.username.substring(0,1).toUpperCase() : 'U'}">U</div>
+                    <div class="user-info">
+                        <h3 th:text="${session.username ?: 'User'}">Username</h3>
+                        <p th:text="${session.email ?: 'user@example.com'}">user@example.com</p>
+                        <span class="role-badge" th:text="${session.role ?: 'USER'}">ROLE</span>
+                    </div>
+                </div>
+                
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" name="firstName" th:value="${user?.firstName}" placeholder="Enter first name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" name="lastName" th:value="${user?.lastName}" placeholder="Enter last name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" th:value="${user?.email}" placeholder="Enter email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" th:value="${user?.phoneNo}" placeholder="Enter phone number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-control" name="department" th:value="${user?.department}" placeholder="Enter department">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save Changes
+                    </button>
+                </form>
+            </section>
+            
+            <!-- Security Section -->
+            <section id="security" class="settings-section">
+                <h2 class="section-title"><i class="bi bi-shield-lock"></i> Security</h2>
+                
+                <div class="info-box">
+                    <i class="bi bi-info-circle"></i>
+                    Keep your account secure by using a strong password and enabling two-factor authentication.
+                </div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Change Password</h4>
+                
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-control" name="currentPassword" placeholder="Enter current password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control" name="newPassword" id="newPassword" placeholder="Enter new password" oninput="checkPasswordStrength(this.value)">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
+                        </div>
+                        <small id="strengthText" style="color: #888; margin-top: 5px; display: block;"></small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" name="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-key"></i> Update Password
+                    </button>
+                </form>
+                
+                <div class="divider"></div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Two-Factor Authentication</h4>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Enable 2FA</h4>
+                        <p>Add an extra layer of security to your account</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="twoFactorToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Login Alerts</h4>
+                        <p>Get notified when someone logs into your account</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="loginAlertToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </section>
+            
+            <!-- Notifications Section -->
+            <section id="notifications" class="settings-section">
+                <h2 class="section-title"><i class="bi bi-bell"></i> Notifications</h2>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Email Notifications</h4>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Ticket Updates</h4>
+                        <p>Receive emails when tickets are updated or assigned</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>New Comments</h4>
+                        <p>Get notified when someone comments on your tickets</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Status Changes</h4>
+                        <p>Receive updates when ticket status changes</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Weekly Reports</h4>
+                        <p>Get weekly summary of your activities</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Push Notifications</h4>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Browser Notifications</h4>
+                        <p>Show desktop notifications for important updates</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="saveNotificationSettings()">
+                    <i class="bi bi-check-lg"></i> Save Preferences
+                </button>
+            </section>
+            
+            <!-- Appearance Section -->
+            <section id="appearance" class="settings-section">
+                <h2 class="section-title"><i class="bi bi-palette"></i> Appearance</h2>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Choose Theme</h4>
+                
+                <div class="theme-grid">
+                    <div class="theme-card dark selected" data-theme="dark">
+                        <i class="bi bi-moon-stars" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Dark</div>
+                    </div>
+                    <div class="theme-card light" data-theme="light">
+                        <i class="bi bi-sun" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Light</div>
+                    </div>
+                    <div class="theme-card purple" data-theme="purple">
+                        <i class="bi bi-stars" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Purple</div>
+                    </div>
+                    <div class="theme-card ocean" data-theme="ocean">
+                        <i class="bi bi-water" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Ocean</div>
+                    </div>
+                    <div class="theme-card sunset" data-theme="sunset">
+                        <i class="bi bi-sunset" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Sunset</div>
+                    </div>
+                    <div class="theme-card forest" data-theme="forest">
+                        <i class="bi bi-tree" style="font-size: 2rem;"></i>
+                        <div class="theme-name">Forest</div>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Display Options</h4>
+                
+                <div class="form-group">
+                    <label class="form-label">Font Size</label>
+                    <select class="form-control" id="fontSize">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Compact Mode</h4>
+                        <p>Reduce spacing for more content visibility</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="compactMode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Animations</h4>
+                        <p>Enable smooth animations and transitions</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="animations" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="saveAppearanceSettings()">
+                    <i class="bi bi-check-lg"></i> Apply Theme
+                </button>
+            </section>
+            
+            <!-- Preferences Section -->
+            <section id="preferences" class="settings-section">
+                <h2 class="section-title"><i class="bi bi-sliders"></i> Preferences</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <select class="form-control" id="language">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ja">Japanese</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Timezone</label>
+                    <select class="form-control" id="timezone">
+                        <option value="IST">India Standard Time (IST)</option>
+                        <option value="UTC">Coordinated Universal Time (UTC)</option>
+                        <option value="EST">Eastern Standard Time (EST)</option>
+                        <option value="PST">Pacific Standard Time (PST)</option>
+                        <option value="GMT">Greenwich Mean Time (GMT)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Date Format</label>
+                    <select class="form-control" id="dateFormat">
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Default Dashboard View</label>
+                    <select class="form-control" id="defaultView">
+                        <option value="overview">Overview</option>
+                        <option value="tickets">My Tickets</option>
+                        <option value="projects">Projects</option>
+                        <option value="reports">Reports</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Items Per Page</label>
+                    <select class="form-control" id="itemsPerPage">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="savePreferences()">
+                    <i class="bi bi-check-lg"></i> Save Preferences
+                </button>
+            </section>
+            
+            <!-- Account Section -->
+            <section id="account" class="settings-section">
+                <h2 class="section-title"><i class="bi bi-gear"></i> Account Settings</h2>
+                
+                <div class="info-box">
+                    <i class="bi bi-info-circle"></i>
+                    Manage your account settings and connected services.
+                </div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Session Management</h4>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Stay Logged In</h4>
+                        <p>Remember me on this device</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-group">
+                    <div class="toggle-info">
+                        <h4>Auto Logout</h4>
+                        <p>Automatically logout after 30 minutes of inactivity</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <h4 style="color: #fff; margin-bottom: 20px;">Data & Privacy</h4>
+                
+                <button type="button" class="btn btn-outline" style="margin-right: 10px;" onclick="exportData()">
+                    <i class="bi bi-download"></i> Export My Data
+                </button>
+                
+                <button type="button" class="btn btn-outline" onclick="downloadActivity()">
+                    <i class="bi bi-file-earmark-text"></i> Activity Log
+                </button>
+                
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <h4><i class="bi bi-exclamation-triangle"></i> Danger Zone</h4>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">
+                        <i class="bi bi-trash"></i> Delete Account
+                    </button>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Update nav
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update section
+        const section = this.dataset.section;
+        document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(section).classList.add('active');
+    });
+});
+
+// Theme selection
+document.querySelectorAll('.theme-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    const bar = document.getElementById('strengthBar');
+    const text = document.getElementById('strengthText');
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    bar.className = 'password-strength-bar';
+    if (password.length === 0) {
+        bar.style.width = '0';
+        text.textContent = '';
+    } else if (strength <= 1) {
+        bar.classList.add('strength-weak');
+        text.textContent = 'Weak password';
+        text.style.color = '#ff4757';
+    } else if (strength <= 2) {
+        bar.classList.add('strength-medium');
+        text.textContent = 'Medium password';
+        text.style.color = '#ffa502';
+    } else {
+        bar.classList.add('strength-strong');
+        text.textContent = 'Strong password';
+        text.style.color = '#2ed573';
+    }
+}
+
+// Form submissions
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    Swal.fire({
+        icon: 'success',
+        title: 'Profile Updated!',
+        text: 'Your profile has been updated successfully.',
+        timer: 2000,
+        showConfirmButton: false
+    });
+});
+
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPass = document.querySelector('input[name="currentPassword"]').value;
+    const newPass = document.querySelector('input[name="newPassword"]').value;
+    const confirmPass = document.querySelector('input[name="confirmPassword"]').value;
+    
+    // Validation
+    if (!currentPass) {
+        Swal.fire('Error', 'Please enter your current password', 'error');
+        return;
+    }
+    
+    if (!newPass) {
+        Swal.fire('Error', 'Please enter a new password', 'error');
+        return;
+    }
+    
+    if (newPass.length < 6) {
+        Swal.fire('Error', 'New password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    if (newPass !== confirmPass) {
+        Swal.fire('Error', 'New passwords do not match!', 'error');
+        return;
+    }
+    
+    // Show loading
+    Swal.fire({
+        title: 'Changing Password...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Call API
+    fetch('/api/users/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            currentPassword: currentPass,
+            newPassword: newPass,
+            confirmPassword: confirmPass
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Password Changed!',
+                text: data.message,
+                timer: 3000,
+                showConfirmButton: false
+            });
+            // Clear form
+            document.getElementById('passwordForm').reset();
+            document.getElementById('strengthBar').className = 'password-strength-bar';
+            document.getElementById('strengthBar').style.width = '0';
+            document.getElementById('strengthText').textContent = '';
+        } else {
+            Swal.fire('Error', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Failed to change password. Please try again.', 'error');
+    });
+});
+
+function saveNotificationSettings() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Saved!',
+        text: 'Notification preferences saved.',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+function saveAppearanceSettings() {
+    const theme = document.querySelector('.theme-card.selected').dataset.theme;
+    localStorage.setItem('theme', theme);
+    Swal.fire({
+        icon: 'success',
+        title: 'Theme Applied!',
+        text: 'Your appearance settings have been saved.',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+function savePreferences() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Saved!',
+        text: 'Your preferences have been saved.',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+function exportData() {
+    Swal.fire({
+        title: 'Exporting Data...',
+        text: 'Your data export is being prepared.',
+        icon: 'info',
+        timer: 3000,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    }).then(() => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Export Ready!',
+            text: 'Your data has been exported successfully.'
+        });
+    });
+}
+
+function downloadActivity() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Activity Log',
+        text: 'Your activity log will be downloaded shortly.'
+    });
+}
+
+function confirmDeleteAccount() {
+    Swal.fire({
+        title: 'Delete Account?',
+        text: 'This action is irreversible. All your data will be permanently deleted.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff416c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete my account',
+        input: 'text',
+        inputPlaceholder: 'Type DELETE to confirm',
+        inputValidator: (value) => {
+            if (value !== 'DELETE') {
+                return 'Please type DELETE to confirm';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Account Deleted',
+                text: 'Your account has been scheduled for deletion.',
+                timer: 3000
+            }).then(() => {
+                window.location.href = '/logout';
+            });
+        }
+    });
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.theme-card[data-theme="${savedTheme}"]`)?.classList.add('selected');
+}
+</script>
+
+</body>
+</html>
+

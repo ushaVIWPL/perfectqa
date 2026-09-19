@@ -1,97 +1,529 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Country List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8">
+  <title>Countries Master | IWPL Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="p-4">
+<body>
 
-<h2 class="mb-4">Countries List</h2>
+<style>
+  .country-page {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+  }
+  .country-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .country-stat-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 180px;
+    backdrop-filter: blur(12px);
+  }
+  .country-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+  }
+  .country-stat-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .country-stat-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .country-card {
+    background: rgba(30, 41, 59, 0.55);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .country-card-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .country-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .country-card-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 2px 0 0 0;
+  }
+  .search-input-box {
+    position: relative;
+    min-width: 220px;
+  }
+  .search-input-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+  }
+  .search-input-box input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    padding: 8px 12px 8px 36px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+  .search-input-box input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .btn-add-country {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 9px 18px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-add-country:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    color: white;
+  }
+  .custom-table {
+    width: 100%;
+    color: #f8fafc;
+    border-collapse: collapse;
+    margin: 0;
+  }
+  .custom-table thead th {
+    background: rgba(15, 23, 42, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 14px 20px;
+    font-weight: 700;
+  }
+  .custom-table tbody td {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    vertical-align: middle;
+    font-size: 0.9rem;
+  }
+  .custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .badge-code {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+  .action-btn.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+  }
+  /* Dark Modal */
+  .modal-content-dark {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    color: white;
+  }
+  .modal-header-dark {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px 24px;
+  }
+  .modal-footer-dark {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 24px;
+  }
+  .form-label-dark {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-control-dark {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    padding: 10px 14px;
+  }
+  .form-control-dark:focus {
+    background: rgba(30, 41, 59, 1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    color: white;
+  }
+  .form-control-dark:disabled, 
+  .form-control-dark[readonly],
+  .form-control-dark:disabled:read-only {
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+  }
+</style>
 
-<table class="table table-bordered table-hover text-center align-middle">
-    <thead class="table-light">
-    <tr>
-        <th>Country Code</th>
-        <th>Country Name</th>
-        <th>Numeric Code</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="c : ${countries}">
-        <td th:text="${c.countryCode}"></td>
-        <td th:text="${c.countryName}"></td>
-        <td th:text="${c.numericCode}"></td>
-        <td>
-            <button type="button" class="btn btn-primary"
-                    onclick="openEditModal('${c.countryCode}')">Edit</button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<!-- Edit Modal -->
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Country</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="countryCode">
-                <div class="mb-2">
-                    <label>Country Name</label>
-                    <input type="text" class="form-control" id="countryName">
-                </div>
-                <div class="mb-2">
-                    <label>Numeric Code</label>
-                    <input type="number" class="form-control" id="numericCode">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" onclick="saveCountry()">Save</button>
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </div>
+<div class="country-page">
+  <!-- Stats Header -->
+  <div class="country-stats">
+    <div class="country-stat-card">
+      <div class="country-stat-icon"><i class="bi bi-globe"></i></div>
+      <div>
+        <div class="country-stat-val" th:text="${countries != null ? countries.size() : 0}">0</div>
+        <div class="country-stat-lbl">Registered Countries</div>
+      </div>
     </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="country-card">
+    <div class="country-card-head">
+      <div>
+        <h3 class="country-card-title"><i class="bi bi-globe me-2 text-primary"></i>Country Master Directory</h3>
+        <p class="country-card-sub">Manage international country reference codes and names.</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="search-input-box">
+          <i class="bi bi-search"></i>
+          <input type="text" id="countrySearchInput" placeholder="Search countries..." onkeyup="filterCountryTable()">
+        </div>
+        <button class="btn-add-country" onclick="openAddCountryModal()">
+          <i class="bi bi-plus-lg"></i> Add Country
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="custom-table" id="countryTable">
+        <thead>
+          <tr>
+            <th>Country Code</th>
+            <th>Country Name</th>
+            <th>Numeric Code</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="c : ${countries}">
+            <td><span class="badge-code" th:text="${c.countryCode}"></span></td>
+            <td class="fw-semibold" th:text="${c.countryName}"></td>
+            <td th:text="${c.numericCode != null ? c.numericCode : '-'}"></td>
+            <td class="text-end">
+              <button class="action-btn me-1 btn-edit-country" title="Edit Country" th:data-code="${c.countryCode}">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="action-btn btn-delete btn-delete-country" title="Delete Country" th:data-code="${c.countryCode}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr th:if="${countries == null or #lists.isEmpty(countries)}">
+            <td colspan="4" class="text-center py-4 text-muted">No countries found. Click "Add Country" to register one.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Country Modal -->
+<div class="modal fade" id="addCountryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-plus-circle me-2 text-primary"></i>Add New Country</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label-dark">Country Code (ISO Alpha-2 / 3)</label>
+          <input type="text" class="form-control form-control-dark" id="addCountryCode" placeholder="e.g. US, IN, UK" maxlength="5">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name</label>
+          <input type="text" class="form-control form-control-dark" id="addCountryName" placeholder="e.g. United States, India">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Numeric Code (Optional)</label>
+          <input type="number" class="form-control form-control-dark" id="addNumericCode" placeholder="e.g. 840, 356">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4" onclick="saveAddCountry()">Save Country</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Country Modal -->
+<div class="modal fade" id="editCountryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-dark">
+      <div class="modal-header modal-header-dark">
+        <h5 class="modal-title font-outfit fw-bold"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit Country</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="editCountryCode">
+        <div class="mb-3">
+          <label class="form-label-dark">Country Code</label>
+          <input type="text" class="form-control form-control-dark" id="displayCountryCode" readonly>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Country Name</label>
+          <input type="text" class="form-control form-control-dark" id="editCountryName" placeholder="Enter country name">
+        </div>
+        <div class="mb-3">
+          <label class="form-label-dark">Numeric Code</label>
+          <input type="number" class="form-control form-control-dark" id="editNumericCode" placeholder="Enter numeric code">
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-dark">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4" onclick="saveEditCountry()">Update Country</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-let editModal = new bootstrap.Modal(document.getElementById('editModal'));
+  document.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.btn-edit-country');
+    if (editBtn) {
+      var code = editBtn.getAttribute('data-code');
+      if (code) openEditCountryModal(code);
+    }
+    var delBtn = e.target.closest('.btn-delete-country');
+    if (delBtn) {
+      var code = delBtn.getAttribute('data-code');
+      if (code) deleteCountry(code);
+    }
+  });
 
-function openEditModal(code) {
-    axios.get(`/admin/country/edit/${code}`)
-        .then(res => {
-            const c = res.data;
-            document.getElementById('countryCode').value = c.countryCode;
-            document.getElementById('countryName').value = c.countryName;
-            document.getElementById('numericCode').value = c.numericCode;
-            editModal.show();
-        })
-        .catch(err => Swal.fire("Error", "Failed to load country", "error"));
-}
+  function filterCountryTable() {
+    var input = document.getElementById('countrySearchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('#countryTable tbody tr');
+    rows.forEach(function(row) {
+      var text = row.innerText.toLowerCase();
+      row.style.display = text.indexOf(input) > -1 ? '' : 'none';
+    });
+  }
 
-function saveCountry() {
-    const code = document.getElementById('countryCode').value;
-    const updated = {
-        countryCode: code,
-        countryName: document.getElementById('countryName').value,
-        numericCode: parseInt(document.getElementById('numericCode').value)
+  function openAddCountryModal() {
+    document.getElementById('addCountryCode').value = '';
+    document.getElementById('addCountryName').value = '';
+    document.getElementById('addNumericCode').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('addCountryModal'));
+    modal.show();
+  }
+
+  function saveAddCountry() {
+    var code = document.getElementById('addCountryCode').value.trim();
+    var name = document.getElementById('addCountryName').value.trim();
+    var numeric = document.getElementById('addNumericCode').value.trim();
+
+    if (!code || !name) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Country Code and Name are required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      countryCode: code,
+      countryName: name,
+      numericCode: numeric ? parseInt(numeric) : null
     };
 
-    axios.put(`/admin/country/update/${code}`, updated)
-        .then(res => {
-            Swal.fire("Updated!", res.data, "success");
-            editModal.hide();
-            window.location.reload(); // reload table
+    fetch('/admin/countries/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.json();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('addCountryModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Success!', text: 'Country added successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/countries');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to add country.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function openEditCountryModal(code) {
+    fetch('/admin/countries/get/' + encodeURIComponent(code))
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.json();
+    })
+    .then(function(data) {
+      document.getElementById('editCountryCode').value = data.countryCode || '';
+      document.getElementById('displayCountryCode').value = data.countryCode || '';
+      document.getElementById('editCountryName').value = data.countryName || '';
+      document.getElementById('editNumericCode').value = data.numericCode || '';
+      var modal = new bootstrap.Modal(document.getElementById('editCountryModal'));
+      modal.show();
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not load country details.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function saveEditCountry() {
+    var code = document.getElementById('editCountryCode').value;
+    var name = document.getElementById('editCountryName').value.trim();
+    var numeric = document.getElementById('editNumericCode').value.trim();
+
+    if (!name) {
+      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Country Name is required.', background: '#0f172a', color: '#fff' });
+      return;
+    }
+
+    var payload = {
+      countryCode: code,
+      countryName: name,
+      numericCode: numeric ? parseInt(numeric) : null
+    };
+
+    fetch('/admin/countries/update/' + encodeURIComponent(code), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+      return res.text();
+    })
+    .then(function() {
+      var modalEl = document.getElementById('editCountryModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+      Swal.fire({ icon: 'success', title: 'Updated!', text: 'Country updated successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+      if (typeof loadContent === 'function') {
+        loadContent('/admin/countries');
+      } else {
+        location.reload();
+      }
+    })
+    .catch(function(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Failed to update country.', background: '#0f172a', color: '#fff' });
+    });
+  }
+
+  function deleteCountry(code) {
+    Swal.fire({
+      title: 'Delete Country?',
+      text: 'Are you sure you want to delete country: ' + code + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Delete',
+      background: '#0f172a',
+      color: '#fff'
+    }).then(function(result) {
+      if (result.isConfirmed) {
+        fetch('/admin/countries/delete/' + encodeURIComponent(code), {
+          method: 'POST'
         })
-        .catch(err => Swal.fire("Error", err.response ? err.response.data : err.message, "error"));
-}
+        .then(function(res) {
+          if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+          return res.text();
+        })
+        .then(function() {
+          Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Country deleted successfully.', timer: 1500, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+          if (typeof loadContent === 'function') {
+            loadContent('/admin/countries');
+          } else {
+            location.reload();
+          }
+        })
+        .catch(function(err) {
+          Swal.fire({ icon: 'error', title: 'Cannot Delete', text: err.message || 'Failed to delete country.', background: '#0f172a', color: '#fff' });
+        });
+      }
+    });
+  }
 </script>
 
 </body>

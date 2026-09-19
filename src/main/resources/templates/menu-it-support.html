@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Support Menu - PerfectQA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/IWPL_LOGO.jpg}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --accent-blue: #3b82f6;
+      --accent-sky: #60a5fa;
+      --accent-purple: #8b5cf6;
+      --glass-bg: rgba(30, 41, 59, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text-bright);
+      overflow-x: hidden;
+    }
+
+    .dashboard-container { padding: 30px 0; }
+    
+    .page-title-wrap { margin-bottom: 2.5rem; position: relative; }
+    
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .action-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 25px 20px;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .action-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background: rgba(45, 55, 75, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .action-card:hover::after { opacity: 1; }
+
+    .action-icon-wrap {
+      width: 50px;
+      height: 50px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.4s;
+    }
+
+    .action-card:hover .action-icon-wrap {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .action-icon {
+      font-size: 24px;
+      color: var(--accent-blue);
+      transition: color 0.4s;
+    }
+
+    .action-card:hover .action-icon { color: var(--accent-blue); }
+
+    .card-title {
+      color: var(--text-bright);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      transition: all 0.3s;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: auto;
+    }
+
+    .action-card:hover .btn-action {
+      background: #ffffff;
+      color: #020617;
+      border-color: #ffffff;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      font-weight: 600;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .back-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); transform: translateX(-5px); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  </style>
+
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="container dashboard-container">
+
+    <div class="text-center page-title-wrap animate-up">
+      <h1 class="page-title">Task Support</h1>
+      <p class="text-white opacity-50 fs-5">Ticketing system for hardware, software, and network requests</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <!-- 1. Create Ticket -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.1s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/createticket?issueType=IT_SUPPORT'">
+          <div class="action-icon-wrap">
+            <i class="bi bi-plus-circle action-icon"></i>
+          </div>
+          <h6 class="card-title">Raise Task Ticket</h6>
+          <p class="card-text">Create a new technical request for system issues, hardware needs, or network access.</p>
+          <a th:href="@{/api/tickets/createticket(issueType='IT_SUPPORT')}" class="btn-action">Create Ticket</a>
+        </div>
+      </div>
+
+      <!-- 2. Tickets Opened By Me -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.12s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/my-opened-tickets/it-support'">
+          <div class="action-icon-wrap" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+            <i class="bi bi-folder2-open action-icon" style="color: #10b981;"></i>
+          </div>
+          <h6 class="card-title">Tickets Opened by Me</h6>
+          <p class="card-text">View status and track progress of Support requests submitted by you.</p>
+          <a th:href="@{/api/tickets/my-opened-tickets/it-support}" class="btn-action" style="background: #10b981;">View My Tickets</a>
+        </div>
+      </div>
+
+      <!-- 3. Update Ticket -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.15s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/list?issueType=IT_SUPPORT'">
+          <div class="action-icon-wrap" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2);">
+            <i class="bi bi-pencil-square action-icon" style="color: #f59e0b;"></i>
+          </div>
+          <h6 class="card-title">All Task Tickets</h6>
+          <p class="card-text">Update details, add attachments, or provide more context to your pending Support requests.</p>
+          <a th:href="@{/api/tickets/list(issueType='IT_SUPPORT')}" class="btn-action">Modify & Download</a>
+        </div>
+      </div>
+
+      <!-- 4. View Status -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.2s">
+        <div class="action-card" onclick="window.location.href='/api/tickets/my-tickets'">
+          <div class="action-icon-wrap" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2);">
+            <i class="bi bi-person-badge action-icon" style="color: #8b5cf6;"></i>
+          </div>
+          <h6 class="card-title">Task Tickets Assigned to ME</h6>
+          <p class="card-text">Monitor real-time progress and track the lifecycle of your personal support requests.</p>
+          <a th:href="@{/api/tickets/my-tickets}" class="btn-action">Check Status & Update</a>
+        </div>
+      </div>
+
+      <!-- 5. My Tasks -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.25s">
+        <div class="action-card" onclick="window.location.href='/api/tasks/my-tasks'">
+          <div class="action-icon-wrap" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2);">
+            <i class="bi bi-check-square action-icon" style="color: #ec4899;"></i>
+          </div>
+          <h6 class="card-title">My Tasks</h6>
+          <p class="card-text">View all assigned tasks, add or edit task activities, track billable hours, and monitor status & progress.</p>
+          <a th:href="@{/api/tasks/my-tasks}" class="btn-action" style="background: #ec4899;">View All My Tasks</a>
+        </div>
+      </div>
+
+      <!-- 6. Download Tickets -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.3s">
+        <div class="action-card">
+          <div class="action-icon-wrap" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2);">
+            <i class="bi bi-download action-icon"></i>
+          </div>
+          <h6 class="card-title">Export Tasks Report</h6>
+          <p class="card-text">Bulk download your technical support history in Excel or PDF format for reporting.</p>
+          <div class="d-flex gap-2 w-100">
+            <a th:href="@{/api/report-billable-tasks/quick-download/excel}" class="btn-action" style="background: #10b981;" download hx-boost="false" onclick="handleExcelLoading(this)">Excel</a>
+            <a th:href="@{/api/report-billable-tasks/quick-download/pdf}" class="btn-action" style="background: #ef4444;" download hx-boost="false">PDF</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Export All Support Tickets -->
+      <div class="col-lg-4 animate-up" style="animation-delay: 0.35s">
+        <div class="action-card">
+          <div class="action-icon-wrap" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+            <i class="bi bi-file-earmark-spreadsheet action-icon" style="color: #10b981;"></i>
+          </div>
+          <h6 class="card-title">Export All Tickets Report</h6>
+          <p class="card-text">Download a complete report containing all task tickets, assignee names, and statuses in Excel or PDF format.</p>
+          <div class="d-flex gap-2 w-100">
+            <a th:href="@{/api/report-all-tickets/excel}" class="btn-action" style="background: #10b981;" download hx-boost="false" onclick="handleExcelLoading(this)">Excel</a>
+            <a th:href="@{/api/report-all-tickets/pdf}" class="btn-action" style="background: #ef4444;" download hx-boost="false">PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleExcelLoading(btn) {
+        if (btn.classList.contains('loading-disabled')) return;
+        
+        const originalHtml = btn.innerHTML;
+        btn.classList.add('loading-disabled');
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.7';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Loading...';
+        
+        // Restore after 6 seconds to allow clicking again later
+        setTimeout(function() {
+            btn.classList.remove('loading-disabled');
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+            btn.innerHTML = originalHtml;
+        }, 6000);
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

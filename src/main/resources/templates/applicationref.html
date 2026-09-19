@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Management | PerfectQA</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<style>
+    :root {
+        --bg-deep: #020617;
+        --glass-bg: rgba(30, 41, 59, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-primary: #3b82f6;
+        --accent-secondary: #8b5cf6;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-content label {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .modal-content .text-muted {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-deep);
+        background: radial-gradient(circle at top right, #1e1b4b 0%, #020617 100%);
+        min-height: 100vh;
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content {
+        padding: 40px 20px;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .page-header {
+        margin-bottom: 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .page-title h2 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.2rem;
+    }
+
+    /* Back Button */
+    .btn-nav {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        margin-bottom: 25px;
+    }
+
+    .btn-nav:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-5px);
+        color: white;
+    }
+
+    /* Table Styles */
+    .table-container {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+        background: rgba(0,0,0,0.2);
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        width: 100%;
+        color: var(--text-main);
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table thead th {
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid var(--glass-border);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 18px;
+    }
+
+    .custom-table tbody td {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .custom-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Search Bar */
+    .search-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    /* Buttons */
+    .btn-premium {
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+        border: none;
+    }
+
+    .btn-primary-gradient {
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        color: white;
+    }
+
+    .btn-success-gradient {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-danger-gradient {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        color: white;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        color: var(--text-main);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header { border-bottom: 1px solid var(--glass-border); padding: 25px; }
+    .modal-body { padding: 25px; }
+    .modal-footer { border-top: 1px solid var(--glass-border); padding: 20px 25px; }
+
+    .form-label { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; }
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: white;
+        padding: 12px 16px;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+        color: white;
+    }
+    .form-select option { background: #0f172a; color: white; }
+
+    /* Premium Topbar */
+    .topbar-premium {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 20px 30px;
+        margin-bottom: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .page-title-premium {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    .btn-nav-premium {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+    .btn-nav-premium:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-5px);
+        color: white;
+    }
+    .alert:empty { display: none; }
+    
+    .search-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .search-card .form-control {
+        background: rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="main-content">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="topbar-premium">
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <h1 class="page-title-premium">Application Inventory</h1>
+                    <p class="text-muted small mb-0">Manage software applications and their project alignments.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="${session.role == 'BUSINESS_MANAGER' ? '/business-manager' : '/admin'}" class="btn-nav-premium">
+                    <i class="bi bi-arrow-left"></i>
+                    <span th:text="${session.role == 'BUSINESS_MANAGER' ? 'Back to Business Dashboard' : 'Back to Admin Dashboard'}">Back</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="page-header">
+                <div class="page-title">
+                    <h3 class="font-outfit fw-bold text-white mb-0">System Applications</h3>
+                </div>
+                <button class="btn-premium btn-success-gradient" data-bs-toggle="modal" data-bs-target="#appModal" onclick="clearForm()">
+                    <i class="bi bi-plus-circle"></i> Add New Application
+                </button>
+            </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+            <!-- Search Bar -->
+            <div class="search-card">
+                <form id="searchForm" method="get" action="/application/list" class="row g-3 align-items-end">
+                    <div class="col-md-9">
+                        <label for="searchInput" class="form-label">Search Applications or Companies</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+<input type="text" class="form-control" id="searchInput" name="search" 
+       placeholder="Enter name or code..." th:value="${searchTerm}"
+       style="color: white; --placeholder-color: rgba(255,255,255,0.5);"
+       oninput="this.style.color='white'">                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn-premium btn-primary-gradient w-100 justify-content-center">
+                            Filter Results
+                        </button>
+                    </div>
+                </form>
+                <div th:if="${searchTerm != null and !searchTerm.isEmpty()}" class="mt-3">
+                    <small class="text-info">
+                        Showing results for: <strong th:text="${searchTerm}"></strong>
+                        <a th:href="@{/application/list}" class="ms-2 text-danger text-decoration-none">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
+                    </small>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>App Code</th>
+                                <th>App Name</th>
+                                <th>Project Code</th>
+                                <th>Description</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${applications == null or #lists.isEmpty(applications)}">
+                                <td colspan="5" class="text-center py-5 text-muted">No applications found in this view.</td>
+                            </tr>
+                            <tr th:each="a : ${applications}" th:if="${applications != null and !#lists.isEmpty(applications)}">
+                                <td><span class="fw-bold text-info" th:text="${a.appCode}"></span></td>
+                                <td class="text-white" th:text="${a.appName}"></td>
+                                <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" th:text="${a.project != null ? a.project.projectCode : 'N/A'}"></span></td>
+<td class="text-white small" th:text="${a.description != null ? a.description : ''}"></td>                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <button class="btn-premium btn-primary-gradient btn-sm view-app-btn" 
+                                                th:data-code="${a.appCode}"
+                                                th:data-name="${a.appName}"
+                                                th:data-projcode="${a.project != null ? a.project.projectCode : 'N/A'}"
+                                                th:data-projname="${a.project != null ? a.project.projectName : 'N/A'}"
+                                                th:data-desc="${a.description != null ? a.description : ''}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn-premium btn-primary-gradient btn-sm"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#editModal-' + ${#strings.replace(#strings.replace(a.appCode,' ','_'),'/','_')}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn-premium btn-danger-gradient btn-sm delete-application-btn"
+                                                th:data-app-code="${a.appCode}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="appModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-outfit fw-bold" id="modalTitle">Add New Application</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/application/save}" method="post" id="appForm">
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Application Code *</label>
+                            <input type="text" class="form-control" name="appCode" required placeholder="e.g. APP-001">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Application Name *</label>
+                            <input type="text" class="form-control" name="appName" required placeholder="Enter application name">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Project Code *</label>
+                            <select class="form-select" name="projectCode" required>
+                                <option value="" disabled selected>Select Project Alignment</option>
+                                <option th:each="p : ${projects}"
+                                        th:value="${p.projectCode}"
+                                        th:text="|${p.projectCode} - ${p.projectName != null ? p.projectName : ''}|">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Functional Description</label>
+                            <textarea class="form-control" name="description" rows="6" placeholder="Provide a detailed description of the application's scope, main features, and functional requirements..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-premium btn-success-gradient w-100 justify-content-center">
+                        <i class="bi bi-check-lg"></i> Save Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modals -->
+<div th:each="a : ${applications}"
+     th:id="'editModal-' + ${#strings.replace(#strings.replace(a.appCode,' ','_'),'/','_')}"
+     class="modal fade"
+     tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/application/save}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title font-outfit fw-bold">Edit Application: <span th:text="${a.appName}"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Application Code</label>
+                            <input type="text" class="form-control" name="appCode"
+                                   th:value="${a.appCode}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Application Name *</label>
+                            <input type="text" class="form-control" name="appName"
+                                   th:value="${a.appName}" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Project Code *</label>
+                            <select class="form-select" name="projectCode" required>
+                                <option th:each="p : ${projects}"
+                                        th:value="${p.projectCode}"
+                                        th:selected="${a.project != null and p.projectCode == a.project.projectCode}"
+                                        th:text="|${p.projectCode} - ${p.projectName != null ? p.projectName : ''}|">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="3"
+                                      th:text="${a.description}"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-premium btn-primary-gradient w-100 justify-content-center">
+                        <i class="bi bi-check-lg"></i> Update Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Application Modal -->
+<div class="modal fade" id="viewAppModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-outfit fw-bold">Application Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Application Code</label>
+                        <div id="viewAppCode" class="h5 text-white fw-bold"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Application Name</label>
+                        <div id="viewAppName" class="h5 text-white fw-bold"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Project Assignment</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="viewProjCode" class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25"></span>
+                            <span id="viewProjName" class="text-white fw-semibold"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">Description</label>
+                        <div id="viewAppDesc" class="p-3 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 text-white" style="min-height: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-premium btn-primary-gradient w-100 justify-content-center" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+window.clearForm = function() {
+    const form = document.getElementById('appForm');
+    if (form) form.reset();
+    const title = document.getElementById('modalTitle');
+    if (title) title.innerText = "Add New Application";
+};
+
+// View Modal
+function viewAppDetails(code, name, projCode, projName, desc) {
+    document.getElementById('viewAppCode').textContent = code;
+    document.getElementById('viewAppName').textContent = name;
+    document.getElementById('viewProjCode').textContent = projCode;
+    document.getElementById('viewProjName').textContent = projName;
+    document.getElementById('viewAppDesc').textContent = desc && desc !== 'null' ? desc : 'No description provided.';
+    
+    const modal = new bootstrap.Modal(document.getElementById('viewAppModal'));
+    modal.show();
+}
+
+// Delete application with confirmation
+window.deleteApplication = function(appCode) {
+    Swal.fire({
+        title: 'Delete Application?',
+        text: 'Are you sure you want to delete this application?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#111827',
+        color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Deleting...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); },
+                background: '#111827',
+                color: '#fff'
+            });
+            
+            fetch('/application/delete/' + appCode, { method: 'GET' })
+            .then(response => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: 'Application has been deleted.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#111827',
+                    color: '#fff'
+                }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch(error => {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete application', background: '#111827', color: '#fff' });
+            });
+        }
+    });
+};
+
+function initApplicationRef() {
+    document.querySelectorAll('.delete-application-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const appCode = this.getAttribute('data-app-code');
+            if (appCode) {
+                deleteApplication(appCode);
+            }
+        });
+    });
+
+    document.querySelectorAll('.view-app-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const code = this.getAttribute('data-code');
+            const name = this.getAttribute('data-name');
+            const projCode = this.getAttribute('data-projcode');
+            const projName = this.getAttribute('data-projname');
+            const desc = this.getAttribute('data-desc');
+            viewAppDetails(code, name, projCode, projName, desc);
+        });
+    });
+
+    // Add form
+    const addForm = document.getElementById('appForm');
+    if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitAppForm(this, 'Application saved successfully!');
+        });
+    }
+    
+    // Edit forms
+    document.querySelectorAll('form[action="/application/save"]').forEach(form => {
+        if (form.id !== 'appForm') {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitAppForm(this, 'Application updated successfully!');
+            });
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApplicationRef);
+} else {
+    initApplicationRef();
+}
+
+function submitAppForm(form, successMsg) {
+    const formData = new FormData(form);
+    
+    Swal.fire({
+        title: 'Saving...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); },
+        background: '#111827',
+        color: '#fff'
+    });
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok || response.redirected) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: successMsg,
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#111827',
+                color: '#fff'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to save application', background: '#111827', color: '#fff' });
+        }
+    })
+    .catch(error => {
+        Swal.fire('Error', 'Something went wrong', 'error');
+    });
+}
+</script>
+</body>
+</html>
+

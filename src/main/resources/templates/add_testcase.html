@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Testcase</title>
+</head>
+<body>
+
+<h2>Add Test Case</h2>
+
+<form th:action="@{/savetestcase}" th:object="${testcase}" method="post">
+
+    <input type="hidden" th:field="*{transactionKey}">
+    <input type="hidden" th:field="*{companyCode}">
+
+    <label>Activity</label>
+    <input th:field="*{activity}"><br>
+
+    <label>Description</label>
+    <input th:field="*{description}"><br>
+
+    <label>Expected Outcome</label>
+    <input th:field="*{expectedOutcome}"><br>
+
+    <label>Navigate Steps</label>
+    <textarea th:field="*{navigateSteps}"></textarea><br>
+
+    <label>Prerequisites</label>
+    <textarea th:field="*{prerequisites}"></textarea><br>
+
+    <label>Responsible</label>
+    <input th:field="*{responsible}"><br>
+
+    <label>Scenario</label>
+    <input th:field="*{scenario}"><br>
+
+    <label>T-Code</label>
+    <input th:field="*{tCode}"><br>
+
+    <label>Tested By</label>
+    <input th:field="*{testData}"><br>
+
+    <label>Work Stream</label>
+    <input th:field="*{workStream}"><br>
+
+    <label>Start Date</label>
+    <input type="date" th:field="*{startDate}"><br>
+
+    <label>End Date</label>
+    <input type="date" th:field="*{endDate}"><br>
+
+    <button type="submit">Save</button>
+</form>
+
+</body>
+</html>

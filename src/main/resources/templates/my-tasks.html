@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #111424; /* Base dark background */
+            min-height: 100vh;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content-wrapper {
+            padding: 24px 30px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        /* ──────────────────── HEADER AREA ──────────────────── */
+        .page-header {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .header-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-icon-box img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .header-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #c4b5fd; /* Light purple matching the image */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .total-badge {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: #94a3b8;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        .btn-add { background: #06b6d4; color: #fff; } /* Cyan */
+        .btn-add:hover { background: #0891b2; }
+        
+        .btn-back { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-back:hover { background: rgba(255, 255, 255, 0.12); }
+        
+        .btn-print { background: #8b5cf6; color: #fff; } /* Purple */
+        .btn-print:hover { background: #7c3aed; }
+
+        /* ──────────────────── STAT CARDS ──────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 22px 14px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 125px;
+        }
+        
+        .stat-card:hover { 
+            background: rgba(255, 255, 255, 0.06); 
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px); 
+        }
+        
+        .stat-card.active {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card .num {
+            font-size: 2.2rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .lbl {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .num-total { color: #8b5cf6; } /* Purple */
+        .num-open { color: #3b82f6; } /* Blue */
+        .num-progress { color: #f59e0b; } /* Amber/Yellow */
+        .num-closed { color: #10b981; } /* Green */
+        .num-hours { color: #06b6d4; } /* Cyan */
+        .num-rate { color: #ec4899; } /* Pink */
+
+        /* ──────────────────── TABLE AREA ──────────────────── */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a78bfa; /* Light purple */
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.2s;
+        }
+        
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        td {
+            padding: 16px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            vertical-align: middle;
+        }
+
+        .ticket-id {
+            color: #60a5fa; /* Light blue */
+            font-weight: 600;
+            font-family: 'Inter', monospace;
+            text-decoration: none;
+        }
+        
+        .ticket-id:hover {
+            text-decoration: underline;
+        }
+
+        .billable-hours {
+            color: #60a5fa;
+            font-weight: 700;
+        }
+
+        /* ──────────────────── STATUS BADGES ──────────────────── */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-in-progress { border: 1px solid rgba(245, 158, 11, 0.4); color: #fcd34d; }
+        .status-open { border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; }
+        .status-closed { border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+
+        /* ──────────────────── ACTIONS ──────────────────── */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #c4b5fd;
+            transition: all 0.2s;
+        }
+        
+        .btn-action:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .page-header {
+                flex-wrap: wrap;
+            }
+            .header-left, .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            th:nth-child(5), td:nth-child(5), /* START DATE */
+            th:nth-child(6), td:nth-child(6), /* COMPLETED DATE */
+            th:nth-child(8), td:nth-child(8)  /* LAST EDITED */ {
+                display: none;
+        }
+        
+        /* ──────────────────── PRINT STYLES ──────────────────── */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .main-content-wrapper {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .page-header {
+                border: none !important;
+                background: none !important;
+                padding: 0 0 20px 0 !important;
+                margin-bottom: 20px !important;
+                border-bottom: 2px solid #eee !important;
+                border-radius: 0 !important;
+            }
+            .header-actions, .btn-print, .btn-back, .btn-add, .navbar, nav {
+                display: none !important;
+            }
+            .page-title {
+                color: #333 !important;
+            }
+            .page-subtitle {
+                color: #666 !important;
+            }
+            .total-badge {
+                color: #333 !important;
+                border-color: #ccc !important;
+            }
+            .stats-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                gap: 15px !important;
+                margin-bottom: 30px !important;
+            }
+            .stat-card {
+                flex: 1 !important;
+                border: 1px solid #ddd !important;
+                background: #fafafa !important;
+                padding: 20px 10px !important;
+                min-height: auto !important;
+                border-radius: 8px !important;
+                box-shadow: none !important;
+            }
+            .stat-card .num {
+                font-size: 2rem !important;
+                margin-bottom: 5px !important;
+            }
+            .stat-card .lbl {
+                color: #555 !important;
+                font-weight: 600 !important;
+            }
+            .table-container {
+                border: none !important;
+                background: none !important;
+                padding: 0 !important;
+            }
+            table {
+                width: 100% !important;
+                border: 1px solid #ddd !important;
+            }
+            th, td {
+                color: black !important;
+                border-bottom: 1px solid #ddd !important;
+                padding: 10px !important;
+            }
+            th {
+                background: #f1f5f9 !important;
+                color: #334155 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            a {
+                text-decoration: none !important;
+            }
+            /* Hide the actions column in print */
+            th:last-child, td:last-child {
+                display: none !important;
+            }
+            /* Make text colors readable in print */
+            .ticket-id { color: #2563eb !important; }
+            .billable-hours { color: #333 !important; }
+            .status-badge {
+                border: 1px solid #ccc !important;
+                color: #333 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="main-content-wrapper">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon-box">
+                <i class="bi bi-card-checklist" style="font-size: 24px; color: #10b981;"></i>
+            </div>
+            <div>
+                <div class="header-title-row">
+                    <h1 class="page-title">
+                        <i class="bi bi-check-square"></i> 
+                        <span th:text="${isAllTasks ? 'All Tasks' : 'My Tasks'}">My Tasks</span>
+                    </h1>
+                    <span class="total-badge">Total: <span th:text="${totalCount}">0</span></span>
+                </div>
+                <p class="page-subtitle" th:text="${isAllTasks ? 'View all ticket tasks, track progress and billable hours across the organization' : 'Manage your assigned ticket tasks, track progress and billable hours'}">Manage your assigned ticket tasks, track progress and billable hours</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <a th:if="${isAdminOrManager}" 
+               th:href="@{/api/tasks/my-tasks(all=${!isAllTasks})}" 
+               class="btn btn-back" style="min-width: 165px; justify-content: center;">
+                <i th:class="${isAllTasks ? 'bi bi-person' : 'bi bi-globe'}"></i> 
+                <span th:text="${isAllTasks ? 'View My Tasks' : 'View All Tasks'}"></span>
+            </a>
+            <a href="#" class="btn btn-add"><i class="bi bi-plus-circle"></i> Add Task</a>
+            <button onclick="history.back()" class="btn btn-back"><i class="bi bi-arrow-left"></i> Back</button>
+            <button onclick="window.print()" class="btn btn-print"><i class="bi bi-printer"></i> Print</button>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <a th:href="@{/api/tasks/my-tasks(all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card" th:classappend="${selectedStatus == null or selectedStatus == ''} ? 'active' : ''">
+                <div class="num num-total" th:text="${totalCount}">0</div>
+                <div class="lbl">Total Tasks</div>
+            </div>
+        </a>
+        
+        <a th:href="@{/api/tasks/my-tasks(status='OPEN', all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card" th:classappend="${selectedStatus == 'OPEN'} ? 'active' : ''">
+                <div class="num num-open" th:text="${openCount}">0</div>
+                <div class="lbl">Open</div>
+            </div>
+        </a>
+        
+        <a th:href="@{/api/tasks/my-tasks(status='IN_PROGRESS', all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card" th:classappend="${selectedStatus == 'IN_PROGRESS'} ? 'active' : ''">
+                <div class="num num-progress" th:text="${inProgressCount}">0</div>
+                <div class="lbl">In Progress</div>
+            </div>
+        </a>
+        
+        <a th:href="@{/api/tasks/my-tasks(status='CLOSED', all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card" th:classappend="${selectedStatus == 'CLOSED'} ? 'active' : ''">
+                <div class="num num-closed" th:text="${closedCount}">0</div>
+                <div class="lbl">Closed</div>
+            </div>
+        </a>
+
+        <a th:href="@{/api/tasks/my-tasks(all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card">
+                <div class="num num-hours" th:text="${totalBillableHours != null ? totalBillableHours + 'h' : '0.0h'}">0.0h</div>
+                <div class="lbl">Billable Hours</div>
+            </div>
+        </a>
+
+        <a th:href="@{/api/tasks/my-tasks(all=${isAllTasks})}" style="text-decoration: none;">
+            <div class="stat-card">
+                <div class="num num-rate" th:text="${completionRate != null ? completionRate + '%' : '0%'}">0%</div>
+                <div class="lbl">Completion Rate</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+        <table th:if="${tasks != null and !tasks.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>TICKET ID</th>
+                    <th>TASK TYPE</th>
+                    <th>PERFORMED BY</th>
+                    <th>STATUS</th>
+                    <th>START DATE</th>
+                    <th>COMPLETED DATE</th>
+                    <th>BILLABLE HOURS</th>
+                    <th>LAST EDITED</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="task : ${tasks}">
+                    <td>
+                        <a th:href="@{'/api/tickets/view/' + ${task.ticket.id}}" class="ticket-id" th:text="${task.ticket.ticketNo}">TKT-00000</a>
+                    </td>
+                    <td th:text="${task.taskType ?: 'Task'}">notification development</td>
+                    <td th:text="${task.performedBy}">user@example.com</td>
+                    <td>
+                        <span class="status-badge" 
+                              th:classappend="'status-' + ${task.status?.toLowerCase()?.replace('_','-')}"
+                              th:text="${task.status}">IN_PROGRESS</span>
+                    </td>
+                    <td th:text="${task.startDate ?: '-'}">2026-05-04</td>
+                    <td th:text="${task.completedDate ?: '-'}">2026-05-04</td>
+                    <td class="billable-hours" th:text="${task.billableHours ?: '0.0'}">2.5</td>
+                    <td>
+                        <span th:if="${task.lastModifiedAt != null}" th:text="${#temporals.format(task.lastModifiedAt, 'yyyy-MM-dd HH:mm')}">-</span>
+                        <span th:unless="${task.lastModifiedAt != null}">-</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="#" class="btn-action"><i class="bi bi-pencil-square"></i> Edit</a>
+                            <a th:href="@{'/api/tickets/view/' + ${task.ticket.id}}" class="btn-action"><i class="bi bi-eye"></i> View</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div th:if="${tasks == null or tasks.isEmpty()}" class="empty-state">
+            <i class="bi bi-clipboard-x"></i>
+            <h3>No tasks found</h3>
+            <p>You don't have any tasks matching the current filters.</p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

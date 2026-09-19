@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Task Types</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<!-- ========================================================
+     ALL STYLES SCOPED TO .tt-page — safe for dynamic inject
+     ======================================================== -->
+<style>
+  /* ── wrapper ─────────────────────────────────────────────── */
+  .tt-page {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: #f8fafc;
+  }
+
+  /* ── stats strip ─────────────────────────────────────────── */
+  .tt-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .tt-stat-pill {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 150px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .tt-stat-pill:hover {
+    border-color: rgba(59,130,246,0.35);
+    transform: translateY(-2px);
+  }
+
+  .tt-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .tt-stat-val {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .tt-stat-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ── main card ───────────────────────────────────────────── */
+  .tt-card {
+    background: rgba(30, 41, 59, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .tt-card-head {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tt-card-title {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0 0 2px;
+    color: #f8fafc;
+  }
+
+  .tt-card-sub {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  /* ── search ─────────────────────────────────────────────── */
+  .tt-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 190px;
+    max-width: 280px;
+  }
+
+  .tt-search-wrap i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  .tt-search {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #f8fafc;
+    font-size: 0.84rem;
+    padding: 8px 12px 8px 32px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s;
+  }
+
+  .tt-search:focus {
+    border-color: rgba(59,130,246,0.5);
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+
+  .tt-search::placeholder { color: #64748b; }
+
+  /* ── add button ─────────────────────────────────────────── */
+  .tt-btn-add {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+
+  .tt-btn-add:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(59,130,246,0.35);
+  }
+
+  /* ── table ──────────────────────────────────────────────── */
+  .tt-table-wrap { overflow-x: auto; }
+
+  .tt-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #f8fafc;
+    font-size: 0.88rem;
+  }
+
+  .tt-table thead th {
+    background: rgba(255,255,255,0.025);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    color: #64748b;
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    font-weight: 700;
+    padding: 12px 20px;
+    text-align: left;
+  }
+
+  .tt-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+  }
+
+  .tt-table tbody tr:hover { background: rgba(59,130,246,0.05); }
+
+  .tt-table tbody td { padding: 14px 20px; vertical-align: middle; }
+
+  /* ── badges ─────────────────────────────────────────────── */
+  .tt-id-badge {
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+    border: 1px solid rgba(139,92,246,0.28);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── action buttons ─────────────────────────────────────── */
+  .tt-btn-action {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .tt-btn-action:hover { background: rgba(255,255,255,0.09); color: #fff; }
+  .tt-btn-action.edit:hover  { border-color: rgba(59,130,246,0.45); color: #60a5fa; }
+  .tt-btn-action.del:hover   { border-color: rgba(239,68,68,0.45);  color: #f87171; }
+
+  /* ── empty state ─────────────────────────────────────────── */
+  .tt-empty {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .tt-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #60a5fa;
+    margin-bottom: 14px;
+  }
+
+  /* ── row animation ─────────────────────────────────────── */
+  @keyframes ttRowIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .tt-row-anim { animation: ttRowIn 0.28s ease forwards; }
+
+  /* ── modal backdrop ──────────────────────────────────────── */
+  .tt-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9995;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+
+  .tt-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── modal box ───────────────────────────────────────────── */
+  .tt-modal-box {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 22px;
+    padding: 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 32px 64px rgba(0,0,0,0.6);
+    transform: translateY(18px) scale(0.96);
+    transition: transform 0.25s ease;
+  }
+
+  .tt-backdrop.open .tt-modal-box {
+    transform: translateY(0) scale(1);
+  }
+
+  .tt-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .tt-modal-title {
+    font-family: 'Outfit', 'Segoe UI', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 4px;
+  }
+
+  .tt-modal-sub {
+    font-size: 0.79rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .tt-modal-close {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .tt-modal-close:hover { color: #f8fafc; }
+
+  .tt-form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    margin-bottom: 7px;
+  }
+
+  .tt-form-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 11px;
+    color: #f8fafc;
+    font-size: 0.92rem;
+    padding: 11px 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+
+  .tt-form-input:focus {
+    border-color: #3b82f6;
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+  }
+
+  .tt-form-input::placeholder { color: #475569; }
+
+  .tt-form-error {
+    color: #f87171;
+    font-size: 0.79rem;
+    margin-top: 6px;
+    display: none;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .tt-modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+    justify-content: flex-end;
+  }
+
+  .tt-btn-cancel {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 0.86rem;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tt-btn-cancel:hover { background: rgba(255,255,255,0.09); color: #f8fafc; }
+
+  .tt-btn-save {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 9px 22px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tt-btn-save:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+  .tt-btn-save:disabled { opacity: 0.45; cursor: not-allowed; }
+</style>
+
+<!-- ======================== PAGE CONTENT ======================== -->
+<div class="tt-page">
+
+  <!-- Stats Strip -->
+  <div class="tt-stats">
+    <div class="tt-stat-pill">
+      <div class="tt-stat-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">
+        <i class="bi bi-tags-fill"></i>
+      </div>
+      <div>
+        <div class="tt-stat-val" id="ttStatTotal" style="color:#60a5fa;">—</div>
+        <div class="tt-stat-lbl">Total Types</div>
+      </div>
+    </div>
+    <div class="tt-stat-pill">
+      <div class="tt-stat-icon" style="background:rgba(16,185,129,0.15);color:#34d399;">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+      <div>
+        <div class="tt-stat-val" id="ttStatActive" style="color:#34d399;">—</div>
+        <div class="tt-stat-lbl">Active</div>
+      </div>
+    </div>
+    <div class="tt-stat-pill">
+      <div class="tt-stat-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">
+        <i class="bi bi-clock-history"></i>
+      </div>
+      <div>
+        <div class="tt-stat-val" id="ttStatLast" style="color:#a78bfa;font-size:0.88rem;padding-top:5px;">—</div>
+        <div class="tt-stat-lbl">Last Added</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="tt-card">
+    <div class="tt-card-head">
+      <div>
+        <h5 class="tt-card-title">Task Type Reference Table</h5>
+        <p class="tt-card-sub">Manage task categories available across the platform</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="tt-search-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text" id="ttSearchInput" class="tt-search" placeholder="Search types…" oninput="ttFilter()" />
+        </div>
+        <button class="tt-btn-add" onclick="ttOpenAdd()">
+          <i class="bi bi-plus-lg"></i> Add Task Type
+        </button>
+      </div>
+    </div>
+
+    <!-- Table container -->
+    <div id="ttTableWrap">
+      <div style="text-align:center;padding:50px 20px;">
+        <div class="spinner-border text-primary" style="width:2rem;height:2rem;"></div>
+        <div style="margin-top:10px;color:#64748b;font-size:0.83rem;">Loading task types…</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /.tt-page -->
+
+<!-- ======================== MODAL ======================== -->
+<div class="tt-backdrop" id="ttBackdrop">
+  <div class="tt-modal-box">
+    <div class="tt-modal-header">
+      <div>
+        <h5 class="tt-modal-title" id="ttModalTitle">Add Task Type</h5>
+        <p class="tt-modal-sub"  id="ttModalSub">Create a new task category</p>
+      </div>
+      <button class="tt-modal-close" onclick="ttCloseModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <label class="tt-form-label" for="ttNameInput">Task Type Name</label>
+    <input type="text" id="ttNameInput" class="tt-form-input"
+           placeholder="e.g. Code Review, UAT Testing, Deployment…"
+           maxlength="120"
+           onkeydown="if(event.key==='Enter') ttSubmit()" />
+
+    <div id="ttFormError" class="tt-form-error">
+      <i class="bi bi-exclamation-circle"></i>
+      <span id="ttFormErrorMsg"></span>
+    </div>
+
+    <div class="tt-modal-footer">
+      <button class="tt-btn-cancel" onclick="ttCloseModal()">Cancel</button>
+      <button class="tt-btn-save" id="ttSaveBtn" onclick="ttSubmit()">
+        <i class="bi bi-check-lg"></i>
+        <span id="ttSaveBtnTxt">Create</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== SCRIPT ======================== -->
+<script>
+(function() {
+  var _ttTypes  = [];
+  var _ttEditId = null;
+
+  /* ── Init ──────────────────────────────────────── */
+  function ttLoad() {
+    fetch('/admin/task-types/api/list')
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        _ttTypes = data || [];
+        ttRender(_ttTypes);
+        ttStats();
+      })
+      .catch(function(err) {
+        document.getElementById('ttTableWrap').innerHTML =
+          '<div style="text-align:center;padding:50px 20px;">' +
+          '<div style="width:50px;height:50px;border-radius:14px;background:rgba(239,68,68,0.12);' +
+          'border:1px solid rgba(239,68,68,0.25);display:inline-flex;align-items:center;' +
+          'justify-content:center;font-size:1.4rem;color:#f87171;margin-bottom:12px;">' +
+          '<i class="bi bi-exclamation-triangle"></i></div>' +
+          '<div style="color:#f87171;font-weight:600;font-size:0.95rem;">Failed to load task types</div>' +
+          '<div style="color:#64748b;font-size:0.8rem;margin-top:4px;">' + err.message + '</div>' +
+          '<button class="tt-btn-add" style="margin-top:16px;" onclick="ttLoad()">' +
+          '<i class="bi bi-arrow-clockwise"></i> Retry</button></div>';
+      });
+  }
+  window.ttLoad = ttLoad;
+
+  /* ── Render Table ──────────────────────────────── */
+  function ttRender(list) {
+    var wrap = document.getElementById('ttTableWrap');
+    if (!wrap) return;
+
+    if (!list || list.length === 0) {
+      wrap.innerHTML =
+        '<div class="tt-empty">' +
+        '<div class="tt-empty-icon"><i class="bi bi-tags"></i></div>' +
+        '<div style="font-weight:600;font-size:1rem;color:#f8fafc;">No task types yet</div>' +
+        '<div style="color:#64748b;font-size:0.82rem;margin-top:4px;">Click "Add Task Type" to get started</div>' +
+        '</div>';
+      return;
+    }
+
+    var rows = '';
+    list.forEach(function(t, i) {
+      rows +=
+        '<tr id="tt-row-' + t.id + '" class="tt-row-anim" style="animation-delay:' + Math.min(i * 0.04, 0.5) + 's">' +
+        '<td><span class="tt-id-badge">#' + t.id + '</span></td>' +
+        '<td style="font-weight:500;">' + esc(t.name) + '</td>' +
+        '<td style="text-align:right;">' +
+          '<div style="display:inline-flex;gap:6px;">' +
+            '<button class="tt-btn-action edit" onclick="ttOpenEdit(' + t.id + ',\'' + escJs(t.name) + '\')" title="Edit">' +
+              '<i class="bi bi-pencil"></i>' +
+            '</button>' +
+            '<button class="tt-btn-action del" onclick="ttDel(' + t.id + ',\'' + escJs(t.name) + '\')" title="Delete">' +
+              '<i class="bi bi-trash3"></i>' +
+            '</button>' +
+          '</div>' +
+        '</td>' +
+        '</tr>';
+    });
+
+    wrap.innerHTML =
+      '<div class="tt-table-wrap">' +
+      '<table class="tt-table">' +
+      '<thead><tr>' +
+        '<th style="width:80px;"># ID</th>' +
+        '<th>Task Type Name</th>' +
+        '<th style="width:120px;text-align:right;">Actions</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '</table></div>';
+  }
+  window.ttRender = ttRender;
+
+  /* ── Stats ─────────────────────────────────────── */
+  function ttStats() {
+    var el1 = document.getElementById('ttStatTotal');
+    var el2 = document.getElementById('ttStatActive');
+    var el3 = document.getElementById('ttStatLast');
+    if (el1) el1.textContent = _ttTypes.length;
+    if (el2) el2.textContent = _ttTypes.length;
+    if (el3 && _ttTypes.length > 0) {
+      var n = _ttTypes[_ttTypes.length - 1].name;
+      el3.textContent = n.length > 14 ? n.substring(0,13) + '…' : n;
+    } else if (el3) {
+      el3.textContent = '—';
+    }
+  }
+  window.ttStats = ttStats;
+
+  /* ── Search ─────────────────────────────────────── */
+  window.ttFilter = function() {
+    var q = (document.getElementById('ttSearchInput') || {}).value || '';
+    q = q.toLowerCase().trim();
+    ttRender(q ? _ttTypes.filter(function(t){ return t.name.toLowerCase().indexOf(q) >= 0; }) : _ttTypes);
+  };
+
+  /* ── Modal helpers ──────────────────────────────── */
+  window.ttOpenAdd = function() {
+    _ttEditId = null;
+    document.getElementById('ttModalTitle').textContent = 'Add Task Type';
+    document.getElementById('ttModalSub').textContent   = 'Create a new task category';
+    document.getElementById('ttSaveBtnTxt').textContent = 'Create';
+    document.getElementById('ttNameInput').value = '';
+    ttClearErr();
+    document.getElementById('ttBackdrop').classList.add('open');
+    setTimeout(function(){ document.getElementById('ttNameInput').focus(); }, 180);
+  };
+
+  window.ttOpenEdit = function(id, name) {
+    _ttEditId = id;
+    document.getElementById('ttModalTitle').textContent = 'Edit Task Type';
+    document.getElementById('ttModalSub').textContent   = 'Updating task type #' + id;
+    document.getElementById('ttSaveBtnTxt').textContent = 'Save Changes';
+    document.getElementById('ttNameInput').value = name;
+    ttClearErr();
+    document.getElementById('ttBackdrop').classList.add('open');
+    setTimeout(function(){ document.getElementById('ttNameInput').focus(); }, 180);
+  };
+
+  window.ttCloseModal = function() {
+    document.getElementById('ttBackdrop').classList.remove('open');
+  };
+
+  /* close on backdrop click */
+  document.getElementById('ttBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) window.ttCloseModal();
+  });
+
+  function ttShowErr(msg) {
+    var el = document.getElementById('ttFormError');
+    document.getElementById('ttFormErrorMsg').textContent = msg;
+    el.style.display = 'flex';
+  }
+  function ttClearErr() {
+    document.getElementById('ttFormError').style.display = 'none';
+  }
+
+  /* ── Submit ─────────────────────────────────────── */
+  window.ttSubmit = function() {
+    var name = (document.getElementById('ttNameInput').value || '').trim();
+    if (!name) { ttShowErr('Task type name is required.'); return; }
+
+    var btn = document.getElementById('ttSaveBtn');
+    btn.disabled = true;
+
+    if (_ttEditId === null) {
+      /* CREATE */
+      fetch('/admin/task-types/api/create', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: name })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (!d.success) { ttShowErr(d.message || 'Error creating task type.'); return; }
+        window.ttCloseModal();
+        _ttTypes.push({ id: d.id, name: d.name });
+        ttRender(_ttTypes); ttStats();
+        ttToast('Task type "' + name + '" created!', 'success');
+      })
+      .catch(function(){ btn.disabled = false; ttShowErr('Network error. Please try again.'); });
+
+    } else {
+      /* UPDATE */
+      fetch('/admin/task-types/api/update/' + _ttEditId, {
+        method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: name })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        btn.disabled = false;
+        if (!d.success) { ttShowErr(d.message || 'Error updating task type.'); return; }
+        window.ttCloseModal();
+        var idx = _ttTypes.findIndex(function(t){ return t.id === _ttEditId; });
+        if (idx !== -1) _ttTypes[idx].name = name;
+        ttRender(_ttTypes); ttStats();
+        ttToast('Task type updated!', 'success');
+      })
+      .catch(function(){ btn.disabled = false; ttShowErr('Network error. Please try again.'); });
+    }
+  };
+
+  /* ── Delete ─────────────────────────────────────── */
+  window.ttDel = function(id, name) {
+    Swal.fire({
+      title: 'Delete Task Type?',
+      html:  'Remove <b>"' + esc(name) + '"</b>?<br><span style="font-size:0.8rem;color:#94a3b8;">This action cannot be undone.</span>',
+      icon:  'warning',
+      background: '#1e293b',
+      color: '#f8fafc',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-trash3"></i> Delete',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor:  'rgba(255,255,255,0.06)'
+    }).then(function(r) {
+      if (!r.isConfirmed) return;
+      fetch('/admin/task-types/api/delete/' + id, { method:'DELETE' })
+        .then(function(res){ return res.json(); })
+        .then(function(d) {
+          if (!d.success) { ttToast(d.message || 'Delete failed', 'error'); return; }
+          _ttTypes = _ttTypes.filter(function(t){ return t.id !== id; });
+          var row = document.getElementById('tt-row-' + id);
+          if (row) {
+            row.style.transition = 'opacity 0.28s, transform 0.28s';
+            row.style.opacity    = '0';
+            row.style.transform  = 'translateX(-16px)';
+            setTimeout(function(){ ttRender(_ttTypes); ttStats(); }, 300);
+          } else { ttRender(_ttTypes); ttStats(); }
+          ttToast('Task type deleted.', 'success');
+        })
+        .catch(function(){ ttToast('Network error.', 'error'); });
+    });
+  };
+
+  /* ── Toast ──────────────────────────────────────── */
+  function ttToast(msg, icon) {
+    Swal.mixin({
+      toast: true, position: 'top-end',
+      showConfirmButton: false, timer: 3000, timerProgressBar: true,
+      background: '#1e293b', color: '#f8fafc',
+      iconColor: icon === 'success' ? '#10b981' : '#ef4444'
+    }).fire({ icon: icon, title: msg });
+  }
+
+  /* ── Utils ──────────────────────────────────────── */
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escJs(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  }
+
+  /* ── Boot ───────────────────────────────────────── */
+  ttLoad();
+
+})(); // IIFE — no global variable pollution
+</script>
+</body>
+</html>

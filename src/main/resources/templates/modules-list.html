@@ -1,0 +1,764 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Modules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+
+<style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+            --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header p {
+            margin: 15px 0 0;
+            opacity: 0.95;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Module Categories */
+        .module-category {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .category-title {
+            flex: 1;
+        }
+
+        .category-title h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .category-title p {
+            margin: 5px 0 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Module Cards Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .module-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .module-card.primary { border-left-color: #667eea; }
+        .module-card.success { border-left-color: #11998e; }
+        .module-card.info { border-left-color: #4facfe; }
+        .module-card.warning { border-left-color: #f2994a; }
+        .module-card.danger { border-left-color: #eb3349; }
+
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .module-icon.primary { background: var(--primary-gradient); }
+        .module-icon.success { background: var(--success-gradient); }
+        .module-icon.info { background: var(--info-gradient); }
+        .module-icon.warning { background: var(--warning-gradient); }
+        .module-icon.danger { background: var(--danger-gradient); }
+
+        .module-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .module-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-module {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-module-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-module-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-module-info {
+            background: var(--info-gradient);
+            color: white;
+        }
+
+        .btn-module:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-module-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-module-outline:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Badge for role restrictions */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .role-badge.admin { background: #f0f0ff; color: #667eea; }
+        .role-badge.manager { background: #fff0f0; color: #eb3349; }
+        .role-badge.all { background: #f0fff0; color: #11998e; }
+
+        /* Back Button */
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+
+
+<div class="container">
+    <!-- Back Button -->
+    <a th:href="@{/Menu}" class="btn-back">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Dashboard</span>
+    </a>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>
+            <i class="bi bi-grid-3x3-gap"></i>
+            All Modules
+        </h1>
+        <p>Complete overview of all available modules and features in the system</p>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-number" id="totalModules">12</div>
+            <div class="stat-label">Total Modules</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="availableModules">12</div>
+            <div class="stat-label">Available</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" th:text="${session.role != null ? session.role : 'GUEST'}"></div>
+            <div class="stat-label">Your Role</div>
+        </div>
+    </div>
+
+    <!-- Business Scenarios Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--primary-gradient);">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="category-title">
+                <h2>Business Scenarios</h2>
+                <p>Manage and organize business test scenarios</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card primary">
+                <div class="module-icon primary">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="module-title">
+                    Add Business Scenario
+                    <span class="role-badge admin" th:if="${canAddEdit != null and canAddEdit}">Admin/Manager</span>
+                </div>
+                <div class="module-description">
+                    Create new business test scenarios for analysis and testing purposes.
+                </div>
+                <div class="module-actions">
+                    <a th:if="${canAddEdit != null and canAddEdit}" 
+                       th:href="@{/addbusinessscenario}" 
+                       class="btn-module btn-module-primary">
+                        <i class="bi bi-plus-lg"></i> Add New
+                    </a>
+                    <a th:href="@{/list}" class="btn-module btn-module-outline">
+                        <i class="bi bi-eye"></i> View All
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card success">
+                <div class="module-icon success">
+                    <i class="bi bi-eye"></i>
+                </div>
+                <div class="module-title">View Business Scenarios</div>
+                <div class="module-description">
+                    Browse and view all business scenarios with complete details and information.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/list}" class="btn-module btn-module-success">
+                        <i class="bi bi-list-ul"></i> View List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scenario Activities Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--success-gradient);">
+                <i class="bi bi-activity"></i>
+            </div>
+            <div class="category-title">
+                <h2>Scenario Activity/ EPIC
+</h2>
+                <p>Manage activities related to business scenarios</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card success">
+                <div class="module-icon success">
+                    <i class="bi bi-list-task"></i>
+                </div>
+                <div class="module-title">
+                    View Scenario Activities
+                    <span class="role-badge all">All Roles</span>
+                </div>
+                <div class="module-description">
+                    View all scenario activities with transaction keys, activities, and expected outcomes.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/activities}" class="btn-module btn-module-success">
+                        <i class="bi bi-eye"></i> View Activities
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card info">
+                <div class="module-icon info">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="module-title">
+                    Add Activity
+                    <span class="role-badge admin" th:if="${canAddEdit != null and canAddEdit}">Admin/Manager</span>
+                </div>
+                <div class="module-description">
+                    Add new activities to existing business scenarios with transaction details.
+                </div>
+                <div class="module-actions">
+                    <a th:if="${canAddEdit != null and canAddEdit}" 
+                       th:href="@{/list}" 
+                       class="btn-module btn-module-info">
+                        <i class="bi bi-plus-lg"></i> Add Activity
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Case Headers Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--info-gradient);">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div class="category-title">
+                <h2>Test Case Header/ User Story
+</h2>
+                <p>Manage Test Case Header/ User Story
+ and configurations</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card info">
+                <div class="module-icon info">
+                    <i class="bi bi-file-text"></i>
+                </div>
+                <div class="module-title">View Test Case Header/ User Story
+</div>
+                <div class="module-description">
+                    View all test case headers with combined keys, activities, and descriptions.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/transactions/testcaseheaders}" class="btn-module btn-module-info">
+                        <i class="bi bi-eye"></i> View Headers
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card warning">
+                <div class="module-icon warning">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="module-title">
+                    Add Test Case Header/ User Story
+ 
+                    <span class="role-badge admin" th:if="${canAddEdit != null and canAddEdit}">Admin/Manager</span>
+                </div>
+                <div class="module-description">
+                    Create new Test Case Header/ User Story
+ with prerequisites, navigation steps, and test data.
+                </div>
+                <div class="module-actions">
+                    <a th:if="${canAddEdit != null and canAddEdit}" 
+                       th:href="@{/activities}" 
+                       class="btn-module btn-module-outline">
+                        <i class="bi bi-plus-lg"></i> Add Header
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--warning-gradient);">
+                <i class="bi bi-list-check"></i>
+            </div>
+            <div class="category-title">
+                <h2>Test Case Transactions/ Tasks
+</h2>
+                <p>Manage Test Case Transactions/ Tasks
+ and steps</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card warning">
+                <div class="module-icon warning">
+                    <i class="bi bi-card-checklist"></i>
+                </div>
+                <div class="module-title">View All Transactions</div>
+                <div class="module-description">
+                    View all Test Case Transactions/ Tasks
+ with steps, actions, expected/actual results, and status.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/all-transactions}" class="btn-module btn-module-outline">
+                        <i class="bi bi-eye"></i> View Test Case Transactions/ Tasks
+
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card success">
+                <div class="module-icon success">
+                    <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="module-title">
+                    Add Transaction
+                    <span class="role-badge admin" th:if="${canAddEdit != null and canAddEdit}">Admin/Manager</span>
+                </div>
+                <div class="module-description">
+                    Add new transaction steps to test case headers with actions and expected results.
+                </div>
+                <div class="module-actions">
+                    <a th:if="${canAddEdit != null and canAddEdit}" 
+                       th:href="@{/api/transactions/testcaseheaders}" 
+                       class="btn-module btn-module-success">
+                        <i class="bi bi-plus-lg"></i> Add Transaction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--secondary-gradient);">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="category-title">
+                <h2>Reports & Analytics</h2>
+                <p>Generate reports and view analytics</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card primary">
+                <div class="module-icon primary">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <div class="module-title">Business Scenario Report</div>
+                <div class="module-description">
+                    Generate comprehensive reports for business scenarios with all related data.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/report-business-scenarios}" class="btn-module btn-module-primary">
+                        <i class="bi bi-download"></i> Generate Report
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card success">
+                <div class="module-icon success">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <div class="module-title">Scenario Activities Report</div>
+                <div class="module-description">
+                    Export scenario activities report with transaction keys and activity details.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/scenario-activities}" class="btn-module btn-module-success">
+                        <i class="bi bi-download"></i> Generate Report
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card info">
+                <div class="module-icon info">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <div class="module-title">Test Case Header/ User Story
+ Report</div>
+                <div class="module-description">
+                    Create detailed reports for test case headers with all configurations.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/report-test-case-headers}" class="btn-module btn-module-info">
+                        <i class="bi bi-download"></i> Generate Report
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card warning">
+                <div class="module-icon warning">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <div class="module-title">Transactions Report</div>
+                <div class="module-description">
+                    Export Test Case Transactions/ Tasks
+ report with pass/fail status and test results.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/report-transactions}" class="btn-module btn-module-outline">
+                        <i class="bi bi-download"></i> Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support & Tickets Module -->
+    <div class="module-category">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--danger-gradient);">
+                <i class="bi bi-ticket-detailed"></i>
+            </div>
+            <div class="category-title">
+                <h2>Task & Tickets</h2>
+                <p>Manage Task tickets and requests</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card danger">
+                <div class="module-icon danger">
+                    <i class="bi bi-ticket-detailed"></i>
+                </div>
+                <div class="module-title">View Tickets</div>
+                <div class="module-description">
+                    View all task tickets raised by your company team with status and details.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/tickets/list}" class="btn-module btn-module-outline">
+                        <i class="bi bi-eye"></i> View All Tickets
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card success">
+                <div class="module-icon success">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </div>
+                <div class="module-title">Raise a Ticket</div>
+                <div class="module-description">
+                    Create a new support ticket to report issues or request features.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/api/tickets/createticket}" class="btn-module btn-module-success">
+                        <i class="bi bi-plus-lg"></i> Create Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modules -->
+    <div class="module-category" th:if="${session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER'}">
+        <div class="category-header">
+            <div class="category-icon" style="background: var(--danger-gradient);">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="category-title">
+                <h2>Administration</h2>
+                <p>Administrative functions and settings</p>
+            </div>
+        </div>
+        <div class="modules-grid">
+            <div class="module-card danger" th:if="${session.role == 'ADMIN'}">
+                <div class="module-icon danger">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="module-title">User Management</div>
+                <div class="module-description">
+                    Manage user accounts, roles, and permissions for the system.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/admin}" class="btn-module btn-module-outline">
+                        <i class="bi bi-gear"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+
+            <div class="module-card warning" th:if="${session.role == 'ADMIN' or session.role == 'BUSINESS_MANAGER'}">
+                <div class="module-icon warning">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="module-title">Business Manager Panel</div>
+                <div class="module-description">
+                    Access business manager dashboard for company-specific management.
+                </div>
+                <div class="module-actions">
+                    <a th:href="@{/business-manager}" class="btn-module btn-module-outline">
+                        <i class="bi bi-speedometer2"></i> Open Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Update module counts
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleCards = document.querySelectorAll('.module-card');
+    document.getElementById('totalModules').textContent = moduleCards.length;
+    document.getElementById('availableModules').textContent = moduleCards.length;
+});
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

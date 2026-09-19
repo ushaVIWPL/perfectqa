@@ -1,196 +1,496 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>All Companies</title>
+    <meta charset="UTF-8">
+    <title>All Companies | PerfectQA</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-<div class="container mt-4">
-    <h3>All Companies</h3>
 
-    <!-- Add New Company Button triggers modal -->
-    <button class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#companyModal"
-            onclick="clearForm()">Add New Company</button>
+<style>
+    :root {
+        --bg-deep: #020617;
+        --glass-bg: rgba(30, 41, 59, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --accent-primary: #3b82f6;
+        --accent-secondary: #8b5cf6;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Country</th>
-                <th>State</th>
-                <th>City</th>
-                <th>Zip</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="c : ${companies}">
-                <td th:text="${c.companyCode}"></td>
-                <td th:text="${c.companyName}"></td>
-                <td th:text="${c.companyAddress}"></td>
-                <td th:text="${c.country}"></td>
-                <td th:text="${c.state}"></td>
-                <td th:text="${c.city}"></td>
-                <td th:text="${c.zip}"></td>
-                <td>
-           <button type="button" class="btn btn-primary btn-sm"
-        data-bs-toggle="modal"
-        th:data-bs-target="'#editModal-' + ${c.companyCode}">
-    Edit
-</button>
-                  <a th:href="@{'/company/delete/' + ${c.companyCode}}" class="btn btn-danger btn-sm"
-   onclick="return confirm('Are you sure?')">Delete</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-deep);
+        background: radial-gradient(circle at top right, #1e1b4b 0%, #020617 100%);
+        min-height: 100vh;
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+    }
 
-<!-- Modal -->
-<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalTitle">Add Company</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    .main-content {
+        padding: 40px 20px;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+        max-width: 1200px;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .page-header {
+        margin-bottom: 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .page-title h2 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.2rem;
+    }
+
+    /* Back Button */
+    .btn-nav {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        margin-bottom: 25px;
+    }
+
+    .btn-nav:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-5px);
+        color: white;
+    }
+
+    /* Table Styles */
+    .table-container {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--glass-border);
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        width: 100%;
+        color: var(--text-main);
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .custom-table thead th {
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid var(--glass-border);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 18px;
+    }
+
+    .custom-table tbody td {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Column Widths */
+    .col-logo { width: 70px; }
+    .col-code { width: 100px; }
+    .col-name { width: 180px; }
+    .col-address { width: auto; }
+    .col-location { width: 180px; }
+    .col-actions { width: 120px; }
+
+    /* Buttons */
+    .btn-premium {
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+        border: none;
+    }
+
+    .btn-primary-gradient {
+        background: linear-gradient(135deg, #6366f1, #3b82f6);
+        color: white;
+    }
+
+    .btn-success-gradient {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-danger-gradient {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        color: white;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        color: var(--text-main);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--glass-border);
+        padding: 25px;
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--glass-border);
+        padding: 20px 25px;
+    }
+
+    .form-label {
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        color: white;
+        padding: 12px 16px;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+        color: white;
+    }
+
+    .alert {
+        border-radius: 16px;
+        padding: 15px 25px;
+        border: none;
+        backdrop-filter: blur(10px);
+        margin-bottom: 25px;
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+</style>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="main-content">
+    <div class="container">
+        <!-- Back Button -->
+        <a href="javascript:history.back()" class="btn-nav">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back</span>
+        </a>
+
+        <!-- Success message display -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-check-circle-fill fs-4"></i>
+                <span th:text="${success}"></span>
             </div>
-            <div class="modal-body">
-                <form th:action="@{/company/save}" th:object="${company}" method="post" id="companyForm">
-<!--                <input type="hidden" name="companyCode" th:field="${c.companyCode}"/>
--->                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label>Company Code</label>
-                            <input type="text" class="form-control" id="companyCode" name="companyCode" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label>Company Name</label>
-                            <input type="text" class="form-control" id="companyName" name="companyName" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label>Address</label>
-                            <input type="text" class="form-control" id="companyAddress" name="companyAddress">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Country</label>
-                            <input type="text" class="form-control" id="country" name="country">
-                        </div>
-                        <div class="col-md-4">
-                            <label>State</label>
-                            <input type="text" class="form-control" id="state" name="state">
-                        </div>
-                        <div class="col-md-4">
-                            <label>City</label>
-                            <input type="text" class="form-control" id="city" name="city">
-                        </div>
-                        <div class="col-md-4">
-                            <label>Zip</label>
-                            <input type="text" class="form-control" id="zip" name="zip">
-                        </div>
-                    </div>
-                    <div class="mt-3 text-end">
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Error message display -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="glass-card">
+            <div class="page-header">
+                <div class="page-title">
+                    <h2>Company Management</h2>
+                    <p class="text-muted small m-0 mt-1">Configure and manage corporate entities and partners.</p>
+                </div>
+                <button class="btn-premium btn-success-gradient" data-bs-toggle="modal" data-bs-target="#companyModal" onclick="clearCompanyForm()">
+                    <i class="bi bi-building-plus"></i> Add New Company
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th class="col-logo">Logo</th>
+                            <th class="col-code">Code</th>
+                            <th class="col-name">Name</th>
+                            <th class="col-address">Address</th>
+                            <th class="col-location">Location</th>
+                            <th class="col-actions text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${companies}">
+                            <td>
+                                <div class="company-logo-thumb" style="width: 45px; height: 45px; border-radius: 10px; background: rgba(255,255,255,0.05); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                    <img th:src="@{'/company/logo/' + ${c.companyCode}}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'">
+                                </div>
+                            </td>
+                            <td><span class="fw-bold text-info" th:text="${c.companyCode}"></span></td>
+                            <td class="fw-semibold" th:text="${c.companyName}"></td>
+                            <td class="small" th:text="${c.companyAddress}"></td>
+                            <td class="small">
+                                <span th:text="${c.city}"></span><span th:if="${c.city != null and c.state != null}">, </span>
+                                <span th:text="${c.state}"></span>
+                                <div class="text-muted" th:text="${c.country}"></div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn-premium btn-primary-gradient"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#editModal-' + ${c.companyCode}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn-premium btn-danger-gradient"
+                                            data-bs-toggle="modal"
+                                            th:data-bs-target="'#deleteModal-' + ${c.companyCode}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-function clearForm() {
-    document.getElementById('companyForm').reset();
-    document.getElementById('modalTitle').innerText = "Add Company";
-    document.getElementById('companyId').value = '';
-}
-
-function populateForm(id, code, name, address, country, state, city, zip) {
-    document.getElementById('modalTitle').innerText = "Edit Company";
-    document.getElementById('companyId').value = id;
-    document.getElementById('companyCode').value = code;
-    document.getElementById('companyName').value = name;
-    document.getElementById('companyAddress').value = address;
-    document.getElementById('country').value = country;
-    document.getElementById('state').value = state;
-    document.getElementById('city').value = city;
-    document.getElementById('zip').value = zip;
-}
-</script>
-
-
-<div th:each="c : ${companies}" th:id="'editModal-' + ${c.companyCode}" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Add Modal -->
+<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <form th:action="@{/company/save}" method="post">
-<!--<input type="hidden" name="companyCode" th:field="${c.companyCode}"/>
--->                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Edit Company: <span th:text="${c.companyName}"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <h5 class="modal-title font-outfit fw-bold" id="modalTitle">Add Company</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/company/save}" th:object="${company}" method="post" id="companyForm" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Company Code *</label>
+                            <input type="text" class="form-control" id="companyCodeInput" name="companyCode" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Company Name *</label>
+                            <input type="text" class="form-control" id="companyNameInput" name="companyName" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" id="companyAddressInput" name="companyAddress">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Country</label>
+                            <input type="text" class="form-control" id="countryInput" name="country">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">State</label>
+                            <input type="text" class="form-control" id="stateInput" name="state">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" id="cityInput" name="city">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Zip</label>
+                            <input type="text" class="form-control" id="zipInput" name="zip">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Company Logo</label>
+                            <input type="file" class="form-control" name="logoFile" accept="image/*">
+                            <div class="text-muted small mt-1">Recommended: Square image, transparent background.</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="companyForm" class="btn-premium btn-primary-gradient w-100 justify-content-center">
+                    <i class="bi bi-check-lg"></i> Save Company
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modals -->
+<div th:each="c : ${companies}" th:id="'editModal-' + ${c.companyCode}" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/company/save}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="isEdit" value="true"/>
+                <input type="hidden" name="originalCompanyCode" th:value="${c.companyCode}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title font-outfit fw-bold">Edit Company: <span th:text="${c.companyName}"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <label>Company Code *</label>
+                            <label class="form-label">Company Code *</label>
                             <input type="text" class="form-control" name="companyCode" th:value="${c.companyCode}" required>
                         </div>
                         <div class="col-md-6">
-                            <label>Company Name</label>
+                            <label class="form-label">Company Name *</label>
                             <input type="text" class="form-control" name="companyName" th:value="${c.companyName}" required>
                         </div>
                         <div class="col-md-12">
-                            <label>Address</label>
+                            <label class="form-label">Address</label>
                             <input type="text" class="form-control" name="companyAddress" th:value="${c.companyAddress}">
                         </div>
                         <div class="col-md-4">
-                            <label>Country</label>
+                            <label class="form-label">Country</label>
                             <input type="text" class="form-control" name="country" th:value="${c.country}">
                         </div>
                         <div class="col-md-4">
-                            <label>State</label>
+                            <label class="form-label">State</label>
                             <input type="text" class="form-control" name="state" th:value="${c.state}">
                         </div>
                         <div class="col-md-4">
-                            <label>City</label>
+                            <label class="form-label">City</label>
                             <input type="text" class="form-control" name="city" th:value="${c.city}">
                         </div>
                         <div class="col-md-4">
-                            <label>Zip</label>
+                            <label class="form-label">Zip</label>
                             <input type="text" class="form-control" name="zip" th:value="${c.zip}">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Update Logo</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img th:src="@{'/company/logo/' + ${c.companyCode}}" style="width: 60px; height: 60px; border-radius: 12px; object-fit: contain; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                                <span class="text-muted small">Current Logo</span>
+                            </div>
+                            <input type="file" class="form-control" name="logoFile" accept="image/*">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-premium btn-primary-gradient w-100 justify-content-center">
+                        <i class="bi bi-check-lg"></i> Update Details
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modals -->
+<div th:each="c : ${companies}" th:id="'deleteModal-' + ${c.companyCode}" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger bg-opacity-10">
+                <h5 class="modal-title text-danger fw-bold"><i class="bi bi-trash me-2"></i>Delete Company</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-5">
+                <div class="text-danger mb-4">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 3.5rem;"></i>
+                </div>
+                <p class="mb-1">Are you sure you want to delete this company?</p>
+                <h4 class="fw-bold mb-3" th:text="${c.companyName}"></h4>
+                <p class="text-muted small">This action cannot be undone and may affect related data.</p>
+            </div>
+            <div class="modal-footer">
+                <a th:href="@{'/company/delete/' + ${c.companyCode}}" class="btn-premium btn-danger-gradient w-100 justify-content-center">
+                    Yes, Delete Company
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-function clearForm() {
-    document.getElementById('companyForm').reset();
-    document.getElementById('modalTitle').innerText = "Add Company";
-    document.getElementById('companyCode').value = ''; // clear code
-}
-
-function populateFormFromButton(btn) {
-    document.getElementById('modalTitle').innerText = "Edit Company";
-    document.getElementById('companyCode').value = btn.dataset.code;
-    document.getElementById('companyName').value = btn.dataset.name;
-    document.getElementById('companyAddress').value = btn.dataset.address;
-    document.getElementById('country').value = btn.dataset.country;
-    document.getElementById('state').value = btn.dataset.state;
-    document.getElementById('city').value = btn.dataset.city;
-    document.getElementById('zip').value = btn.dataset.zip;
-}
-
+// Global function for form clearing
+window.clearCompanyForm = function() {
+    const form = document.getElementById('companyForm');
+    if (form) {
+        form.reset();
+        // Clear any file inputs
+        const fileInput = form.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
+    }
+    const title = document.getElementById('modalTitle');
+    if (title) title.innerText = "Add New Company";
+};
 </script>
 </body>
 </html>
+

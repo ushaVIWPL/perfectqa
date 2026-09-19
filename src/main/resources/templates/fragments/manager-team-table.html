@@ -1,0 +1,170 @@
+<div>
+    <!-- The main table fragment -->
+    <div th:fragment="teamTable">
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h5 class="m-0"><i class="bi bi-people-fill text-primary me-2"></i> Team Directory</h5>
+                <div class="d-flex gap-2 align-items-center">
+                    <select class="form-select form-select-sm rounded-pill px-3 py-1 bg-dark text-white border-secondary" style="width: auto;"
+                            onchange="filterTeamByDepartment(this.value)">
+                        <option value="ALL">🌐 All Departments</option>
+                        <option th:each="d : ${departments}"
+                                th:value="${d.departmentName}"
+                                th:text="${d.departmentName + ' (' + d.departmentCode + ')'}"
+                                th:selected="${selectedDepartment == d.departmentName}"></option>
+                    </select>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addUserModal" onclick="if (typeof loadModalDepartments === 'function') loadModalDepartments();">
+                        <i class="bi bi-person-plus"></i> Add Member
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" style="--bs-table-bg: transparent;">
+                    <thead>
+                        <tr class="text-muted small text-uppercase">
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role & Department</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}" th:id="'user-row-' + ${user.userId}">
+                            <td>
+                                <div class="fw-bold text-white" 
+                                     th:text="${(user.firstName != null ? user.firstName : '') + ' ' + (user.lastName != null ? user.lastName : '')}">John Doe</div>
+                                <div class="small text-muted" th:text="${user.userId}">johndoe</div>
+                            </td>
+                            <td class="text-white-50" th:text="${user.email}">john@example.com</td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 me-1" th:text="${user.userRole}">ROLE</span>
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" th:if="${user.department != null and !user.department.isEmpty()}" th:text="${user.department}">DEP</span>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" 
+                                           th:checked="${user.status != null and user.status == 1}" 
+                                           th:data-userid="${user.userId}"
+                                           onchange="toggleStatus(this.getAttribute('data-userid'), this)">
+                                    <label class="form-check-label small" 
+                                           th:text="${user.status != null and user.status == 1 ? 'Active' : 'Inactive'}"
+                                           th:classappend="${user.status != null and user.status == 1 ? 'text-success' : 'text-danger'}">Status</label>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-outline-info btn-sm rounded-circle" 
+                                            th:data-userid="${user.userId}"
+                                            onclick="editUser(this.getAttribute('data-userid'))"
+                                            title="Edit Profile">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm rounded-circle" 
+                                            th:data-userid="${user.userId}"
+                                            onclick="deleteUser(this.getAttribute('data-userid'))"
+                                            title="Remove User">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(users)}">
+                            <td colspan="5" class="text-center py-5 opacity-50">No team members found for this company.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            // Use window scope to avoid re-declaration errors
+            window.toggleStatus = window.toggleStatus || function(userId, checkbox) {
+                const newStatus = checkbox.checked ? 1 : 0;
+                const label = checkbox.nextElementSibling;
+                
+                axios.post('/api/users/toggle-status/' + userId, { status: newStatus })
+                    .then(response => {
+                        if (response.data.success) {
+                            label.textContent = checkbox.checked ? 'Active' : 'Inactive';
+                            label.className = 'form-check-label small ' + (checkbox.checked ? 'text-success' : 'text-danger');
+                        } else {
+                            checkbox.checked = !checkbox.checked;
+                            Swal.fire('Error', response.data.message || 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        checkbox.checked = !checkbox.checked;
+                        Swal.fire('Error', 'Server communication error', 'error');
+                    });
+            };
+
+            window.deleteUser = window.deleteUser || function(userId) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "User will be removed from the team.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post('/api/users/delete/' + userId)
+                            .then(response => {
+                                if (response.data.success) {
+                                    const row = document.getElementById('user-row-' + userId);
+                                    if(row) row.remove();
+                                    Swal.fire('Deleted!', 'User removed.', 'success');
+                                } else {
+                                    Swal.fire('Error', response.data.message || 'Failed to delete', 'error');
+                                }
+                            })
+                            .catch(error => Swal.fire('Error', 'Server error', 'error'));
+                    }
+                });
+            };
+
+            window.editUser = window.editUser || function(userId) {
+                window.location.href = '/edit-user/' + userId;
+            };
+
+            window.filterTeamByDepartment = function(dep) {
+                const tbody = document.querySelector('table tbody');
+                if (tbody) {
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    if (!dep || dep === 'ALL') {
+                        rows.forEach(r => r.style.display = '');
+                    } else {
+                        const cleanDep = dep.toLowerCase().trim();
+                        rows.forEach(r => {
+                            const text = r.textContent.toLowerCase();
+                            if (text.includes(cleanDep)) {
+                                r.style.display = '';
+                            } else {
+                                r.style.display = 'none';
+                            }
+                        });
+                    }
+                }
+
+                if (typeof loadContent === 'function') {
+                    loadContent('/api/users/manager-team?department=' + encodeURIComponent(dep));
+                } else {
+                    window.location.href = '/business-manager/users?department=' + encodeURIComponent(dep);
+                }
+            };
+        </script>
+    </div>
+
+    <!-- Error fragment for graceful failure -->
+    <div th:fragment="errorFragment">
+        <div class="glass-card text-center py-5">
+            <i class="bi bi-exclamation-octagon text-danger" style="font-size: 4rem; opacity: 0.5;"></i>
+            <h3 class="mt-4 fw-bold">Oops! Something went wrong</h3>
+            <p class="text-muted mx-auto" style="max-width: 400px;" th:text="${error}">We couldn't load the team data at this time.</p>
+            <button onclick="loadUsers()" class="btn btn-outline-primary rounded-pill px-4 mt-3">
+                <i class="bi bi-arrow-clockwise me-2"></i> Try Again
+            </button>
+        </div>
+    </div>
+</div>
